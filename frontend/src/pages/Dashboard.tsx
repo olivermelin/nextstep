@@ -10,6 +10,7 @@ import { API_ENDPOINTS } from "@/config/api";
 import { useTranslation } from "react-i18next";
 import { sendCoachMessage } from "@/services/coachService";
 import { userChallengeApi } from "@/services/challengeService";
+import { formatMarkdown } from "@/components/AIChat";
 import { UserChallengeOutDto } from "@/types/challenge";
 
 interface UserProgress {
@@ -184,7 +185,7 @@ const Dashboard = () => {
                   <span>{t('dashboard.coachThinking')}</span>
                 </div>
               ) : (
-                <p className="text-foreground/90">{dailyCoachMessage}</p>
+                <p className="text-foreground/90">{formatMarkdown(dailyCoachMessage)}</p>
               )}
             </div>
           </div>

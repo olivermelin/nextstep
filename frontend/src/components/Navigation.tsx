@@ -37,7 +37,7 @@ const Navigation = () => {
               }`}
             >
               {isActive && (
-                <span className="absolute -top-0.5 left-1/2 -translate-x-1/2 w-5 h-0.5 rounded-full bg-primary animate-scale-in" />
+                <span className="absolute -top-0.5 left-0 right-0 mx-auto w-5 h-0.5 rounded-full bg-primary animate-scale-in" />
               )}
               <Icon className={`w-5 h-5 transition-transform duration-300 ${isActive ? "scale-110" : ""}`} />
               <span className={`text-[10px] font-medium transition-opacity duration-200 ${isActive ? "opacity-100" : "opacity-70"}`}>

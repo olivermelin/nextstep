@@ -9,10 +9,21 @@ export interface CoachMessageRequest {
   sessionId: string | null;
 }
 
+export interface SuggestedChallenge {
+  id: number;
+  title: string;
+  description: string;
+  durationMinutes: number;
+  difficulty: string;
+  category: string;
+  url: string;
+}
+
 export interface CoachMessageResponse {
   response: string;
   crisisLevel: CrisisLevel;
   sessionId: string;
+  suggestedChallenges: SuggestedChallenge[];
 }
 
 export interface CoachStatusResponse {

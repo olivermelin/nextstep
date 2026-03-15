@@ -34,6 +34,7 @@ export const API_ENDPOINTS = {
     GET_BY_DIFFICULTY: (difficulty: string) => `${API_BASE_URL}/challenges/difficulty/${difficulty}`,
     GET_BY_CATEGORY_AND_DIFFICULTY: (category: string, difficulty: string) => 
       `${API_BASE_URL}/challenges/category/${category}/difficulty/${difficulty}`,
+    GET_USER_CHALLENGES: (userId: string) => `${API_BASE_URL}/challenges/user/${encodeURIComponent(userId)}`,
   },
   
   // User Challenge endpoints

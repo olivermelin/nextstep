@@ -1,13 +1,15 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 import { Button } from "./ui/button";
-import { Loader2, Send, AlertCircle, RotateCcw, Phone, ShieldAlert, Bot, User } from "lucide-react";
+import { Loader2, Send, AlertCircle, RotateCcw, Phone, ShieldAlert, Bot, User, Target, ArrowRight, Clock } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import {
   sendCoachMessage,
   getCoachStatus,
   type CrisisLevel,
   type CoachStatusResponse,
+  type SuggestedChallenge,
 } from "@/services/coachService";
 
 interface Message {
@@ -17,6 +19,7 @@ interface Message {
   timestamp: Date;
   error?: boolean;
   crisisLevel?: CrisisLevel;
+  suggestedChallenges?: SuggestedChallenge[];
 }
 
 // --- Krishantering-komponenter ---
@@ -57,6 +60,101 @@ function crisisBubbleClasses(crisisLevel?: CrisisLevel): string {
       return "bg-blue-50 border border-blue-200/60 text-blue-950 dark:bg-blue-950/40 dark:border-blue-800/50 dark:text-blue-100";
   }
 }
+
+// --- Markdown-formatering ---
+
+export function formatMarkdown(text: string): React.ReactNode[] {
+  // Split by newlines first to handle paragraphs
+  const lines = text.split(/\n/);
+  const result: React.ReactNode[] = [];
+
+  lines.forEach((line, lineIndex) => {
+    if (lineIndex > 0) {
+      result.push(<br key={`br-${lineIndex}`} />);
+    }
+
+    // Strip markdown headers (## etc.)
+    const strippedLine = line.replace(/^#{1,6}\s+/, "");
+
+    // Split by **bold** and *italic* patterns
+    const parts = strippedLine.split(/(\*\*[^*]+\*\*|\*[^*]+\*)/g);
+    parts.forEach((part, i) => {
+      if (part.startsWith("**") && part.endsWith("**")) {
+        result.push(<strong key={`${lineIndex}-${i}`}>{part.slice(2, -2)}</strong>);
+      } else if (part.startsWith("*") && part.endsWith("*")) {
+        result.push(<em key={`${lineIndex}-${i}`}>{part.slice(1, -1)}</em>);
+      } else if (part) {
+        result.push(<span key={`${lineIndex}-${i}`}>{part}</span>);
+      }
+    });
+  });
+
+  return result;
+}
+
+// --- Challenge-rekommendationer ---
+
+function getDifficultyLabel(difficulty: string): string {
+  switch (difficulty) {
+    case "EASY": return "Lätt";
+    case "MEDIUM": return "Medel";
+    case "HARD": return "Svår";
+    default: return difficulty;
+  }
+}
+
+function getDifficultyColor(difficulty: string): string {
+  switch (difficulty) {
+    case "EASY": return "text-green-600 bg-green-100 dark:text-green-400 dark:bg-green-900/30";
+    case "MEDIUM": return "text-amber-600 bg-amber-100 dark:text-amber-400 dark:bg-amber-900/30";
+    case "HARD": return "text-red-600 bg-red-100 dark:text-red-400 dark:bg-red-900/30";
+    default: return "text-muted-foreground bg-muted";
+  }
+}
+
+const ChallengeCards: React.FC<{ challenges: SuggestedChallenge[] }> = ({ challenges }) => {
+  const navigate = useNavigate();
+
+  if (!challenges || challenges.length === 0) return null;
+
+  return (
+    <div className="mt-3 space-y-2">
+      {challenges.map((challenge) => (
+        <button
+          key={challenge.id}
+          onClick={() => navigate(challenge.url)}
+          className="w-full text-left bg-white/80 dark:bg-white/5 border border-primary/20 rounded-xl p-3
+                     hover:border-primary/50 hover:bg-primary/5 dark:hover:bg-primary/10
+                     transition-all duration-200 group cursor-pointer"
+        >
+          <div className="flex items-start gap-3">
+            <div className="flex-shrink-0 w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center mt-0.5">
+              <Target className="w-4 h-4 text-primary" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="font-semibold text-sm text-foreground group-hover:text-primary transition-colors">
+                  {challenge.title}
+                </span>
+                <ArrowRight className="w-3.5 h-3.5 text-primary opacity-0 group-hover:opacity-100 transition-opacity" />
+              </div>
+              <p className="text-xs text-muted-foreground line-clamp-2 mb-1.5">{challenge.description}</p>
+              <div className="flex items-center gap-2">
+                <span className={`text-xs font-medium px-1.5 py-0.5 rounded ${getDifficultyColor(challenge.difficulty)}`}>
+                  {getDifficultyLabel(challenge.difficulty)}
+                </span>
+                <span className="text-xs text-muted-foreground flex items-center gap-1">
+                  <Clock className="w-3 h-3" />
+                  {challenge.durationMinutes} min
+                </span>
+              </div>
+            </div>
+          </div>
+        </button>
+      ))}
+    </div>
+  );
+};
 
 // --- Huvudkomponent ---
 
@@ -140,6 +238,7 @@ export const AIChat: React.FC<AIChatProps> = ({ quickPrompt, onQuickPromptConsum
         sender: "ai",
         timestamp: new Date(),
         crisisLevel: data.crisisLevel,
+        suggestedChallenges: data.suggestedChallenges,
       };
 
       setMessages((prev) => [...prev, aiMessage]);
@@ -266,7 +365,10 @@ export const AIChat: React.FC<AIChatProps> = ({ quickPrompt, onQuickPromptConsum
                         <span className="text-xs font-medium">{t('aiCoach.crisisSupport')}</span>
                       </div>
                     )}
-                    <p className="text-sm leading-relaxed whitespace-pre-wrap text-left">{msg.text}</p>
+                    <p className="text-sm leading-relaxed whitespace-pre-wrap text-left">{formatMarkdown(msg.text)}</p>
+                    {msg.suggestedChallenges && msg.suggestedChallenges.length > 0 && (
+                      <ChallengeCards challenges={msg.suggestedChallenges} />
+                    )}
                   </div>
 
                   {/* User avatar */}

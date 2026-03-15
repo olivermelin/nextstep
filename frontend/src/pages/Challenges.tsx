@@ -24,7 +24,11 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { challengeApi, userChallengeApi } from "@/services/challengeService";
+import { useToast } from "@/components/ui/use-toast";
 import DrawingCanvas from "@/components/DrawingCanvas";
+import { useActivityTimer, clearChallengeTimer } from "@/hooks/useActivityTimer";
+import { useYouTubeProgress, extractYouTubeVideoId } from "@/hooks/useYouTubeProgress";
+import { Progress } from "@/components/ui/progress";
 import {
   ChallengeOutDto,
   UserChallengeOutDto,
@@ -52,6 +56,7 @@ const categoryToSlug: Record<ChallengeCategory, string> = {
 const Challenges = () => {
   const { t } = useTranslation();
   const { user } = useAuth();
+  const { toast } = useToast();
   const { categorySlug, challengeId } = useParams<{ categorySlug?: string; challengeId?: string }>();
   const navigate = useNavigate();
 
@@ -61,10 +66,12 @@ const Challenges = () => {
 
   const [selectedChallenge, setSelectedChallenge] = useState<ChallengeOutDto | null>(null);
   const [challenges, setChallenges] = useState<ChallengeOutDto[]>([]);
+  const [allChallenges, setAllChallenges] = useState<ChallengeOutDto[]>([]);
   const [userChallenges, setUserChallenges] = useState<UserChallengeOutDto[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"available" | "active" | "completed">("available");
+  const [alreadyDone, setAlreadyDone] = useState(false);
 
   const categories = [
     { 
@@ -111,10 +118,11 @@ const Challenges = () => {
 
   // Ladda användarens challenges vid mount
   useEffect(() => {
-    if (user?.id) {
+    if (user?.id || user?.email) {
       loadUserChallenges();
+      loadAllChallenges();
     }
-  }, [user?.id]);
+  }, [user?.id, user?.email]);
 
   // Ladda challenges för vald kategori när categorySlug ändras
   useEffect(() => {
@@ -125,11 +133,26 @@ const Challenges = () => {
 
   // Ladda specifik challenge när challengeId finns i URL:en
   useEffect(() => {
+    setAlreadyDone(false);
     if (challengeId) {
       const openChallenge = async () => {
         try {
           const fullChallenge = await challengeApi.getChallengeById(Number(challengeId));
           setSelectedChallenge(fullChallenge);
+
+          // Auto-starta challenge (backend returnerar befintlig om redan startad)
+          const userId = user?.email || user?.id;
+          if (userId && !fullChallenge.completedToday) {
+            try {
+              await userChallengeApi.startChallenge(userId, fullChallenge.id);
+              await loadUserChallenges();
+            } catch (startErr: any) {
+              const msg = startErr?.message || '';
+              if (!msg.includes('already completed')) {
+                console.warn("Kunde inte auto-starta challenge:", startErr);
+              }
+            }
+          }
         } catch (err) {
           console.error("Kunde inte ladda challenge:", err);
           navigate("/challenges", { replace: true });
@@ -138,6 +161,10 @@ const Challenges = () => {
       openChallenge();
     } else {
       setSelectedChallenge(null);
+      // Ladda om användarens challenges när man navigerar tillbaka
+      if (user?.id || user?.email) {
+        loadUserChallenges();
+      }
     }
   }, [challengeId]);
 
@@ -153,12 +180,32 @@ const Challenges = () => {
     }
   };
 
+  const loadAllChallenges = async () => {
+    if (!user?.email && !user?.id) return;
+    const userId = user.email || user.id;
+    
+    try {
+      const data = await challengeApi.getUserChallenges(userId);
+      setAllChallenges(data);
+    } catch (err) {
+      console.error("Kunde inte ladda alla challenges:", err);
+    }
+  };
+
   const loadChallengesByCategory = async (category: ChallengeCategory) => {
     setLoading(true);
     setError(null);
 
     try {
-      const data = await challengeApi.getChallengesByCategory(category);
+      const userId = user?.email || user?.id;
+      let data: ChallengeOutDto[];
+      if (userId) {
+        // Använd user-endpoint för att få completedToday-status
+        const allUserChallenges = await challengeApi.getUserChallenges(userId);
+        data = allUserChallenges.filter(c => c.category === category);
+      } else {
+        data = await challengeApi.getChallengesByCategory(category);
+      }
       setChallenges(data);
     } catch (err) {
       setError(t('challenges.couldNotLoadChallenges'));
@@ -178,6 +225,16 @@ const Challenges = () => {
       return;
     }
 
+    // Blockera om en annan challenge redan pågår
+    const activeChallenge = getActiveChallenges().find(uc => uc.challengeId !== challenge.id);
+    if (activeChallenge) {
+      toast({
+        title: "Du har redan en pågående aktivitet",
+        description: `Slutför "${activeChallenge.challengeName}" först innan du startar en ny.`,
+      });
+      return;
+    }
+
     setLoading(true);
     setError(null);
 
@@ -188,8 +245,24 @@ const Challenges = () => {
       // Navigera till aktivitets-URL:en
       const slug = categoryToSlug[challenge.category];
       navigate(`/challenges/${slug}/${challenge.id}`);
-    } catch (err) {
-      setError(t('challenges.couldNotStart'));
+    } catch (err: any) {
+      const msg = err?.message || '';
+      if (msg.includes('already completed today') || msg.includes('Challenge already completed')) {
+        toast({
+          title: t('challenges.alreadyCompletedTodayTitle'),
+          description: t('challenges.alreadyCompletedTodayDesc'),
+        });
+        // Markera denna challenge som completedToday lokalt
+        setChallenges(prev => prev.map(c => c.id === challenge.id ? { ...c, completedToday: true } : c));
+        setAllChallenges(prev => prev.map(c => c.id === challenge.id ? { ...c, completedToday: true } : c));
+      } else if (msg.includes('pågående aktivitet')) {
+        toast({
+          title: "Du har redan en pågående aktivitet",
+          description: "Slutför din pågående aktivitet innan du startar en ny.",
+        });
+      } else {
+        setError(t('challenges.couldNotStart'));
+      }
       console.error(err);
     } finally {
       setLoading(false);
@@ -207,14 +280,36 @@ const Challenges = () => {
       await userChallengeApi.completeChallenge(userId, selectedChallenge.id);
       await loadUserChallenges();
 
+      // Rensa sparad timer
+      clearChallengeTimer(selectedChallenge.id);
+
+      // Markera denna challenge som completedToday lokalt
+      setChallenges(prev => prev.map(c => c.id === selectedChallenge.id ? { ...c, completedToday: true } : c));
+      setAllChallenges(prev => prev.map(c => c.id === selectedChallenge.id ? { ...c, completedToday: true } : c));
+
       // Gå tillbaka till kategori-vyn
       if (categorySlug) {
         navigate(`/challenges/${categorySlug}`);
       } else {
         navigate("/challenges");
       }
-    } catch (err) {
-      setError(t('challenges.couldNotComplete'));
+    } catch (err: any) {
+      const msg = err?.message || '';
+      if (msg.includes('already completed today') || msg.includes('Challenge already completed')) {
+        toast({
+          title: t('challenges.alreadyCompletedTodayTitle'),
+          description: t('challenges.alreadyCompletedTodayDesc'),
+        });
+        setChallenges(prev => prev.map(c => c.id === selectedChallenge.id ? { ...c, completedToday: true } : c));
+        setAllChallenges(prev => prev.map(c => c.id === selectedChallenge.id ? { ...c, completedToday: true } : c));
+        if (categorySlug) {
+          navigate(`/challenges/${categorySlug}`);
+        } else {
+          navigate("/challenges");
+        }
+      } else {
+        setError(t('challenges.couldNotComplete'));
+      }
       console.error(err);
     } finally {
       setLoading(false);
@@ -285,6 +380,10 @@ const Challenges = () => {
     return userChallenges.filter(uc => uc.status === "IN_PROGRESS");
   };
 
+  const getCompletedTodayChallenges = () => {
+    return allChallenges.filter(c => c.completedToday);
+  };
+
   const getCompletedChallenges = () => {
     return userChallenges.filter(uc => uc.status === "COMPLETED");
   };
@@ -295,16 +394,41 @@ const Challenges = () => {
     );
   };
 
+
+
   const getYouTubeEmbedUrl = (url: string | null | undefined) => {
     if (!url) return null;
     
-    // Konvertera YouTube URL till embed format
+    // Konvertera YouTube URL till embed format (med enablejsapi för progress-tracking)
     const videoIdMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&]+)/);
     if (videoIdMatch) {
-      return `https://www.youtube.com/embed/${videoIdMatch[1]}`;
+      return `https://www.youtube.com/embed/${videoIdMatch[1]}?enablejsapi=1&origin=${window.location.origin}`;
     }
     return url;
   };
+
+  // --- Completion gate: timer + YouTube tracking ---
+  const isActivityView = viewMode === "activity" && !!selectedChallenge;
+  const hasVideo = !!(selectedChallenge?.youtubeUrl);
+  const hasInstructions = !!(selectedChallenge?.instructions);
+  const isDrawing = selectedChallenge ? isDrawingCategory(selectedChallenge.category) : false;
+  const showTimer = isActivityView && !isDrawing && !hasVideo;
+
+  const videoId = extractYouTubeVideoId(selectedChallenge?.youtubeUrl);
+  const ytProgress = useYouTubeProgress(videoId, isActivityView && hasVideo);
+  const timer = useActivityTimer(selectedChallenge?.durationMinutes || 1, showTimer, selectedChallenge?.id ?? null);
+
+  // Determine unlock condition:
+  // - Drawing: always unlocked
+  // - Already done (user confirmed): unlocked
+  // - Video activities: must watch >= 80% of video
+  // - Non-video activities: timer must complete
+  const isUnlocked = (() => {
+    if (isDrawing) return true;
+    if (alreadyDone) return true;
+    if (hasVideo) return ytProgress.isComplete;
+    return timer.isComplete;
+  })();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5 p-4 pb-24 pt-4">
@@ -364,9 +488,9 @@ const Challenges = () => {
               </TabsTrigger>
               <TabsTrigger value="completed">
                 {t('challenges.completed')}
-                {getCompletedChallenges().length > 0 && (
+                {(getCompletedChallenges().length > 0 || getCompletedTodayChallenges().length > 0) && (
                   <Badge className="ml-2" variant="secondary">
-                    {getCompletedChallenges().length}
+                    {getCompletedTodayChallenges().length || getCompletedChallenges().length}
                   </Badge>
                 )}
               </TabsTrigger>
@@ -411,33 +535,70 @@ const Challenges = () => {
                 </Card>
               ) : (
                 <div className="space-y-3">
-                  {getActiveChallenges().map((uc) => (
-                    <Card
-                      key={uc.id}
-                      className="p-4 cursor-pointer hover:shadow-md transition-all"
-                      onClick={() => navigate(`/challenges/${categoryToSlug[uc.category]}/${uc.challengeId}`)}
-                    >
-                      <div className="flex items-start justify-between mb-2">
-                        <div>
-                          <h3 className="font-semibold text-foreground">{uc.challengeName}</h3>
-                          <p className="text-sm text-muted-foreground">
-                            {t(`challenges.categories.${getCategoryKey(uc.category)}`)}{" · "}
-                            {getDifficultyLabel(uc.difficulty)}
-                            {uc.durationMinutes ? ` · ${uc.durationMinutes} min` : ""}
-                          </p>
+                  {getActiveChallenges().map((uc) => {
+                    // Check if there's a persisted timer for this challenge
+                    const storageKey = `nextstep_timer_${uc.challengeId}`;
+                    const storedStart = sessionStorage.getItem(storageKey);
+                    let timerText: string | null = null;
+
+                    if (storedStart) {
+                      const startTime = parseInt(storedStart, 10);
+                      const totalSec = (uc.durationMinutes || 0) * 60;
+                      const elapsed = Math.floor((Date.now() - startTime) / 1000);
+                      const remaining = Math.max(totalSec - elapsed, 0);
+
+                      if (remaining > 0) {
+                        const m = Math.floor(remaining / 60);
+                        const s = remaining % 60;
+                        timerText = `${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")} kvar`;
+                      } else {
+                        timerText = "Klar att slutföra!";
+                      }
+                    }
+
+                    return (
+                      <Card
+                        key={uc.id}
+                        className="p-4 cursor-pointer hover:shadow-md transition-all border-primary/30 bg-primary/5"
+                        onClick={() => navigate(`/challenges/${categoryToSlug[uc.category]}/${uc.challengeId}`)}
+                      >
+                        <div className="flex items-start justify-between mb-2">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="relative flex h-2.5 w-2.5">
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"></span>
+                              </span>
+                              <h3 className="font-semibold text-foreground">{uc.challengeName}</h3>
+                            </div>
+                            <p className="text-sm text-muted-foreground">
+                              {t(`challenges.categories.${getCategoryKey(uc.category)}`)}{" · "}
+                              {getDifficultyLabel(uc.difficulty)}
+                              {uc.durationMinutes ? ` · ${uc.durationMinutes} min` : ""}
+                            </p>
+                            {timerText && (
+                              <p className="text-xs font-medium text-primary mt-1 flex items-center gap-1">
+                                <Clock className="w-3 h-3" />
+                                {timerText}
+                              </p>
+                            )}
+                          </div>
+                          <div className="flex flex-col items-end gap-1">
+                            <Badge className={getDifficultyColor(uc.difficulty)}>
+                              {getDifficultyLabel(uc.difficulty)}
+                            </Badge>
+                            <span className="text-xs text-primary font-medium">Fortsätt →</span>
+                          </div>
                         </div>
-                        <Badge className={getDifficultyColor(uc.difficulty)}>
-                          {getDifficultyLabel(uc.difficulty)}
-                        </Badge>
-                      </div>
-                    </Card>
-                  ))}
+                      </Card>
+                    );
+                  })}
                 </div>
               )}
             </TabsContent>
 
             <TabsContent value="completed" className="mt-6">
-              {getCompletedChallenges().length === 0 ? (
+              {getCompletedTodayChallenges().length === 0 && getCompletedChallenges().length === 0 ? (
                 <Card className="p-8 text-center">
                   <Trophy className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
                   <p className="text-muted-foreground">{t('challenges.noCompleted')}</p>
@@ -447,26 +608,61 @@ const Challenges = () => {
                 </Card>
               ) : (
                 <div className="space-y-3">
-                  {getCompletedChallenges().map((uc) => (
-                    <Card key={uc.id} className="p-4 bg-green-500/5 border-green-500/20">
-                      <div className="flex items-start justify-between mb-2">
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <CheckCircle2 className="w-4 h-4 text-green-600" />
-                            <h3 className="font-semibold text-foreground">{uc.challengeName}</h3>
+                  {/* Idag genomförda */}
+                  {getCompletedTodayChallenges().length > 0 && (
+                    <>
+                      <p className="text-sm font-medium text-muted-foreground">{t('challenges.completedTodaySection')}</p>
+                      {getCompletedTodayChallenges().map((challenge) => (
+                        <Card key={`today-${challenge.id}`} className="p-4 bg-green-500/5 border-green-500/20">
+                          <div className="flex items-start justify-between mb-2">
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <CheckCircle2 className="w-4 h-4 text-green-600" />
+                                <h3 className="font-semibold text-foreground">{challenge.title}</h3>
+                              </div>
+                              <p className="text-sm text-muted-foreground">
+                                {t(`challenges.categories.${getCategoryKey(challenge.category)}`)}{" · "}
+                                {getDifficultyLabel(challenge.difficulty)}
+                                {challenge.durationMinutes ? ` · ${challenge.durationMinutes} min` : ""}
+                              </p>
+                            </div>
+                            <Badge className={getDifficultyColor(challenge.difficulty)}>
+                              {getDifficultyLabel(challenge.difficulty)}
+                            </Badge>
                           </div>
-                          <p className="text-sm text-muted-foreground">
-                            {t(`challenges.categories.${getCategoryKey(uc.category)}`)}{" · "}
-                            {getDifficultyLabel(uc.difficulty)}
-                            {uc.durationMinutes ? ` · ${uc.durationMinutes} min` : ""}
-                          </p>
-                        </div>
-                        <Badge className={getDifficultyColor(uc.difficulty)}>
-                          {getDifficultyLabel(uc.difficulty)}
-                        </Badge>
-                      </div>
-                    </Card>
-                  ))}
+                        </Card>
+                      ))}
+                    </>
+                  )}
+
+                  {/* Tidigare slutförda */}
+                  {getCompletedChallenges().length > 0 && (
+                    <>
+                      {getCompletedTodayChallenges().length > 0 && (
+                        <p className="text-sm font-medium text-muted-foreground mt-4">{t('challenges.previouslyCompleted')}</p>
+                      )}
+                      {getCompletedChallenges().map((uc) => (
+                        <Card key={uc.id} className="p-4 bg-green-500/5 border-green-500/20">
+                          <div className="flex items-start justify-between mb-2">
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <CheckCircle2 className="w-4 h-4 text-green-600" />
+                                <h3 className="font-semibold text-foreground">{uc.challengeName}</h3>
+                              </div>
+                              <p className="text-sm text-muted-foreground">
+                                {t(`challenges.categories.${getCategoryKey(uc.category)}`)}{" · "}
+                                {getDifficultyLabel(uc.difficulty)}
+                                {uc.durationMinutes ? ` · ${uc.durationMinutes} min` : ""}
+                              </p>
+                            </div>
+                            <Badge className={getDifficultyColor(uc.difficulty)}>
+                              {getDifficultyLabel(uc.difficulty)}
+                            </Badge>
+                          </div>
+                        </Card>
+                      ))}
+                    </>
+                  )}
                 </div>
               )}
             </TabsContent>
@@ -496,12 +692,21 @@ const Challenges = () => {
             ) : (
               <div className="space-y-3">
                 {challenges.map((challenge) => (
-                  <Card key={challenge.id} className="p-4 card-hover">
+                  <Card key={challenge.id} className={`p-4 ${challenge.completedToday ? 'opacity-60' : 'card-hover'}`}>
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex-1">
-                        <h3 className="font-semibold text-foreground mb-1">{challenge.title}</h3>
+                        <h3 className={`font-semibold mb-1 ${challenge.completedToday ? 'text-muted-foreground' : 'text-foreground'}`}>{challenge.title}</h3>
                         <p className="text-sm text-muted-foreground">{challenge.description}</p>
                       </div>
+                      {challenge.completedToday && (
+                        <div className="flex flex-col items-end gap-0.5 flex-shrink-0 ml-3">
+                          <div className="flex items-center gap-1.5 text-green-500">
+                            <CheckCircle2 className="w-4 h-4" />
+                            <span className="text-xs font-medium">{t('challenges.completedToday')}</span>
+                          </div>
+                          <span className="text-[10px] text-muted-foreground">{t('challenges.availableTomorrow')}</span>
+                        </div>
+                      )}
                     </div>
                     
                     <div className="flex items-center gap-2 mb-4">
@@ -532,23 +737,25 @@ const Challenges = () => {
                       )}
                     </div>
 
-                    <Button 
-                      className="w-full gap-2"
-                      onClick={() => handleStartChallenge(challenge)}
-                      disabled={loading || isChallengeStarted(challenge.id)}
-                    >
-                      {isChallengeStarted(challenge.id) ? (
-                        <>
-                          <CheckCircle2 className="w-4 h-4" />
-                          {t('challenges.alreadyStarted')}
-                        </>
-                      ) : (
-                        <>
-                          <Play className="w-4 h-4" />
-                          {t('challenges.startActivity')}
-                        </>
-                      )}
-                    </Button>
+                    {!challenge.completedToday && (
+                      <Button 
+                        className="w-full gap-2"
+                        onClick={() => handleStartChallenge(challenge)}
+                        disabled={loading || isChallengeStarted(challenge.id)}
+                      >
+                        {isChallengeStarted(challenge.id) ? (
+                          <>
+                            <CheckCircle2 className="w-4 h-4" />
+                            {t('challenges.alreadyStarted')}
+                          </>
+                        ) : (
+                          <>
+                            <Play className="w-4 h-4" />
+                            {t('challenges.startActivity')}
+                          </>
+                        )}
+                      </Button>
+                    )}
                   </Card>
                 ))}
               </div>
@@ -583,18 +790,36 @@ const Challenges = () => {
               {/* YouTube Video */}
               {selectedChallenge.youtubeUrl && (
                 <div className="mb-6">
-                  <div className="flex items-center gap-2 mb-3">
-                    <Youtube className="w-5 h-5 text-red-500" />
-                    <h3 className="font-semibold">{t('challenges.videoGuide')}</h3>
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <Youtube className="w-5 h-5 text-red-500" />
+                      <h3 className="font-semibold">{t('challenges.videoGuide')}</h3>
+                    </div>
+                    {/* Video progress indicator */}
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      {ytProgress.isComplete ? (
+                        <span className="flex items-center gap-1 text-green-600 font-medium">
+                          <CheckCircle2 className="w-3.5 h-3.5" />
+                          {t('challenges.videoWatched', { fallbackLng: 'sv', defaultValue: 'Video sedd' })}
+                        </span>
+                      ) : (
+                        <span>{t('challenges.videoProgress', { percent: ytProgress.watchedPercent, fallbackLng: 'sv', defaultValue: `${ytProgress.watchedPercent}% sett` })}</span>
+                      )}
+                    </div>
                   </div>
                   <div className="relative w-full" style={{ paddingBottom: "56.25%" }}>
                     <iframe
+                      ref={ytProgress.iframeRef}
                       className="absolute top-0 left-0 w-full h-full rounded-lg"
                       src={getYouTubeEmbedUrl(selectedChallenge.youtubeUrl) || ""}
                       title={selectedChallenge.title}
                       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                       allowFullScreen
                     />
+                  </div>
+                  {/* Video progress bar */}
+                  <div className="mt-2">
+                    <Progress value={ytProgress.watchedPercent} className="h-1.5" />
                   </div>
                 </div>
               )}
@@ -621,22 +846,67 @@ const Challenges = () => {
                 </div>
               )}
 
-              {/* Complete Button */}
-              <div className="flex gap-3">
-                <Button 
+              {/* Activity Timer - only for activities WITHOUT video */}
+              {showTimer && (
+                <div className="mb-6">
+                  <Card className={`p-5 text-center border ${timer.isComplete ? 'bg-green-500/5 border-green-500/30' : 'bg-primary/5 border-primary/20'} transition-colors duration-500`}>
+                    <p className="text-xs text-muted-foreground uppercase tracking-wide mb-2">
+                      {timer.isComplete
+                        ? (t('challenges.timerComplete', { fallbackLng: 'sv', defaultValue: 'Aktivitetstid klar!' }))
+                        : (t('challenges.timerRemaining', { fallbackLng: 'sv', defaultValue: 'Tid kvar för aktiviteten' }))}
+                    </p>
+                    <p className={`text-4xl font-mono font-bold ${timer.isComplete ? 'text-green-600' : 'text-foreground'}`}>
+                      {timer.isComplete ? '✓' : timer.formattedTime}
+                    </p>
+                    <div className="mt-3">
+                      <Progress value={timer.progressPercent} className="h-2" />
+                    </div>
+                  </Card>
+                </div>
+              )}
+
+              {/* Complete Button - gated */}
+              <div className="flex flex-col gap-3 mt-4">
+                {!isUnlocked && !isDrawing && (
+                  <>
+                    <Card className="p-4 bg-muted/50 border-dashed border-2 border-muted-foreground/20 text-center">
+                      <p className="text-sm text-muted-foreground font-medium">
+                        🔒 {hasVideo
+                          ? (t('challenges.unlockHintVideo', { fallbackLng: 'sv', defaultValue: 'Titta klart på videon (minst 80%) för att kunna slutföra utmaningen' }))
+                          : (t('challenges.unlockHintTimer', { fallbackLng: 'sv', defaultValue: 'Genomför aktiviteten och vänta tills timern är klar' }))}
+                      </p>
+                    </Card>
+                    <button
+                      onClick={() => setAlreadyDone(true)}
+                      className="text-sm text-muted-foreground hover:text-foreground underline underline-offset-4 transition-colors mx-auto py-1"
+                    >
+                      Jag har redan gjort denna aktivitet
+                    </button>
+                  </>
+                )}
+                <Button
                   onClick={handleCompleteChallenge}
-                  disabled={loading}
-                  className="flex-1 gap-2"
+                  disabled={loading || !isUnlocked}
+                  className={`w-full gap-2 text-lg py-7 transition-all duration-300 ${
+                    isUnlocked
+                      ? 'bg-green-600 hover:bg-green-700 text-white shadow-lg hover:shadow-xl'
+                      : 'bg-muted text-muted-foreground cursor-not-allowed border-2 border-dashed border-muted-foreground/20 hover:bg-muted'
+                  }`}
                   size="lg"
+                  variant={isUnlocked ? "default" : "outline"}
                 >
                   {loading ? (
                     <>
-                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <Loader2 className="w-5 h-5 animate-spin" />
                       {t('challenges.completing')}
+                    </>
+                  ) : !isUnlocked ? (
+                    <>
+                      🔒 {t('challenges.completeChallenge')}
                     </>
                   ) : (
                     <>
-                      <CheckCircle2 className="w-4 h-4" />
+                      <CheckCircle2 className="w-5 h-5" />
                       {t('challenges.completeChallenge')}
                     </>
                   )}

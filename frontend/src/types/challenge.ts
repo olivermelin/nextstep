@@ -30,6 +30,7 @@ export interface ChallengeOutDto {
   youtubeUrl?: string | null;
   instructions?: string | null;
   createdAt?: string;
+  completedToday?: boolean;
 }
 
 // DTO för UserChallenge från backend
@@ -40,8 +41,8 @@ export interface UserChallengeOutDto {
   category: ChallengeCategory;
   difficulty: ChallengeDifficulty;
   durationMinutes: number;
-  status: ChallengeStatus;
+  status: string;
   startedAt?: string;
   completedAt?: string;
-  progress: number;
+  pointsEarned: number;
 }

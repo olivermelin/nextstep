@@ -42,6 +42,11 @@ export const challengeApi = {
       API_ENDPOINTS.CHALLENGES.GET_BY_CATEGORY_AND_DIFFICULTY(category, difficulty)
     );
   },
+
+  // Hämta challenges med completedToday-status för en specifik användare
+  getUserChallenges: async (userId: string): Promise<ChallengeOutDto[]> => {
+    return fetchWithCredentials(API_ENDPOINTS.CHALLENGES.GET_USER_CHALLENGES(userId));
+  },
 };
 
 /* ===================== USER CHALLENGE API ===================== */

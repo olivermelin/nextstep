@@ -89,7 +89,10 @@ const Progress = () => {
       // Konvertera backend kategoriformat till frontend format
       // Backend: {category: 'mental', points: 10}
       // Frontend: {id: 'mental', name: 'Mental hälsa', completedDays: X, totalDays: 7}
-      const categoriesWithStyles: CategoryProgress[] = (progressData.categoryProgress || []).map((cat: any) => {
+      const knownCategories = ['mental', 'physical', 'focus', 'growth'];
+      const categoriesWithStyles: CategoryProgress[] = (progressData.categoryProgress || [])
+        .filter((cat: any) => knownCategories.includes(cat.category || cat.id))
+        .map((cat: any) => {
         // Beräkna completedDays baserat på poäng (exempel: 10 poäng = 1 dag, 70 = 7 dagar)
         const completedDays = Math.min(Math.floor((cat.points || 0) / 10), 7);
         
