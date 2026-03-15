@@ -35,6 +35,7 @@ public class ClaudeApiService {
     private final UserSettingsService userSettingsService;
     private final UserProgressService userProgressService;
     private final UserChallengeRepository userChallengeRepository;
+    private final ChallengeRecommendationParser challengeRecommendationParser;
     private final RestClient restClient;
 
     public ClaudeApiService(AICoachProperties properties,
@@ -43,7 +44,8 @@ public class ClaudeApiService {
                             SystemPromptBuilder systemPromptBuilder,
                             UserSettingsService userSettingsService,
                             UserProgressService userProgressService,
-                            UserChallengeRepository userChallengeRepository) {
+                            UserChallengeRepository userChallengeRepository,
+                            ChallengeRecommendationParser challengeRecommendationParser) {
         this.properties = properties;
         this.conversationService = conversationService;
         this.crisisDetectionService = crisisDetectionService;
@@ -51,6 +53,7 @@ public class ClaudeApiService {
         this.userSettingsService = userSettingsService;
         this.userProgressService = userProgressService;
         this.userChallengeRepository = userChallengeRepository;
+        this.challengeRecommendationParser = challengeRecommendationParser;
         this.restClient = RestClient.builder()
                 .baseUrl(ANTHROPIC_API_URL)
                 .build();
@@ -117,13 +120,18 @@ public class ClaudeApiService {
             assistantResponse = buildFallbackResponse(userId);
         }
 
-        // 7. Spara och returnera assistentens svar
-        conversationService.saveMessage(session, "assistant", assistantResponse);
+        // 7. Parsa challenge-rekommendationer ur svaret
+        ChallengeRecommendationParser.ParseResult parseResult = challengeRecommendationParser.parse(assistantResponse);
+        String cleanedResponse = parseResult.cleanedResponse();
+
+        // 8. Spara och returnera assistentens svar (spara rensat svar utan taggar)
+        conversationService.saveMessage(session, "assistant", cleanedResponse);
 
         return new CoachMessageResponse(
-                assistantResponse,
+                cleanedResponse,
                 crisisLevel,
-                session.getSessionId()
+                session.getSessionId(),
+                parseResult.suggestedChallenges()
         );
     }
 

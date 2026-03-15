@@ -4,11 +4,14 @@ import java.time.LocalDateTime;
 
 public record UserChallengeOutDto(
         Long id,
-        String userId,
-        ChallengeOutDto challenge,
+        Long challengeId,
+        String challengeName,
+        String category,
+        String difficulty,
+        int durationMinutes,
+        String status,
         LocalDateTime startedAt,
         LocalDateTime completedAt,
-        boolean completed,
         int pointsEarned
 ) {}
 

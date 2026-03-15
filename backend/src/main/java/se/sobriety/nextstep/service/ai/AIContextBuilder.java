@@ -31,6 +31,12 @@ public class AIContextBuilder {
         prompt.append("- Håll svaren koncisa (max 2-3 meningar om inte användaren frågar mer)\n");
         prompt.append("- Referera till deras framsteg när relevant\n\n");
 
+        prompt.append("FORMATERING:\n");
+        prompt.append("- Skriv i ren text utan markdown-formatering\n");
+        prompt.append("- Använd INTE **fetstil**, *kursiv*, #rubriker eller andra markdown-symboler\n");
+        prompt.append("- Använd INTE emojis (inga 💙🌟⭐ etc.)\n");
+        prompt.append("- Skriv naturligt och varmt utan speciella tecken\n\n");
+
         if (settings != null && settings.getName() != null) {
             prompt.append("Användarens namn: ").append(settings.getName()).append("\n");
         }

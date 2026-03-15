@@ -2,7 +2,9 @@ package se.sobriety.nextstep.service.ai;
 
 import org.springframework.stereotype.Component;
 import se.sobriety.nextstep.entity.*;
+import se.sobriety.nextstep.repository.ChallengeRepository;
 
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -11,6 +13,12 @@ import java.util.stream.Collectors;
  */
 @Component
 public class SystemPromptBuilder {
+
+    private final ChallengeRepository challengeRepository;
+
+    public SystemPromptBuilder(ChallengeRepository challengeRepository) {
+        this.challengeRepository = challengeRepository;
+    }
 
     /**
      * Bygger komplett systemprompt för Claude baserat på användarens återhämtningskontext.
@@ -36,6 +44,14 @@ public class SystemPromptBuilder {
         prompt.append("- Håll svaren koncisa (2-4 meningar) om inte användaren ber om mer\n");
         prompt.append("- Du är INTE läkare eller terapeut – hänvisa till professionell hjälp vid behov\n");
         prompt.append("- Fira framsteg och styrkor hos användaren\n\n");
+
+        // Formateringsregler
+        prompt.append("FORMATERING:\n");
+        prompt.append("- Skriv i ren text utan markdown-formatering\n");
+        prompt.append("- Använd INTE **fetstil**, *kursiv*, #rubriker eller andra markdown-symboler\n");
+        prompt.append("- Använd INTE emojis (inga 💙🌟⭐ etc.)\n");
+        prompt.append("- Skriv naturligt och varmt utan speciella tecken\n");
+        prompt.append("- Separera stycken med en tom rad om svaret har flera delar\n\n");
 
         // Användarkontext
         prompt.append("ANVÄNDARENS PROFIL:\n");
@@ -103,7 +119,46 @@ public class SystemPromptBuilder {
             prompt.append("- Vid akut fara: ring 112\n");
         }
 
+        // Tillgängliga challenges för rekommendationer
+        prompt.append(buildChallengeCatalog());
+
         return prompt.toString();
+    }
+
+    /**
+     * Bygger en kompakt katalog av alla tillgängliga challenges för AI:n att referera till.
+     */
+    private String buildChallengeCatalog() {
+        List<Challenge> challenges = challengeRepository.findAll();
+        if (challenges.isEmpty()) {
+            return "";
+        }
+
+        StringBuilder catalog = new StringBuilder();
+        catalog.append("\nTILLGÄNGLIGA UTMANINGAR I APPEN:\n");
+        catalog.append("När användaren pratar om aktiviteter, träning, mindfulness eller andra ämnen som matchar en utmaning, ");
+        catalog.append("rekommendera relevanta utmaningar genom att inkludera taggen [CHALLENGE:id] i ditt svar.\n");
+        catalog.append("Rekommmendera 1-3 utmaningar när det passar naturligt i samtalet. Tvinga inte in rekommendationer.\n");
+        catalog.append("Skriv en kort personlig rekommendation innan taggen, t.ex. 'Det finns en utmaning som passar perfekt för det du beskriver.'\n\n");
+
+        for (Challenge c : challenges) {
+            catalog.append("[").append(c.getId()).append("] ")
+                    .append(c.getTitle())
+                    .append(" (").append(c.getCategory().getDisplayName())
+                    .append(", ").append(translateDifficulty(c.getDifficulty()))
+                    .append(", ").append(c.getDurationMinutes()).append(" min)")
+                    .append("\n");
+        }
+
+        return catalog.toString();
+    }
+
+    private String translateDifficulty(ChallengeDifficulty difficulty) {
+        return switch (difficulty) {
+            case EASY -> "Lätt";
+            case MEDIUM -> "Medel";
+            case HARD -> "Svår";
+        };
     }
 
     private String buildPersonalityInstructions(CoachPersonality personality) {

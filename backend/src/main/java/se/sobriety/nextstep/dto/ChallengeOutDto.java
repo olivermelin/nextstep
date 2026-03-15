@@ -11,6 +11,7 @@ public record ChallengeOutDto(
         String category,
         String youtubeUrl,
         String instructions,
-        LocalDateTime createdAt
+        LocalDateTime createdAt,
+        boolean completedToday
 ) {}
 

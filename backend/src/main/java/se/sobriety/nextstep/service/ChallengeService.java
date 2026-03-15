@@ -2,14 +2,20 @@ package se.sobriety.nextstep.service;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import se.sobriety.nextstep.dto.ChallengeInDto;
 import se.sobriety.nextstep.dto.ChallengeOutDto;
 import se.sobriety.nextstep.entity.Challenge;
 import se.sobriety.nextstep.entity.ChallengeCategory;
 import se.sobriety.nextstep.entity.ChallengeDifficulty;
 import se.sobriety.nextstep.mapper.ChallengeMapper;
 import se.sobriety.nextstep.repository.ChallengeRepository;
+import se.sobriety.nextstep.repository.UserChallengeRepository;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
+import java.util.HashSet;
 import java.util.stream.Collectors;
 
 @Service
@@ -18,10 +24,14 @@ public class ChallengeService {
 
     private final ChallengeRepository challengeRepository;
     private final ChallengeMapper challengeMapper;
+    private final UserChallengeRepository userChallengeRepository;
 
-    public ChallengeService(ChallengeRepository challengeRepository, ChallengeMapper challengeMapper) {
+    public ChallengeService(ChallengeRepository challengeRepository,
+                            ChallengeMapper challengeMapper,
+                            UserChallengeRepository userChallengeRepository) {
         this.challengeRepository = challengeRepository;
         this.challengeMapper = challengeMapper;
+        this.userChallengeRepository = userChallengeRepository;
     }
 
     public List<ChallengeOutDto> getAllChallenges() {
@@ -57,6 +67,114 @@ public class ChallengeService {
                 .stream()
                 .map(challengeMapper::toDto)
                 .collect(Collectors.toList());
+    }
+
+    // ============ Metoder med completedToday-status per användare ============
+
+    private Set<Long> getCompletedTodayIds(String userId) {
+        LocalDateTime startOfDay = LocalDate.now().atStartOfDay();
+        return new HashSet<>(userChallengeRepository.findCompletedChallengeIdsSince(userId, startOfDay));
+    }
+
+    /**
+     * Hämta alla challenges med completedToday-status för en användare.
+     * Challenges som redan är utförda idag filtreras bort.
+     */
+    public List<ChallengeOutDto> getAllChallengesForUser(String userId) {
+        Set<Long> completedTodayIds = getCompletedTodayIds(userId);
+        return challengeRepository.findAll()
+                .stream()
+                .map(c -> challengeMapper.toDto(c, completedTodayIds.contains(c.getId())))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Hämta challenges per kategori med completedToday-status för en användare.
+     */
+    public List<ChallengeOutDto> getChallengesByCategoryForUser(ChallengeCategory category, String userId) {
+        Set<Long> completedTodayIds = getCompletedTodayIds(userId);
+        return challengeRepository.findByCategory(category)
+                .stream()
+                .map(c -> challengeMapper.toDto(c, completedTodayIds.contains(c.getId())))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Hämta challenges per svårighetsgrad med completedToday-status för en användare.
+     */
+    public List<ChallengeOutDto> getChallengesByDifficultyForUser(ChallengeDifficulty difficulty, String userId) {
+        Set<Long> completedTodayIds = getCompletedTodayIds(userId);
+        return challengeRepository.findByDifficulty(difficulty)
+                .stream()
+                .map(c -> challengeMapper.toDto(c, completedTodayIds.contains(c.getId())))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Hämta challenges per kategori och svårighetsgrad med completedToday-status för en användare.
+     */
+    public List<ChallengeOutDto> getChallengesByCategoryAndDifficultyForUser(
+            ChallengeCategory category, ChallengeDifficulty difficulty, String userId) {
+        Set<Long> completedTodayIds = getCompletedTodayIds(userId);
+        return challengeRepository.findByCategoryAndDifficulty(category, difficulty)
+                .stream()
+                .map(c -> challengeMapper.toDto(c, completedTodayIds.contains(c.getId())))
+                .collect(Collectors.toList());
+    }
+
+    // ============ CRUD – Skapa, uppdatera och ta bort challenges dynamiskt ============
+
+    /**
+     * Skapa en ny challenge dynamiskt via API.
+     */
+    @Transactional
+    public ChallengeOutDto createChallenge(ChallengeInDto dto) {
+        ChallengeDifficulty difficulty = ChallengeDifficulty.valueOf(dto.difficulty());
+        ChallengeCategory category = ChallengeCategory.valueOf(dto.category());
+
+        Challenge challenge = new Challenge(
+                dto.title(),
+                dto.description(),
+                dto.durationMinutes(),
+                difficulty,
+                category
+        );
+        challenge.setYoutubeUrl(dto.youtubeUrl());
+        challenge.setInstructions(dto.instructions());
+
+        challenge = challengeRepository.save(challenge);
+        return challengeMapper.toDto(challenge);
+    }
+
+    /**
+     * Uppdatera en befintlig challenge.
+     */
+    @Transactional
+    public ChallengeOutDto updateChallenge(Long id, ChallengeInDto dto) {
+        Challenge challenge = challengeRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Challenge not found with id: " + id));
+
+        challenge.setTitle(dto.title());
+        challenge.setDescription(dto.description());
+        challenge.setDurationMinutes(dto.durationMinutes());
+        challenge.setDifficulty(ChallengeDifficulty.valueOf(dto.difficulty()));
+        challenge.setCategory(ChallengeCategory.valueOf(dto.category()));
+        challenge.setYoutubeUrl(dto.youtubeUrl());
+        challenge.setInstructions(dto.instructions());
+
+        challenge = challengeRepository.save(challenge);
+        return challengeMapper.toDto(challenge);
+    }
+
+    /**
+     * Ta bort en challenge.
+     */
+    @Transactional
+    public void deleteChallenge(Long id) {
+        if (!challengeRepository.existsById(id)) {
+            throw new IllegalArgumentException("Challenge not found with id: " + id);
+        }
+        challengeRepository.deleteById(id);
     }
 }
 

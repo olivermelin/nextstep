@@ -8,6 +8,10 @@ import se.sobriety.nextstep.entity.Challenge;
 public class ChallengeMapper {
 
     public ChallengeOutDto toDto(Challenge entity) {
+        return toDto(entity, false);
+    }
+
+    public ChallengeOutDto toDto(Challenge entity, boolean completedToday) {
         return new ChallengeOutDto(
                 entity.getId(),
                 entity.getTitle(),
@@ -17,7 +21,8 @@ public class ChallengeMapper {
                 entity.getCategory().name(),
                 entity.getYoutubeUrl(),
                 entity.getInstructions(),
-                entity.getCreatedAt()
+                entity.getCreatedAt(),
+                completedToday
         );
     }
 }

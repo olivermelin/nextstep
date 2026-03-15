@@ -1,0 +1,579 @@
+[
+  {
+    "title": "Mindfulness Meditation",
+    "description": "En guidad meditation för att öka närvaro och minska stress. Fokusera på din andning och låt tankarna komma och gå utan att döma dem.",
+    "durationMinutes": 10,
+    "difficulty": "EASY",
+    "category": "MENTAL_HEALTH",
+    "youtubeUrl": "https://www.youtube.com/watch?v=inpok4MKVLM",
+    "instructions": "1. Hitta en bekväm sittposition\n2. Stäng ögonen\n3. Fokusera på din andning\n4. När tankarna vandrar, för försiktigt tillbaka uppmärksamheten till andetagen"
+  },
+  {
+    "title": "Andningsövningar",
+    "description": "Djupandning för att lugna nervsystemet. Box breathing-teknik: andas in, håll, andas ut, håll - alla i 4 sekunder.",
+    "durationMinutes": 5,
+    "difficulty": "EASY",
+    "category": "MENTAL_HEALTH",
+    "youtubeUrl": "https://www.youtube.com/watch?v=tEmt1Znux58",
+    "instructions": "1. Andas in genom näsan i 4 sekunder\n2. Håll andan i 4 sekunder\n3. Andas ut genom munnen i 4 sekunder\n4. Håll andan i 4 sekunder\n5. Upprepa 5 gånger"
+  },
+  {
+    "title": "Dagbok Skrivning",
+    "description": "Skriv ner dina tankar och känslor i en dagbok. En kraftfull metod för självreflektion och känslomässig bearbetning.",
+    "durationMinutes": 15,
+    "difficulty": "MEDIUM",
+    "category": "MENTAL_HEALTH",
+    "youtubeUrl": null,
+    "instructions": "1. Hitta en lugn plats\n2. Skriv fritt i 15 minuter\n3. Fokusera på dagens händelser och dina känslor\n4. Ingen behöver läsa detta - skriv ärligt"
+  },
+  {
+    "title": "Gratitude Journal",
+    "description": "Skriv ner 3 saker du är tacksam för idag. Forskning visar att tacksamhet ökar lycka och välmående.",
+    "durationMinutes": 10,
+    "difficulty": "EASY",
+    "category": "MENTAL_HEALTH",
+    "youtubeUrl": null,
+    "instructions": "1. Tänk på din dag\n2. Identifiera 3 saker du är tacksam för\n3. Skriv ner dem och varför\n4. Reflektera över känslan av tacksamhet"
+  },
+  {
+    "title": "Kroppsskanning",
+    "description": "En guidad kroppsskanning där du systematiskt uppmärksammar varje del av kroppen. Hjälper dig att släppa spänningar och bli medveten om hur du mår fysiskt.",
+    "durationMinutes": 15,
+    "difficulty": "EASY",
+    "category": "MENTAL_HEALTH",
+    "youtubeUrl": "https://www.youtube.com/watch?v=QS2yDmWk0vs",
+    "instructions": "1. Lägg dig ner bekvämt\n2. Blunda och börja uppmärksamma dina fötter\n3. Rör dig sakta uppåt genom kroppen\n4. Notera spänningar utan att döma\n5. Slappna av i varje kroppsdel"
+  },
+  {
+    "title": "Positiva Affirmationer",
+    "description": "Skriv och läs 5 positiva affirmationer om dig själv högt. Att upprepa positiva budskap stärker självkänsla och motivation.",
+    "durationMinutes": 10,
+    "difficulty": "EASY",
+    "category": "MENTAL_HEALTH",
+    "youtubeUrl": null,
+    "instructions": "1. Skriv ner 5 positiva påståenden om dig själv\n2. Läs dem högt framför en spegel\n3. Känn efter varje ord\n4. Upprepa morgon och kväll\n5. Byt ut påståenden som inte känns äkta"
+  },
+  {
+    "title": "Visualisering",
+    "description": "Stäng ögonen och visualisera ditt bästa jag – fri, stark och nykter. Visualisering aktiverar samma hjärnområden som verkliga upplevelser.",
+    "durationMinutes": 10,
+    "difficulty": "MEDIUM",
+    "category": "MENTAL_HEALTH",
+    "youtubeUrl": null,
+    "instructions": "1. Hitta en lugn plats och stäng ögonen\n2. Föreställ dig en perfekt dag utan substanser\n3. Se detaljer: vad gör du, vilka är du med?\n4. Känn känslan av frihet och stolthet\n5. Öppna ögonen och skriv ner det du såg"
+  },
+  {
+    "title": "Progressiv Muskelavslappning",
+    "description": "Spänn och slappna av muskelgrupper systematiskt. Effektiv teknik mot ångest och sömnsvårigheter som ofta följer med återhämtning.",
+    "durationMinutes": 20,
+    "difficulty": "MEDIUM",
+    "category": "MENTAL_HEALTH",
+    "youtubeUrl": "https://www.youtube.com/watch?v=1nZEdqcGVzo",
+    "instructions": "1. Lägg dig bekvämt\n2. Börja med fötterna – spänn i 5 sek, slappna av i 10 sek\n3. Fortsätt uppåt: vader, lår, mage, händer, armar, axlar, ansikte\n4. Andas djupt mellan varje muskelgrupp\n5. Avsluta med att ligga stilla i 2 minuter"
+  },
+  {
+    "title": "Morgonpromenad",
+    "description": "En 30 minuters promenad i frisk luft för att starta dagen rätt. Ökar energi och förbättrar humöret.",
+    "durationMinutes": 30,
+    "difficulty": "EASY",
+    "category": "PHYSICAL_ACTIVITY",
+    "youtubeUrl": null,
+    "instructions": "1. Ta på dig bekväma skor\n2. Gå ut och promenera i minst 30 minuter\n3. Fokusera på omgivningen\n4. Andas djupt och njut av luften"
+  },
+  {
+    "title": "HIIT Workout",
+    "description": "Högintensiv intervallträning för maximal kaloriförbränning och konditionsförbättring på kort tid.",
+    "durationMinutes": 20,
+    "difficulty": "HARD",
+    "category": "PHYSICAL_ACTIVITY",
+    "youtubeUrl": "https://www.youtube.com/watch?v=ml6cT4AZdqI",
+    "instructions": "1. Värm upp i 3 minuter\n2. 30 sekunder max intensitet\n3. 30 sekunder vila\n4. Upprepa 15 gånger\n5. Nedvarvning i 2 minuter"
+  },
+  {
+    "title": "Yoga Session",
+    "description": "En komplett yoga-session för flexibilitet, styrka och mental balans. Perfekt för både kropp och själ.",
+    "durationMinutes": 45,
+    "difficulty": "MEDIUM",
+    "category": "PHYSICAL_ACTIVITY",
+    "youtubeUrl": "https://www.youtube.com/watch?v=v7AYKMP6rOE",
+    "instructions": "1. Rulla ut din yogamatta\n2. Följ videon\n3. Lyssna på din kropp\n4. Andas djupt genom hela passet"
+  },
+  {
+    "title": "Stretching",
+    "description": "En snabb stretch-rutin för att öka rörlighet och minska muskelspänningar. Perfekt efter långvarigt sittande.",
+    "durationMinutes": 10,
+    "difficulty": "EASY",
+    "category": "PHYSICAL_ACTIVITY",
+    "youtubeUrl": "https://www.youtube.com/watch?v=g_tea8ZNk5A",
+    "instructions": "1. Stretcha nacke och axlar\n2. Stretcha armar och handleder\n3. Stretcha rygg\n4. Stretcha ben och vader\n5. Håll varje stretch i 20-30 sekunder"
+  },
+  {
+    "title": "Styrketräning Hemma",
+    "description": "Ett kroppsviktspass du kan göra hemma utan utrustning. Armhävningar, squats, utfallssteg och plankan – enkelt och effektivt.",
+    "durationMinutes": 30,
+    "difficulty": "MEDIUM",
+    "category": "PHYSICAL_ACTIVITY",
+    "youtubeUrl": "https://www.youtube.com/watch?v=vc1E5CfRfos",
+    "instructions": "1. Värm upp med 3 min lätt jogg på stället\n2. 3x10 armhävningar (på knäna om det behövs)\n3. 3x15 squats\n4. 3x10 utfallssteg per ben\n5. 3x30 sek plankan\n6. Stretcha i 5 minuter"
+  },
+  {
+    "title": "Löprunda",
+    "description": "Spring en runda i ditt närområde. Löpning frigör endorfiner och är ett av de bästa naturliga sätten att hantera stress och sug.",
+    "durationMinutes": 30,
+    "difficulty": "HARD",
+    "category": "PHYSICAL_ACTIVITY",
+    "youtubeUrl": null,
+    "instructions": "1. Ta på dig löparskor\n2. Värm upp med 5 min promenad\n3. Spring i ditt eget tempo i 20 min\n4. Varva ner med 5 min promenad\n5. Stretcha efteråt"
+  },
+  {
+    "title": "Danspass",
+    "description": "Sätt på din favoritmusik och dansa fritt i 15 minuter. Dans är träning, glädje och stressavlastning – allt i ett!",
+    "durationMinutes": 15,
+    "difficulty": "EASY",
+    "category": "PHYSICAL_ACTIVITY",
+    "youtubeUrl": null,
+    "instructions": "1. Välj en spellista med musik du gillar\n2. Rensa lite utrymme\n3. Dansa fritt – inga regler!\n4. Känn musiken och rör dig som det känns\n5. Avsluta med lugn musik och djupa andetag"
+  },
+  {
+    "title": "Cykeltur",
+    "description": "Ta en cykeltur i 30-45 minuter. Cykling ger kondition, frisk luft och möjlighet att utforska omgivningen.",
+    "durationMinutes": 40,
+    "difficulty": "MEDIUM",
+    "category": "PHYSICAL_ACTIVITY",
+    "youtubeUrl": null,
+    "instructions": "1. Kontrollera att cykeln fungerar\n2. Välj en trevlig rutt\n3. Cykla i lugnt tempo i 30-45 min\n4. Stanna och njut av naturen om du vill\n5. Drick vatten under och efter turen"
+  },
+  {
+    "title": "Pomodoro Session",
+    "description": "Arbeta fokuserat i 25 minuter utan distraktioner, följt av 5 minuters paus. En beprövad produktivitetsteknik.",
+    "durationMinutes": 25,
+    "difficulty": "EASY",
+    "category": "FOCUS_DISCIPLINE",
+    "youtubeUrl": null,
+    "instructions": "1. Välj en uppgift\n2. Sätt timer på 25 minuter\n3. Arbeta fokuserat utan distraktioner\n4. Ta 5 minuters paus\n5. Upprepa"
+  },
+  {
+    "title": "Digital Detox",
+    "description": "En timme helt utan mobil, dator eller tv. Tid för att vara närvarande och koppla av från skärmar.",
+    "durationMinutes": 60,
+    "difficulty": "MEDIUM",
+    "category": "FOCUS_DISCIPLINE",
+    "youtubeUrl": null,
+    "instructions": "1. Stäng av alla digitala enheter\n2. Lämna mobilen i ett annat rum\n3. Ägna dig åt en analog aktivitet\n4. Njut av tystnad och närvaro"
+  },
+  {
+    "title": "Cold Shower",
+    "description": "Avsluta din dusch med 2-3 minuter kallt vatten. Stärker mentalt och fysiskt, ökar energi och förbättrar immunförsvaret.",
+    "durationMinutes": 5,
+    "difficulty": "MEDIUM",
+    "category": "FOCUS_DISCIPLINE",
+    "youtubeUrl": "https://www.youtube.com/watch?v=pq6WHJzOkno",
+    "instructions": "1. Börja med vanlig dusch\n2. Sänk temperaturen gradvis\n3. Stå under kallt vatten i 2-3 minuter\n4. Andas lugnt och djupt\n5. Fokusera på att övervinna obehaget"
+  },
+  {
+    "title": "No Social Media Day",
+    "description": "En hel dag utan sociala medier. Perfekt för att bryta digitala beroenden och återfå mentalt utrymme.",
+    "durationMinutes": 1440,
+    "difficulty": "HARD",
+    "category": "FOCUS_DISCIPLINE",
+    "youtubeUrl": null,
+    "instructions": "1. Ta bort social media-appar från hemskärmen\n2. Logga ut från alla konton\n3. Undvik alla sociala medier i 24 timmar\n4. Notera hur du känner dig\n5. Reflektera över upplevelsen"
+  },
+  {
+    "title": "Bädda Sängen",
+    "description": "Börja varje morgon med att bädda sängen direkt. En liten vana som bygger disciplin och ger en känsla av kontroll från start.",
+    "durationMinutes": 5,
+    "difficulty": "EASY",
+    "category": "FOCUS_DISCIPLINE",
+    "youtubeUrl": null,
+    "instructions": "1. Gå upp ur sängen direkt när alarmet ringer\n2. Bädda sängen noggrant\n3. Platta till kuddar och täcke\n4. Känn stoltheten av en liten vinst\n5. Fortsätt med nästa morgonrutin"
+  },
+  {
+    "title": "Medveten Väntan",
+    "description": "Nästa gång du väntar (i kö, på bussen etc.) – stå emot impulsen att plocka upp mobilen. Bara var. Tränar impulskontroll.",
+    "durationMinutes": 10,
+    "difficulty": "MEDIUM",
+    "category": "FOCUS_DISCIPLINE",
+    "youtubeUrl": null,
+    "instructions": "1. När du hamnar i en väntesituation, låt mobilen ligga\n2. Titta dig omkring och observera\n3. Notera dina tankar utan att agera på dem\n4. Andas lugnt\n5. Reflektera efteråt: hur svårt var det?"
+  },
+  {
+    "title": "Tidigt Uppstigning",
+    "description": "Gå upp 30 minuter tidigare än vanligt. Använd morgontimmarna till något meningsfullt innan vardagen drar igång.",
+    "durationMinutes": 30,
+    "difficulty": "HARD",
+    "category": "FOCUS_DISCIPLINE",
+    "youtubeUrl": null,
+    "instructions": "1. Ställ alarmet 30 min tidigare\n2. Gå inte tillbaka till sängen\n3. Gör något för dig själv: läs, meditera, träna\n4. Ät frukost i lugn och ro\n5. Notera hur dagen känns annorlunda"
+  },
+  {
+    "title": "Städa och Rensa",
+    "description": "Välj ett utrymme i hemmet och städa/rensa det i 20 minuter. Yttre ordning skapar inre lugn och stärker känslan av kontroll.",
+    "durationMinutes": 20,
+    "difficulty": "EASY",
+    "category": "FOCUS_DISCIPLINE",
+    "youtubeUrl": null,
+    "instructions": "1. Välj ett avgränsat område (en låda, en hylla, ett rum)\n2. Sortera: behålla, slänga, donera\n3. Torka av ytor\n4. Organisera det du behåller\n5. Njut av resultatet och den nya ordningen"
+  },
+  {
+    "title": "Läs en Bok",
+    "description": "Läs i 30 minuter från en bok som utvecklar dig. Kunskap är makt och läsning tränar hjärnan.",
+    "durationMinutes": 30,
+    "difficulty": "EASY",
+    "category": "PERSONAL_DEVELOPMENT",
+    "youtubeUrl": null,
+    "instructions": "1. Välj en bok som intresserar dig\n2. Hitta en lugn plats\n3. Läs fokuserat i 30 minuter\n4. Ta anteckningar om viktiga insikter"
+  },
+  {
+    "title": "Lär Dig Något Nytt",
+    "description": "Ägna en timme åt att lära dig en ny färdighet eller fördjupa kunskap inom ett område som intresserar dig.",
+    "durationMinutes": 60,
+    "difficulty": "MEDIUM",
+    "category": "PERSONAL_DEVELOPMENT",
+    "youtubeUrl": null,
+    "instructions": "1. Välj ett ämne som intresserar dig\n2. Använd YouTube, böcker eller onlinekurser\n3. Fokusera i 60 minuter\n4. Öva det du lärt dig\n5. Dokumentera dina lärdomar"
+  },
+  {
+    "title": "Reflektera på Dagen",
+    "description": "Avsluta dagen med 15 minuters reflektion. Vad gick bra? Vad kan förbättras? Hur växer du?",
+    "durationMinutes": 15,
+    "difficulty": "EASY",
+    "category": "PERSONAL_DEVELOPMENT",
+    "youtubeUrl": null,
+    "instructions": "1. Hitta en lugn stund\n2. Tänk på din dag\n3. Skriv svar på:\n   - Vad är jag stolt över idag?\n   - Vad kunde jag gjort bättre?\n   - Vad lärde jag mig?\n   - Hur kan jag växa imorgon?"
+  },
+  {
+    "title": "Sätt Upp Mål",
+    "description": "Skriv ner 3 konkreta mål för den kommande veckan. Tydliga mål ger riktning och motivation i återhämtningen.",
+    "durationMinutes": 15,
+    "difficulty": "EASY",
+    "category": "PERSONAL_DEVELOPMENT",
+    "youtubeUrl": null,
+    "instructions": "1. Tänk på vad du vill uppnå denna vecka\n2. Skriv ner 3 specifika och mätbara mål\n3. Bryt ner varje mål i små steg\n4. Sätt en tidsplan för varje mål\n5. Placera listan där du ser den varje dag"
+  },
+  {
+    "title": "Lyssna på en Podcast",
+    "description": "Lyssna på en podcast om personlig utveckling, mental hälsa eller beroendeåterhämtning. Nya perspektiv ger nya insikter.",
+    "durationMinutes": 30,
+    "difficulty": "EASY",
+    "category": "PERSONAL_DEVELOPMENT",
+    "youtubeUrl": null,
+    "instructions": "1. Välj en podcast inom personlig utveckling\n2. Lyssna aktivt utan att multitaska\n3. Pausa och reflektera när något träffar dig\n4. Skriv ner 1-3 insikter efteråt\n5. Dela gärna med någon du litar på"
+  },
+  {
+    "title": "Skriv ett Brev till Framtidsjaget",
+    "description": "Skriv ett brev till dig själv om ett år. Vad hoppas du har hänt? Vad vill du säga till den framtida versionen av dig?",
+    "durationMinutes": 20,
+    "difficulty": "MEDIUM",
+    "category": "PERSONAL_DEVELOPMENT",
+    "youtubeUrl": null,
+    "instructions": "1. Hitta penna och papper\n2. Börja med 'Kära framtida jag...'\n3. Skriv om dina drömmar, rädslor och förhoppningar\n4. Berätta vad du kämpar med just nu\n5. Avsluta med uppmuntran till dig själv\n6. Spara brevet och öppna det om ett år"
+  },
+  {
+    "title": "Värderingsövning",
+    "description": "Identifiera dina 5 viktigaste värderingar i livet. Att leva i linje med sina värderingar ger mening och styrka i återhämtningen.",
+    "durationMinutes": 20,
+    "difficulty": "MEDIUM",
+    "category": "PERSONAL_DEVELOPMENT",
+    "youtubeUrl": null,
+    "instructions": "1. Brainstorma en lista med saker som är viktiga för dig\n2. Välj de 5 viktigaste\n3. Rangordna dem\n4. Reflektera: lever jag efter dessa värderingar idag?\n5. Skriv ner ett konkret steg per värdering för att leva mer i linje med dem"
+  },
+  {
+    "title": "Ny Hobby Utforskning",
+    "description": "Testa något helt nytt som du aldrig provat förut. Nya upplevelser bygger identitet bortom beroendet.",
+    "durationMinutes": 60,
+    "difficulty": "HARD",
+    "category": "PERSONAL_DEVELOPMENT",
+    "youtubeUrl": null,
+    "instructions": "1. Välj något du alltid velat prova (matlagning, musik, hantverk etc.)\n2. Samla det du behöver\n3. Ägna 60 minuter åt att testa\n4. Var nyfiken – det behöver inte bli perfekt\n5. Reflektera: vill du fortsätta?"
+  },
+  {
+    "title": "Familjerelationer",
+    "description": "Rita dina familjerelationer och hur de påverkar dig. Placera dig själv i mitten och dina familjemedlemmar runt dig – nära för starka band, långt bort för svaga.",
+    "durationMinutes": 20,
+    "difficulty": "EASY",
+    "category": "DRAWING_EXERCISES",
+    "youtubeUrl": null,
+    "instructions": "Material: Papper, färgpennor\n\n1. Rita dig själv i mitten\n2. Rita familjemedlemmar runt dig\n3. Nära = stark relation, långt bort = svag\n4. Dra linjer emellan: tjocka = starka band, streckade = osäkra\n5. Använd färger: grönt = stöd, rött = konflikt\n6. Diskutera med terapeuten: Vem står närmast? Vem vill du flytta närmare?"
+  },
+  {
+    "title": "Familjen som djur",
+    "description": "Rita varje familjemedlem som ett djur som representerar dem. En lekfull metod att utforska roller och relationer i familjen.",
+    "durationMinutes": 25,
+    "difficulty": "EASY",
+    "category": "DRAWING_EXERCISES",
+    "youtubeUrl": null,
+    "instructions": "Material: Papper, färgpennor\n\n1. Tänk på din familj – vilka djur liknar de?\n2. Rita varje person som sitt djur\n3. Placera djuren i en scen – vad gör de?\n4. Rita dig själv som ett djur bland dem\n5. Diskutera: Varför just de djuren? Hur samspelar de?"
+  },
+  {
+    "title": "Veckokänslor",
+    "description": "Rita hur din vecka har känts – använd färger och former. Varje dag får en egen ruta med en symbol eller färg som representerar dagens känsla.",
+    "durationMinutes": 15,
+    "difficulty": "EASY",
+    "category": "DRAWING_EXERCISES",
+    "youtubeUrl": null,
+    "instructions": "Material: Papper, färgpennor/kritor\n\n1. Rita 7 rutor i rad (mån–sön)\n2. Välj färger: rött = ilska, blått = sorg, gult = glädje, grönt = lugn\n3. Färglägg varje dag med den känsla som dominerade\n4. Skriv ett ord under varje ruta om varför\n5. Diskutera: Vilka mönster ser du? Vad utlöste de starkaste känslorna?"
+  },
+  {
+    "title": "Känslokartan i kroppen",
+    "description": "Rita en kroppskontur och färglägg var i kroppen du kände veckans känslor. Synliggör kopplingen mellan kropp och känsla.",
+    "durationMinutes": 20,
+    "difficulty": "MEDIUM",
+    "category": "DRAWING_EXERCISES",
+    "youtubeUrl": null,
+    "instructions": "Material: Stort papper, kritor\n\n1. Rita en stor kroppskontur\n2. Tänk igenom veckan: vilka starka känslor hade du?\n3. Välj en färg per känsla\n4. Färglägg den plats i kroppen där du kände känslan\n5. Skriv känslornas namn bredvid\n6. Diskutera: Var sitter stressen? Vad kan du göra när du känner det?"
+  },
+  {
+    "title": "Självbild",
+    "description": "Rita hur du ser på dig själv just nu. Två halvor: masken du visar utåt och ditt riktiga jag bakom den.",
+    "durationMinutes": 25,
+    "difficulty": "MEDIUM",
+    "category": "DRAWING_EXERCISES",
+    "youtubeUrl": null,
+    "instructions": "Material: Papper, färgpennor\n\n1. Dela pappret i två halvor\n2. Vänster: 'Jag utåt' – hur andra ser dig\n3. Höger: 'Jag inuti' – hur du egentligen mår\n4. Använd färger som förstärker känslan\n5. Diskutera: Varför bär du masken? Vem får se ditt riktiga jag?"
+  },
+  {
+    "title": "Framtidsjaget",
+    "description": "Rita dig själv om ett år – fri från beroendet. Hur ser du ut? Var är du? Vem är du med? Visualisera den framtid du jobbar mot.",
+    "durationMinutes": 30,
+    "difficulty": "MEDIUM",
+    "category": "DRAWING_EXERCISES",
+    "youtubeUrl": null,
+    "instructions": "Material: Papper, färgpennor\n\n1. Blunda och tänk: hur ser mitt liv ut om ett år?\n2. Rita bilden: var är du, vem är du med, vad gör du?\n3. Skriv tre ord som beskriver framtidsjaget\n4. Diskutera: Vad behövs för att nå dit? Vad är första steget?"
+  },
+  {
+    "title": "Riskkartering",
+    "description": "Rita situationer eller platser som triggar sug. Kartlägg dina riskmiljöer och identifiera mönster som du kan undvika eller hantera.",
+    "durationMinutes": 30,
+    "difficulty": "MEDIUM",
+    "category": "DRAWING_EXERCISES",
+    "youtubeUrl": null,
+    "instructions": "Material: Stort papper, pennor i olika färger\n\n1. Rita dig själv i mitten\n2. Runt dig: rita platser, personer och situationer som triggar sug\n3. Rött = hög risk, orange = medel, gult = låg\n4. Rita skyddande faktorer med grönt (t.ex. vänner, aktiviteter)\n5. Diskutera: Vilka triggers kan du undvika? Vilka måste du lära dig hantera?"
+  },
+  {
+    "title": "Min trygga plats",
+    "description": "Rita en plats där du känner dig trygg – verklig eller påhittad. Visualisera din fristad som du kan återvända till i tankarna vid stress eller sug.",
+    "durationMinutes": 20,
+    "difficulty": "EASY",
+    "category": "DRAWING_EXERCISES",
+    "youtubeUrl": null,
+    "instructions": "Material: Papper, kritor/färgpennor\n\n1. Blunda och tänk på en plats där du känner dig helt trygg\n2. Rita platsen med så mycket detalj du kan\n3. Lägg till färger, ljud och dofter som etiketter\n4. Rita dig själv i bilden – hur ser du ut där?\n5. Diskutera: Vad gör platsen trygg? Hur kan du besöka den i tankarna?"
+  },
+  {
+    "title": "Hälsosam Frukost",
+    "description": "Börja dagen med en näringsrik frukost. God kost ger energi och stärker kropp och sinne i återhämtningen.",
+    "durationMinutes": 20,
+    "difficulty": "EASY",
+    "category": "HEALTHY_HABITS",
+    "youtubeUrl": null,
+    "instructions": "1. Planera en hälsosam frukost kvällen innan\n2. Inkludera protein, fibrer och frukt\n3. Ät lugnt utan skärmar\n4. Drick vatten till maten\n5. Notera hur du mår efteråt"
+  },
+  {
+    "title": "Sömnrutin",
+    "description": "Skapa en lugn kvällsrutin för bättre sömn. God sömn är grundläggande för återhämtning och mental hälsa.",
+    "durationMinutes": 30,
+    "difficulty": "MEDIUM",
+    "category": "HEALTHY_HABITS",
+    "youtubeUrl": null,
+    "instructions": "1. Stäng av alla skärmar 1 timme före sänggåendet\n2. Ta ett varmt bad eller dusch\n3. Läs en bok eller lyssna på lugn musik\n4. Skriv ner eventuella orostankar\n5. Gå och lägg dig vid samma tid varje kväll"
+  },
+  {
+    "title": "Vattendrinking",
+    "description": "Drick minst 8 glas vatten under dagen. Hydrering påverkar humör, energi och kognitiv funktion positivt.",
+    "durationMinutes": 1440,
+    "difficulty": "EASY",
+    "category": "HEALTHY_HABITS",
+    "youtubeUrl": null,
+    "instructions": "1. Fyll en vattenflaska på morgonen\n2. Drick ett glas vid varje måltid\n3. Sätt påminnelser varannan timme\n4. Byt ut sötade drycker mot vatten\n5. Notera din energinivå under dagen"
+  },
+  {
+    "title": "Måltidsplanering",
+    "description": "Planera hälsosamma måltider för hela veckan. Struktur och planering minskar stress och impulsiva val.",
+    "durationMinutes": 45,
+    "difficulty": "MEDIUM",
+    "category": "HEALTHY_HABITS",
+    "youtubeUrl": null,
+    "instructions": "1. Skriv ner vad du vill äta varje dag\n2. Gör en inköpslista\n3. Fokusera på varierad och näringsrik mat\n4. Förbered det du kan i förväg\n5. Planera in hälsosamma snacks"
+  },
+  {
+    "title": "Laga Ny Hälsosam Rätt",
+    "description": "Testa att laga en ny hälsosam maträtt. Matlagning är kreativt, avkopplande och ger kontroll över vad du äter.",
+    "durationMinutes": 45,
+    "difficulty": "MEDIUM",
+    "category": "HEALTHY_HABITS",
+    "youtubeUrl": null,
+    "instructions": "1. Välj ett recept med naturliga ingredienser\n2. Handla det du behöver\n3. Laga maten lugnt och medvetet\n4. Duka fint och ät utan skärmar\n5. Reflektera: hur smakar det? Vill du laga det igen?"
+  },
+  {
+    "title": "Skärmfri Kväll",
+    "description": "Lägg undan alla skärmar efter kl 20. Läs, prata, eller bara vila. Skärmljus stör sömnen och överstimulerar hjärnan.",
+    "durationMinutes": 180,
+    "difficulty": "MEDIUM",
+    "category": "HEALTHY_HABITS",
+    "youtubeUrl": null,
+    "instructions": "1. Sätt en påminnelse kl 20\n2. Lägg mobilen på laddning i ett annat rum\n3. Stäng av TV och dator\n4. Gör något analogt: läs, rita, prata, ta en promenad\n5. Gå och lägg dig när du känner dig trött"
+  },
+  {
+    "title": "Naturvistelse",
+    "description": "Spendera minst 30 minuter ute i naturen. Forskning visar att natur minskar stress, sänker blodtryck och förbättrar humöret.",
+    "durationMinutes": 30,
+    "difficulty": "EASY",
+    "category": "HEALTHY_HABITS",
+    "youtubeUrl": null,
+    "instructions": "1. Gå till en park, skog eller vattendrag\n2. Lämna mobilen på ljudlös\n3. Gå sakta och uppmärksamma detaljer\n4. Andas djupt och känn dofter\n5. Sitt ner en stund och bara lyssna"
+  },
+  {
+    "title": "Undvik Socker en Dag",
+    "description": "Gå en hel dag utan tillsatt socker. Sockerberoende och substansberoende delar samma belöningssystem i hjärnan.",
+    "durationMinutes": 1440,
+    "difficulty": "HARD",
+    "category": "HEALTHY_HABITS",
+    "youtubeUrl": null,
+    "instructions": "1. Planera måltider utan tillsatt socker\n2. Läs ingredienslistor noggrant\n3. Välj frukt vid sötsug\n4. Drick vatten istället för söta drycker\n5. Reflektera på kvällen: hur mår du?"
+  },
+  {
+    "title": "Samtalsövning",
+    "description": "Starta ett samtal med någon du inte brukar prata med. Sociala kontakter stärker välmåendet och motverkar isolering.",
+    "durationMinutes": 15,
+    "difficulty": "MEDIUM",
+    "category": "SOCIAL_SKILLS",
+    "youtubeUrl": null,
+    "instructions": "1. Identifiera en person du vill prata med\n2. Förbered ett samtalsämne\n3. Starta samtalet med en öppen fråga\n4. Lyssna aktivt och visa intresse\n5. Reflektera efteråt: hur kändes det?"
+  },
+  {
+    "title": "Tacka Någon",
+    "description": "Uttryck genuin tacksamhet till någon som betytt mycket för dig. Att visa uppskattning stärker relationer.",
+    "durationMinutes": 10,
+    "difficulty": "EASY",
+    "category": "SOCIAL_SKILLS",
+    "youtubeUrl": null,
+    "instructions": "1. Tänk på någon som hjälpt dig\n2. Skriv ett meddelande eller ring\n3. Berätta specifikt vad du uppskattar\n4. Var ärlig och öppen\n5. Notera hur det känns att uttrycka tacksamhet"
+  },
+  {
+    "title": "Gruppaktivitet",
+    "description": "Delta i en gruppaktivitet eller ett event. Det kan vara en promenadgrupp, sportaktivitet eller hobbygrupp.",
+    "durationMinutes": 60,
+    "difficulty": "HARD",
+    "category": "SOCIAL_SKILLS",
+    "youtubeUrl": null,
+    "instructions": "1. Sök efter lokala grupper eller events\n2. Välj något som intresserar dig\n3. Anmäl dig och delta\n4. Försök prata med minst en ny person\n5. Reflektera: vill du delta igen?"
+  },
+  {
+    "title": "Lyssna Aktivt",
+    "description": "Öva på aktivt lyssnande i ett samtal. Fokusera helt på den andra personen utan att tänka på vad du ska svara.",
+    "durationMinutes": 20,
+    "difficulty": "EASY",
+    "category": "SOCIAL_SKILLS",
+    "youtubeUrl": null,
+    "instructions": "1. Välj ett samtal att öva i\n2. Ge full uppmärksamhet - lägg undan mobilen\n3. Ställ följdfrågor baserat på vad personen säger\n4. Sammanfatta vad du hört\n5. Undvik att ge råd om det inte efterfrågas"
+  },
+  {
+    "title": "Ring en Vän",
+    "description": "Ring en vän eller familjemedlem du inte pratat med på ett tag. Att upprätthålla relationer är viktigt i återhämtningen.",
+    "durationMinutes": 15,
+    "difficulty": "EASY",
+    "category": "SOCIAL_SKILLS",
+    "youtubeUrl": null,
+    "instructions": "1. Tänk på någon du inte hört av dig till på länge\n2. Ring dem – inte bara sms\n3. Fråga hur de mår och lyssna\n4. Berätta hur du mår om det känns okej\n5. Bestäm att höras igen snart"
+  },
+  {
+    "title": "Be Om Hjälp",
+    "description": "Öva på att be om hjälp med något litet. Att be om hjälp är styrka, inte svaghet, och bygger tillit.",
+    "durationMinutes": 10,
+    "difficulty": "MEDIUM",
+    "category": "SOCIAL_SKILLS",
+    "youtubeUrl": null,
+    "instructions": "1. Identifiera något du behöver hjälp med\n2. Välj en person du litar på\n3. Formulera din förfrågan tydligt\n4. Var ödmjuk och uppskattande\n5. Reflektera: hur kändes det att ta emot hjälp?"
+  },
+  {
+    "title": "Ge en Komplimang",
+    "description": "Ge tre ärliga komplimanger till tre olika personer idag. Att sprida positivitet stärker både dig och andra.",
+    "durationMinutes": 5,
+    "difficulty": "EASY",
+    "category": "SOCIAL_SKILLS",
+    "youtubeUrl": null,
+    "instructions": "1. Välj tre personer du möter idag\n2. Ge varje person en ärlig komplimang\n3. Var specifik – inte bara 'du är bra'\n4. Notera deras reaktion och hur du mår\n5. Reflektera på kvällen: hur påverkade det din dag?"
+  },
+  {
+    "title": "Sätt Gränser",
+    "description": "Öva på att säga nej till något du inte vill göra. Att sätta hälsosamma gränser skyddar din återhämtning.",
+    "durationMinutes": 10,
+    "difficulty": "HARD",
+    "category": "SOCIAL_SKILLS",
+    "youtubeUrl": null,
+    "instructions": "1. Identifiera en situation där du brukar säga ja fast du vill säga nej\n2. Förbered en ärlig men respektfull formulering\n3. Säg nej nästa gång situationen uppstår\n4. Stå fast vid ditt beslut utan att förklara för mycket\n5. Reflektera: hur kändes det? Vad blev konsekvensen?"
+  },
+  {
+    "title": "Känslocheck",
+    "description": "Stanna upp tre gånger under dagen och identifiera vad du känner just nu. Namnge känslan utan att döma den.",
+    "durationMinutes": 5,
+    "difficulty": "EASY",
+    "category": "EMOTIONAL_AWARENESS",
+    "youtubeUrl": null,
+    "instructions": "1. Sätt tre påminnelser under dagen\n2. Stanna upp och andas\n3. Fråga dig: vad känner jag just nu?\n4. Namnge känslan (glad, ledsen, arg, orolig, etc.)\n5. Acceptera känslan utan att döma"
+  },
+  {
+    "title": "Triggermapping",
+    "description": "Identifiera och skriv ner dina emotionella triggers. Förståelse för vad som utlöser starka känslor är nyckeln till hantering.",
+    "durationMinutes": 20,
+    "difficulty": "MEDIUM",
+    "category": "EMOTIONAL_AWARENESS",
+    "youtubeUrl": null,
+    "instructions": "1. Tänk på senaste veckan\n2. Identifiera situationer som väckte starka känslor\n3. Skriv ner: situation, känsla, reaktion\n4. Sök mönster i dina triggers\n5. Brainstorma alternativa reaktioner"
+  },
+  {
+    "title": "Känslodagbok",
+    "description": "Skriv en detaljerad känslodagbok varje kväll. Dokumentera dina känslor, vad som orsakade dem och hur du hanterade dem.",
+    "durationMinutes": 15,
+    "difficulty": "EASY",
+    "category": "EMOTIONAL_AWARENESS",
+    "youtubeUrl": null,
+    "instructions": "1. Avsätt 15 minuter på kvällen\n2. Skriv ner de starkaste känslorna under dagen\n3. Beskriv vad som utlöste varje känsla\n4. Hur reagerade du?\n5. Vad kunde du gjort annorlunda?"
+  },
+  {
+    "title": "Grounding-övning",
+    "description": "Praktisera 5-4-3-2-1-tekniken för att jorda dig i nuet. En kraftfull övning vid ångest eller starka emotionella reaktioner.",
+    "durationMinutes": 10,
+    "difficulty": "EASY",
+    "category": "EMOTIONAL_AWARENESS",
+    "youtubeUrl": "https://www.youtube.com/watch?v=30VMIEmA114",
+    "instructions": "1. Identifiera 5 saker du kan SE\n2. Identifiera 4 saker du kan RÖRA\n3. Identifiera 3 saker du kan HÖRA\n4. Identifiera 2 saker du kan LUKTA\n5. Identifiera 1 sak du kan SMAKA"
+  },
+  {
+    "title": "Känslohjulet",
+    "description": "Använd ett känslohjul för att identifiera exakt vad du känner. Ofta säger vi 'dåligt' men det kan vara sorg, frustration, skam eller ensamhet.",
+    "durationMinutes": 10,
+    "difficulty": "EASY",
+    "category": "EMOTIONAL_AWARENESS",
+    "youtubeUrl": null,
+    "instructions": "1. Sök upp ett känslohjul (feelings wheel) online\n2. Börja i mitten: glad, ledsen, arg, rädd etc.\n3. Gå utåt för mer specifika känslor\n4. Hitta den känsla som bäst beskriver hur du mår\n5. Skriv ner känslan och vad som orsakade den"
+  },
+  {
+    "title": "Hantera Sug",
+    "description": "Nästa gång du känner sug, använd HALT-tekniken. Är du Hungry, Angry, Lonely eller Tired? Ofta handlar sug om grundläggande behov.",
+    "durationMinutes": 10,
+    "difficulty": "MEDIUM",
+    "category": "EMOTIONAL_AWARENESS",
+    "youtubeUrl": null,
+    "instructions": "1. När suget kommer, stanna upp\n2. Fråga dig: Är jag Hungrig? Arg? Ensam? Trött?\n3. Åtgärda det underliggande behovet\n4. Vänta 15 minuter – suget brukar passera\n5. Skriv ner vad som hände och vad som hjälpte"
+  },
+  {
+    "title": "Självmedkänsla",
+    "description": "Skriv ner något du skuldbelägger dig själv för. Skriv sedan ett svar som om du pratade med din bästa vän. Behandla dig själv med samma vänlighet.",
+    "durationMinutes": 15,
+    "difficulty": "MEDIUM",
+    "category": "EMOTIONAL_AWARENESS",
+    "youtubeUrl": null,
+    "instructions": "1. Skriv ner en situation där du är hård mot dig själv\n2. Notera vad din inre kritiker säger\n3. Skriv nu vad du skulle säga till en vän i samma situation\n4. Läs det vänliga svaret högt för dig själv\n5. Reflektera: varför förtjänar du inte samma vänlighet?"
+  },
+  {
+    "title": "Ilskehantering",
+    "description": "Öva på att hantera ilska konstruktivt. Ilska är en naturlig känsla men behöver uttryckas på hälsosamma sätt.",
+    "durationMinutes": 15,
+    "difficulty": "MEDIUM",
+    "category": "EMOTIONAL_AWARENESS",
+    "youtubeUrl": null,
+    "instructions": "1. Tänk på en situation som gör dig arg\n2. Betygsätt ilskan 1-10\n3. Andas djupt 10 gånger\n4. Skriv ner vad som gör dig arg och varför\n5. Formulera vad du behöver utan att skylla\n6. Skriv ner 3 sätt att hantera ilskan konstruktivt"
+  }
+]
+

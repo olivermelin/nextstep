@@ -9,6 +9,8 @@ import se.sobriety.nextstep.mapper.UserChallengeMapper;
 import se.sobriety.nextstep.repository.ChallengeRepository;
 import se.sobriety.nextstep.repository.UserChallengeRepository;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -33,15 +35,38 @@ public class UserChallengeService {
     }
 
     /**
-     * Starta en challenge för en användare
+     * Starta en challenge för en användare.
+     * Blockerar om samma challenge redan har slutförts idag.
+     * Returnerar befintlig aktiv challenge om den redan är startad.
+     * Tillåter att göra om en challenge nästa dag.
      */
     public UserChallengeOutDto startChallenge(String userId, Long challengeId) {
-        // Validera att användaren inte redan har slutfört denna challenge
-        boolean alreadyCompleted = userChallengeRepository
-                .existsByUserIdAndChallengeIdAndCompleted(userId, challengeId, true);
+        // Validera att användaren inte redan har slutfört denna challenge idag
+        LocalDateTime startOfDay = LocalDate.now().atStartOfDay();
+        boolean alreadyCompletedToday = userChallengeRepository
+                .existsCompletedSince(userId, challengeId, startOfDay);
 
-        if (alreadyCompleted) {
-            throw new IllegalArgumentException("Challenge already completed by user");
+        if (alreadyCompletedToday) {
+            throw new IllegalArgumentException("Challenge already completed today. Try again tomorrow!");
+        }
+
+        // Returnera befintlig aktiv (ej slutförd) challenge om den finns (samma challenge)
+        var existing = userChallengeRepository
+                .findTopByUserIdAndChallengeIdAndCompletedOrderByStartedAtDesc(userId, challengeId, false);
+        if (existing.isPresent()) {
+            return userChallengeMapper.toDto(existing.get());
+        }
+
+        // Blockera om en ANNAN challenge redan pågår idag
+        List<UserChallenge> activeOther = userChallengeRepository.findByUserIdAndCompleted(userId, false)
+                .stream()
+                .filter(uc -> uc.getStartedAt().isAfter(startOfDay))
+                .filter(uc -> !uc.getChallenge().getId().equals(challengeId))
+                .toList();
+        if (!activeOther.isEmpty()) {
+            String activeName = activeOther.getFirst().getChallenge().getTitle();
+            throw new IllegalArgumentException(
+                    "Du har redan en pågående aktivitet: \"" + activeName + "\". Slutför den först!");
         }
 
         Challenge challenge = challengeRepository.findById(challengeId)
@@ -54,16 +79,24 @@ public class UserChallengeService {
     }
 
     /**
-     * Slutför en challenge och tilldela poäng
+     * Slutför en challenge och tilldela poäng.
+     * Blockerar om samma challenge redan slutförts idag.
      */
     public UserChallengeOutDto completeChallenge(String userId, Long challengeId) {
+        // Kolla om redan slutförd idag
+        LocalDateTime startOfDay = LocalDate.now().atStartOfDay();
+        boolean alreadyCompletedToday = userChallengeRepository
+                .existsCompletedSince(userId, challengeId, startOfDay);
+
+        if (alreadyCompletedToday) {
+            throw new IllegalArgumentException("Challenge already completed today. Try again tomorrow!");
+        }
+
+        // Hitta aktiv (ej slutförd) challenge
         UserChallenge userChallenge = userChallengeRepository
-                .findByUserIdAndChallengeId(userId, challengeId)
+                .findTopByUserIdAndChallengeIdAndCompletedOrderByStartedAtDesc(userId, challengeId, false)
                 .orElseThrow(() -> new IllegalArgumentException("User challenge not found"));
 
-        if (userChallenge.isCompleted()) {
-            throw new IllegalArgumentException("Challenge already completed");
-        }
 
         // Markera som slutförd och tilldela poäng
         userChallenge.complete();
@@ -77,12 +110,14 @@ public class UserChallengeService {
     }
 
     /**
-     * Hämta alla challenges för en användare
+     * Hämta alla challenges för en användare (aktiva idag + slutförda)
      */
     @Transactional(readOnly = true)
     public List<UserChallengeOutDto> getUserChallenges(String userId) {
+        LocalDateTime startOfDay = LocalDate.now().atStartOfDay();
         return userChallengeRepository.findByUserId(userId)
                 .stream()
+                .filter(uc -> uc.isCompleted() || uc.getStartedAt().isAfter(startOfDay))
                 .map(userChallengeMapper::toDto)
                 .collect(Collectors.toList());
     }
@@ -99,12 +134,14 @@ public class UserChallengeService {
     }
 
     /**
-     * Hämta pågående challenges för en användare
+     * Hämta pågående challenges för en användare (startade idag)
      */
     @Transactional(readOnly = true)
     public List<UserChallengeOutDto> getUserActiveChallenges(String userId) {
+        LocalDateTime startOfDay = LocalDate.now().atStartOfDay();
         return userChallengeRepository.findByUserIdAndCompleted(userId, false)
                 .stream()
+                .filter(uc -> uc.getStartedAt().isAfter(startOfDay))
                 .map(userChallengeMapper::toDto)
                 .collect(Collectors.toList());
     }
