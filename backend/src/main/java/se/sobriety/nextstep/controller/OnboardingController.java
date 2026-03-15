@@ -1,5 +1,6 @@
 package se.sobriety.nextstep.controller;
 
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import se.sobriety.nextstep.dto.OnboardingDataDto;
@@ -27,7 +28,7 @@ public class OnboardingController {
     @PostMapping("/complete/{userId}")
     public ResponseEntity<OnboardingResponseDto> completeOnboarding(
             @PathVariable String userId,
-            @RequestBody OnboardingDataDto data) {
+            @Valid @RequestBody OnboardingDataDto data) {
 
         onboardingService.completeOnboarding(userId, data);
 

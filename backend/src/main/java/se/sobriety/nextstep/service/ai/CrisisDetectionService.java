@@ -11,41 +11,54 @@ import java.util.regex.Pattern;
 /**
  * Skannar användarmeddelanden efter kris-signaler.
  * Returnerar CrisisLevel och vid CRITICAL ett fördefinierat säkert svar.
+ *
+ * OBS: Använder (?iu) för Unicode-medveten case-insensitivity (krävs för å, ä, ö).
+ * Använder lookahead/lookbehind istället för \b som ordgränser,
+ * eftersom Java \b inte hanterar svenska tecken som ordkaraktärer.
  */
 @Service
 public class CrisisDetectionService {
 
     private static final Logger log = LoggerFactory.getLogger(CrisisDetectionService.class);
 
+    // Flaggor: case-insensitive + unicode case-folding (å/Å, ä/Ä, ö/Ö)
+    private static final String FLAGS = "(?iu)";
+
+    // Unicode-medveten ordgräns: matchar vid start av sträng eller efter whitespace
+    private static final String WB_START = "(?<=\\s|^)";
+    // Unicode-medveten ordgräns: matchar vid slut av sträng eller före whitespace/skiljetecken
+    private static final String WB_END = "(?=\\s|[.,;:!?]|$)";
+
     // CRITICAL – direkta krisuttryck kring självmord, överdos, självskada
     private static final List<Pattern> CRITICAL_PATTERNS = List.of(
-            Pattern.compile("(?i)\\b(vill|tänker|planerar|ska|kommer)\\s+(ta\\s+livet|döda\\s+mig|begå\\s+självmord|avsluta\\s+allt)"),
-            Pattern.compile("(?i)\\b(självmord|suicid)\\b"),
-            Pattern.compile("(?i)\\b(överdos|overdose)\\b"),
-            Pattern.compile("(?i)\\b(vill\\s+inte\\s+leva|orkar\\s+inte\\s+leva|vill\\s+dö|bättre\\s+utan\\s+mig)"),
-            Pattern.compile("(?i)\\b(tagit\\s+för\\s+mycket|tagit\\s+en\\s+överdos)"),
-            Pattern.compile("(?i)\\b(skära\\s+mig|skadar\\s+mig\\s+själv|självskada)"),
-            Pattern.compile("(?i)\\b(ingen\\s+mening\\s+att\\s+leva)"),
-            Pattern.compile("(?i)\\b(suicide|kill\\s+myself|end\\s+my\\s+life|want\\s+to\\s+die)")
+            // "vill/tänker/planerar (att) ta livet av mig / döda mig / begå självmord"
+            Pattern.compile(FLAGS + WB_START + "(vill|tänker|planerar|ska|kommer)(?:\\s+att)?\\s+(ta\\s+livet|döda\\s+mig|begå\\s+självmord|avsluta\\s+allt)"),
+            Pattern.compile(FLAGS + WB_START + "(självmord|suicid)" + WB_END),
+            Pattern.compile(FLAGS + WB_START + "(överdos|overdose)" + WB_END),
+            Pattern.compile(FLAGS + WB_START + "(vill\\s+inte\\s+leva|orkar\\s+inte\\s+leva|vill\\s+dö|bättre\\s+utan\\s+mig)"),
+            Pattern.compile(FLAGS + WB_START + "(tagit\\s+för\\s+mycket|tagit\\s+en\\s+överdos)"),
+            Pattern.compile(FLAGS + WB_START + "(skära\\s+mig|skadar\\s+mig\\s+själv|självskada)" + WB_END),
+            Pattern.compile(FLAGS + WB_START + "(ingen\\s+mening\\s+att\\s+leva)"),
+            Pattern.compile(FLAGS + WB_START + "(suicide|kill\\s+myself|end\\s+my\\s+life|want\\s+to\\s+die)")
     );
 
     // ELEVATED – återfall kombinerat med hopplöshetsmönster
     private static final List<Pattern> ELEVATED_PATTERNS = List.of(
-            Pattern.compile("(?i)\\b(återfall|relaps|börjat\\s+dricka\\s+igen|tagit\\s+droger\\s+igen|börjat\\s+använda\\s+igen)"),
-            Pattern.compile("(?i)\\b(hopplös|ingen\\s+mening|ger\\s+upp|kan\\s+inte\\s+mer|klarar\\s+inte)"),
-            Pattern.compile("(?i)\\b(ensam|ingen\\s+bryr\\s+sig|ingen\\s+förstår)"),
-            Pattern.compile("(?i)\\b(panik|ångest\\s+attack|panikångest)"),
-            Pattern.compile("(?i)\\b(sug\\s+efter|craving|måste\\s+ha|abstinens)")
+            Pattern.compile(FLAGS + WB_START + "(återfall|relaps|börjat\\s+dricka\\s+igen|tagit\\s+droger\\s+igen|börjat\\s+använda\\s+igen)"),
+            Pattern.compile(FLAGS + WB_START + "(hopplös|ingen\\s+mening|ger\\s+upp|kan\\s+inte\\s+mer|klarar\\s+inte)"),
+            Pattern.compile(FLAGS + WB_START + "(ensam|ingen\\s+bryr\\s+sig|ingen\\s+förstår)"),
+            Pattern.compile(FLAGS + WB_START + "(panik|ångest\\s+attack|panikångest)" + WB_END),
+            Pattern.compile(FLAGS + WB_START + "(sug\\s+efter|craving|måste\\s+ha|abstinens)" + WB_END)
     );
 
     // Hopplöshetsförstärkare som höjer ELEVATED till CRITICAL om kombinerade med återfall
     private static final List<Pattern> HOPELESSNESS_PATTERNS = List.of(
-            Pattern.compile("(?i)\\b(hopplöst|meningslöst|ingen\\s+idé|aldrig\\s+bli\\s+bättre|ger\\s+upp\\s+helt)"),
-            Pattern.compile("(?i)\\b(ingen\\s+kan\\s+hjälpa|inget\\s+fungerar|allt\\s+är\\s+kört)")
+            Pattern.compile(FLAGS + WB_START + "(hopplöst|meningslöst|ingen\\s+idé|aldrig\\s+bli\\s+bättre|ger\\s+upp\\s+helt)"),
+            Pattern.compile(FLAGS + WB_START + "(ingen\\s+kan\\s+hjälpa|inget\\s+fungerar|allt\\s+är\\s+kört)")
     );
 
     private static final List<Pattern> RELAPSE_PATTERNS = List.of(
-            Pattern.compile("(?i)\\b(återfall|relaps|druckit|tagit\\s+droger|använt\\s+igen|börjat\\s+igen)")
+            Pattern.compile(FLAGS + WB_START + "(återfall|relaps|druckit|tagit\\s+droger|använt\\s+igen|börjat\\s+igen)")
     );
 
     /**
@@ -113,4 +126,3 @@ public class CrisisDetectionService {
                 """;
     }
 }
-

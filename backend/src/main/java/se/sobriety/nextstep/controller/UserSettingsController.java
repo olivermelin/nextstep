@@ -1,5 +1,6 @@
 package se.sobriety.nextstep.controller;
 
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import se.sobriety.nextstep.dto.UserSettingsInDto;
@@ -19,7 +20,7 @@ public class UserSettingsController {
     @PostMapping("/{userId}")
     public ResponseEntity<UserSettingsOutDto> updateUserSettings(
             @PathVariable String userId,
-            @RequestBody UserSettingsInDto dto) {
+            @Valid @RequestBody UserSettingsInDto dto) {
 
         UserSettingsOutDto updated = userSettingsService.updateUserSettings(userId, dto);
         return ResponseEntity.ok(updated);

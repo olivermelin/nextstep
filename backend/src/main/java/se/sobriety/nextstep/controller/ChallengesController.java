@@ -1,5 +1,6 @@
 package se.sobriety.nextstep.controller;
 
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import se.sobriety.nextstep.dto.ChallengeInDto;
@@ -113,7 +114,7 @@ public class ChallengesController {
      */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ChallengeOutDto createChallenge(@RequestBody ChallengeInDto challengeInDto) {
+    public ChallengeOutDto createChallenge(@Valid @RequestBody ChallengeInDto challengeInDto) {
         return challengeService.createChallenge(challengeInDto);
     }
 
@@ -121,7 +122,7 @@ public class ChallengesController {
      * PUT /api/challenges/{id} - Uppdatera en befintlig challenge
      */
     @PutMapping("/{id}")
-    public ChallengeOutDto updateChallenge(@PathVariable Long id, @RequestBody ChallengeInDto challengeInDto) {
+    public ChallengeOutDto updateChallenge(@PathVariable Long id, @Valid @RequestBody ChallengeInDto challengeInDto) {
         return challengeService.updateChallenge(id, challengeInDto);
     }
 

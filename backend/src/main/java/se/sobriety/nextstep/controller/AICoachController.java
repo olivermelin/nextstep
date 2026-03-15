@@ -1,6 +1,9 @@
 package se.sobriety.nextstep.controller;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Size;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import se.sobriety.nextstep.dto.AICoachRequestDto;
 import se.sobriety.nextstep.dto.AICoachResponseDto;
@@ -13,7 +16,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/coach")
-@CrossOrigin(origins = "*")
+@Validated
 public class AICoachController {
 
     private final AICoachService aiCoachService;
@@ -29,7 +32,7 @@ public class AICoachController {
      * GET /api/coach/motivate?message=Ge mig motivation
      */
     @GetMapping("/motivate")
-    public String motivate(@RequestParam(defaultValue = "Ge mig lite motivation!") String message) {
+    public String motivate(@RequestParam(defaultValue = "Ge mig lite motivation!") @Size(max = 2000) String message) {
         return aiCoachService.getMotivation(message);
     }
 
@@ -41,7 +44,7 @@ public class AICoachController {
     @PostMapping("/chat/{userId}")
     public AICoachResponseDto chat(
             @PathVariable String userId,
-            @RequestBody AICoachRequestDto request
+            @Valid @RequestBody AICoachRequestDto request
     ) {
         // Create new request with userId from path
         AICoachRequestDto requestWithUserId = new AICoachRequestDto(
@@ -63,6 +66,9 @@ public class AICoachController {
             @RequestBody Map<String, String> body
     ) {
         String message = body.getOrDefault("message", "Ge mig lite motivation!");
+        if (message.length() > 2000) {
+            throw new IllegalArgumentException("Message must be at most 2000 characters");
+        }
         return aiCoachService.getPersonalizedCoaching(userId, message);
     }
 
@@ -73,7 +79,7 @@ public class AICoachController {
     @GetMapping("/quick/{userId}")
     public AICoachResponseDto quickMotivation(
             @PathVariable String userId,
-            @RequestParam(defaultValue = "Ge mig lite motivation!") String message
+            @RequestParam(defaultValue = "Ge mig lite motivation!") @Size(max = 2000) String message
     ) {
         return aiCoachService.getPersonalizedCoaching(userId, message);
     }
@@ -87,7 +93,7 @@ public class AICoachController {
     @PostMapping("/message")
     public CoachMessageResponse sendMessage(
             @RequestParam String userId,
-            @RequestBody CoachMessageRequest request
+            @Valid @RequestBody CoachMessageRequest request
     ) {
         return claudeApiService.sendMessage(userId, request.message());
     }
