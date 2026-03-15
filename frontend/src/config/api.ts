@@ -70,7 +70,21 @@ export const API_ENDPOINTS = {
 };
 
 /**
- * Standard fetch-konfiguration med credentials
+ * Custom API error med statuskod för bättre felhantering i komponenter.
+ */
+export class ApiError extends Error {
+  status: number;
+  constructor(message: string, status: number) {
+    super(message);
+    this.name = 'ApiError';
+    this.status = status;
+  }
+}
+
+/**
+ * Standard fetch-konfiguration med credentials.
+ * Hanterar 401/403 automatiskt genom att redirecta till login.
+ * Kastar ApiError med statuskod vid övriga fel.
  */
 export const fetchWithCredentials = async (url: string, options?: RequestInit) => {
   const response = await fetch(url, {
@@ -83,8 +97,26 @@ export const fetchWithCredentials = async (url: string, options?: RequestInit) =
   });
 
   if (!response.ok) {
-    const error = await response.text();
-    throw new Error(error || `HTTP error! status: ${response.status}`);
+    // Session utgången eller saknar behörighet → redirecta till login
+    if (response.status === 401 || response.status === 403) {
+      // Undvik redirect-loop om vi redan är på login/reset-password
+      const path = window.location.pathname;
+      if (!path.startsWith('/login') && !path.startsWith('/reset-password')) {
+        window.location.href = '/login';
+      }
+      throw new ApiError('Session expired', response.status);
+    }
+
+    const errorText = await response.text().catch(() => '');
+    let message = errorText;
+    try {
+      const errorJson = JSON.parse(errorText);
+      message = errorJson.error || errorJson.message || errorText;
+    } catch {
+      // errorText was not JSON, use as-is
+    }
+
+    throw new ApiError(message || `HTTP error! status: ${response.status}`, response.status);
   }
 
   return response.json();
