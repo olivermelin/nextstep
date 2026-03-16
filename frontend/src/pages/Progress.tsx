@@ -81,8 +81,6 @@ const Progress = () => {
       // Hämta användarens totala framsteg
       const progressData = await progressService.getUserProgress(userId);
       
-      console.log("Progress data från backend:", progressData);
-      
       setPoints(progressData.totalPoints || 0);
       setLevel(progressData.level || 1);
 
@@ -105,7 +103,6 @@ const Progress = () => {
         };
       });
       
-      console.log("Kategorier efter mappning:", categoriesWithStyles);
       setCategoryProgress(categoriesWithStyles);
 
       // Mappa achievements med ikoner och svenska texter
@@ -122,8 +119,7 @@ const Progress = () => {
       });
       setAchievements(achievementsWithIcons);
 
-    } catch (error) {
-      console.error("Fel vid hämtning av framsteg:", error);
+    } catch {
       // Vid fel, sätt tom data istället för att låta komponenten krascha
       setCategoryProgress([]);
       setAchievements([]);

@@ -87,8 +87,7 @@ const Settings = () => {
           setSettings(defaultSettings);
           applyTheme(defaultSettings.darkModeEnabled);
         }
-      } catch (error) {
-        console.error("Kunde inte ladda inställningar:", error);
+      } catch {
         toast({
           title: t('common.error'),
           description: t('settings.loadError'),
@@ -134,8 +133,7 @@ const Settings = () => {
         title: t('settings.saved'),
         description: t('settings.savedDesc'),
       });
-    } catch (error) {
-      console.error("Fel vid sparning:", error);
+    } catch {
       toast({
         title: t('settings.saveFailed'),
         description: t('settings.saveFailedDesc'),
@@ -164,8 +162,7 @@ const Settings = () => {
       } else {
         throw new Error("Logout failed");
       }
-    } catch (error) {
-      console.error("Logout error:", error);
+    } catch {
       toast({
         title: t('auth.logoutError'),
         description: t('auth.logoutErrorDesc'),

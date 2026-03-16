@@ -11,6 +11,8 @@ import se.sobriety.nextstep.service.ChallengeService;
 
 import java.util.List;
 
+import static se.sobriety.nextstep.util.SecurityUtils.verifyUserAccess;
+
 @RestController
 @RequestMapping("/api/challenges")
 public class ChallengesController {
@@ -73,6 +75,7 @@ public class ChallengesController {
      */
     @GetMapping("/user/{userId:.+}")
     public List<ChallengeOutDto> getAllChallengesForUser(@PathVariable String userId) {
+        verifyUserAccess(userId);
         return challengeService.getAllChallengesForUser(userId);
     }
 
@@ -83,6 +86,7 @@ public class ChallengesController {
     public List<ChallengeOutDto> getChallengesByCategoryForUser(
             @PathVariable String userId,
             @PathVariable ChallengeCategory category) {
+        verifyUserAccess(userId);
         return challengeService.getChallengesByCategoryForUser(category, userId);
     }
 
@@ -93,6 +97,7 @@ public class ChallengesController {
     public List<ChallengeOutDto> getChallengesByDifficultyForUser(
             @PathVariable String userId,
             @PathVariable ChallengeDifficulty difficulty) {
+        verifyUserAccess(userId);
         return challengeService.getChallengesByDifficultyForUser(difficulty, userId);
     }
 
@@ -104,6 +109,7 @@ public class ChallengesController {
             @PathVariable String userId,
             @PathVariable ChallengeCategory category,
             @PathVariable ChallengeDifficulty difficulty) {
+        verifyUserAccess(userId);
         return challengeService.getChallengesByCategoryAndDifficultyForUser(category, difficulty, userId);
     }
 

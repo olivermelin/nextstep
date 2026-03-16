@@ -166,7 +166,6 @@ const Onboarding = () => {
       navigate("/dashboard");
     } catch (err) {
       setError(t('onboarding.completeError'));
-      console.error(err);
     } finally {
       setLoading(false);
     }

@@ -9,6 +9,8 @@ import se.sobriety.nextstep.service.UserProgressService;
 
 import java.util.List;
 
+import static se.sobriety.nextstep.util.SecurityUtils.verifyUserAccess;
+
 @RestController
 @RequestMapping("/api/progress")
 public class ProgressController {
@@ -25,6 +27,7 @@ public class ProgressController {
      */
     @GetMapping("/{userId}")
     public ProgressResponseDto getProgress(@PathVariable String userId) {
+        verifyUserAccess(userId);
         return service.getTotalProgress(userId);
     }
 
@@ -36,6 +39,7 @@ public class ProgressController {
     public CategoryProgressResponseDto getCategoryProgress(
             @PathVariable String userId,
             @RequestParam(defaultValue = "7") int days) {
+        verifyUserAccess(userId);
         if (days <= 0 || days > 365) {
             throw new IllegalArgumentException("Days must be between 1 and 365");
         }
@@ -48,6 +52,7 @@ public class ProgressController {
      */
     @GetMapping("/{userId}/achievements")
     public List<AchievementDto> getAchievements(@PathVariable String userId) {
+        verifyUserAccess(userId);
         return service.getUserAchievements(userId);
     }
 
@@ -59,6 +64,7 @@ public class ProgressController {
     public ProgressResponseDto addPoints(
             @PathVariable String userId,
             @RequestParam int points) {
+        verifyUserAccess(userId);
         if (points <= 0 || points > 100) {
             throw new IllegalArgumentException("Invalid points: must be between 1 and 100");
         }
@@ -75,11 +81,13 @@ public class ProgressController {
 
     @PostMapping("/{userId}/create")
     public UserProgress createUser(@PathVariable String userId) {
+        verifyUserAccess(userId);
         return service.createUser(userId);
     }
 
     @DeleteMapping("/{userId}")
     public String deleteUser(@PathVariable String userId) {
+        verifyUserAccess(userId);
         service.deleteUser(userId);
         return "User " + userId + " deleted (if existed)";
     }

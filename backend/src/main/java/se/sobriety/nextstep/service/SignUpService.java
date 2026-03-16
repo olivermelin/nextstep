@@ -1,28 +1,31 @@
 package se.sobriety.nextstep.service;
 
 import jakarta.transaction.Transactional;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import se.sobriety.nextstep.dto.SignUpRequestDto;
 import se.sobriety.nextstep.dto.SignUpResponseDto;
 import se.sobriety.nextstep.entity.User;
 import se.sobriety.nextstep.repository.UserRepository;
 
+@Slf4j
 @Service
 @Transactional
 public class SignUpService {
 
     private final UserRepository userRepository;
-    private final BCryptPasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
     private final UserInitializationService userInitializationService;
     private final MailNotificationService mailNotificationService;
 
     public SignUpService(
             UserRepository userRepository,
+            PasswordEncoder passwordEncoder,
             UserInitializationService userInitializationService,
             MailNotificationService mailNotificationService) {
         this.userRepository = userRepository;
-        this.passwordEncoder = new BCryptPasswordEncoder();
+        this.passwordEncoder = passwordEncoder;
         this.userInitializationService = userInitializationService;
         this.mailNotificationService = mailNotificationService;
     }
@@ -57,7 +60,7 @@ public class SignUpService {
         try {
             mailNotificationService.sendWelcomeEmail(request.email(), request.name());
         } catch (Exception e) {
-            System.err.println("Warning: Could not send welcome email to " + request.email() + ": " + e.getMessage());
+            log.warn("Could not send welcome email to user: {}", e.getMessage());
         }
 
         return new SignUpResponseDto(
@@ -90,8 +93,8 @@ public class SignUpService {
             throw new IllegalArgumentException("Invalid email format");
         }
 
-        if (request.password() == null || request.password().length() < 6) {
-            throw new IllegalArgumentException("Password must be at least 6 characters");
+        if (request.password() == null || request.password().length() < 8) {
+            throw new IllegalArgumentException("Password must be at least 8 characters");
         }
 
         if (request.name() == null || request.name().isBlank()) {

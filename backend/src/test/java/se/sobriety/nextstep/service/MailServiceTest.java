@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.SimpleMailMessage;
 import jakarta.mail.internet.MimeMessage;
 import se.sobriety.nextstep.dto.MailRequest;
 import se.sobriety.nextstep.service.mail.MailTemplateProvider;
@@ -49,7 +48,7 @@ class MailServiceTest {
         mailService.sendMail(request);
 
         // Then
-        verify(mailSender, times(1)).send(any(SimpleMailMessage.class));
+        verify(mailSender, times(1)).send(any(MimeMessage.class));
     }
 
     @Test
@@ -66,7 +65,7 @@ class MailServiceTest {
         mailService.sendMail(request);
 
         // Then
-        verify(mailSender, times(1)).send(any(SimpleMailMessage.class));
+        verify(mailSender, times(1)).send(any(MimeMessage.class));
     }
 
     @Test
@@ -84,7 +83,7 @@ class MailServiceTest {
         mailService.sendMail(request);
 
         // Then
-        verify(mailSender, times(1)).send(any(SimpleMailMessage.class));
+        verify(mailSender, times(1)).send(any(MimeMessage.class));
     }
 
     @Test
@@ -99,6 +98,6 @@ class MailServiceTest {
         mailService.sendMail(request);
 
         // Then
-        verify(mailSender, times(1)).send(any(SimpleMailMessage.class));
+        verify(mailSender, times(1)).send(any(MimeMessage.class));
     }
 }

@@ -35,11 +35,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
 
     loadUser();
-    
+
     // Kontrollera om vi kommer från OAuth-redirect
     const params = new URLSearchParams(window.location.search);
     if (params.get("code") || window.location.pathname.includes("oauth")) {
-      console.log("AuthContext: Detekterade OAuth-redirect, väntar på session...");
       setTimeout(() => {
         loadUser();
       }, 500);
@@ -49,8 +48,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const loadUser = async () => {
     setLoading(true);
     try {
-      console.log("AuthContext: Hämtar användarinfo från /api/auth/me...");
-      
       const response = await fetch(API_ENDPOINTS.AUTH.ME, {
         method: 'GET',
         credentials: 'include',
@@ -60,13 +57,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         },
       });
 
-      console.log("AuthContext: HTTP Status:", response.status);
-
       if (response.ok) {
         const data = await response.json();
-        console.log("AuthContext: Användardata mottagen:", data);
-        console.log("AuthContext: onboardingCompleted värde från backend:", data.onboardingCompleted);
-        
+
         // Verifiera att vi har nödvändig data
         if (data && (data.id || data.email)) {
           const userData: User = {
@@ -76,22 +69,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             picture: data.picture,
             onboardingCompleted: data.onboardingCompleted || false,
           };
-          console.log("AuthContext: Användare satt:", userData.email);
-          console.log("AuthContext: onboardingCompleted satt till:", userData.onboardingCompleted);
           setUser(userData);
         } else {
-          console.log("AuthContext: Data saknar id/email, sätter user till null");
           setUser(null);
         }
       } else if (response.status === 401 || response.status === 403) {
-        console.log("AuthContext: Inte autentiserad (401/403)");
         setUser(null);
       } else {
-        console.warn("AuthContext: Oväntat HTTP-status:", response.status);
         setUser(null);
       }
-    } catch (error) {
-      console.error("AuthContext: Nätverksfel:", error);
+    } catch {
       setUser(null);
     } finally {
       setLoading(false);
@@ -103,98 +90,74 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const login = () => {
-    console.log("AuthContext: Startar Google OAuth...");
-    // Backend bör redirecta tillbaka till http://localhost:3000/ efter inloggning
     window.location.href = API_ENDPOINTS.AUTH.OAUTH_GOOGLE;
   };
 
   const loginWithEmail = async (email: string, password: string) => {
-    try {
-      console.log("AuthContext: Loggar in med email...");
-      
-      const response = await fetch(API_ENDPOINTS.AUTH.LOGIN, {
-        method: 'POST',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      });
+    const response = await fetch(API_ENDPOINTS.AUTH.LOGIN, {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email, password }),
+    });
 
-      console.log("AuthContext: Inloggnings-svar status:", response.status);
-
-      if (response.ok) {
-        setLoading(true);
-        const data = await response.json();
-        const userData: User = {
-          id: data.id || data.email || '',
-          name: data.name || 'Användare',
-          email: data.email || '',
-          picture: data.picture,
-          onboardingCompleted: data.onboardingCompleted || false,
-        };
-        console.log("AuthContext: Användare inloggad:", userData.email);
-        setUser(userData);
-        setLoading(false);
-      } else {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || 'Felaktigt lösenord eller e-postadress');
-      }
-    } catch (error) {
-      console.error("AuthContext: Fel vid email-inloggning:", error);
-      throw error;
+    if (response.ok) {
+      setLoading(true);
+      const data = await response.json();
+      const userData: User = {
+        id: data.id || data.email || '',
+        name: data.name || 'Användare',
+        email: data.email || '',
+        picture: data.picture,
+        onboardingCompleted: data.onboardingCompleted || false,
+      };
+      setUser(userData);
+      setLoading(false);
+    } else {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || 'Felaktigt lösenord eller e-postadress');
     }
   };
 
   const signupWithEmail = async (email: string, password: string, name: string) => {
-    try {
-      console.log("AuthContext: Skapar konto med email...");
-      
-      const response = await fetch(API_ENDPOINTS.AUTH.SIGNUP, {
-        method: 'POST',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password, name }),
-      });
+    const response = await fetch(API_ENDPOINTS.AUTH.SIGNUP, {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email, password, name }),
+    });
 
-      console.log("AuthContext: Signup-svar status:", response.status);
-
-      if (response.ok) {
-        setLoading(true);
-        const data = await response.json();
-        const userData: User = {
-          id: data.id || data.email || '',
-          name: data.name || name,
-          email: data.email || '',
-          picture: data.picture,
-          onboardingCompleted: data.onboardingCompleted || false,
-        };
-        console.log("AuthContext: Användare skapad och inloggad:", userData.email);
-        setUser(userData);
-        setLoading(false);
-      } else {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || 'Kunde inte skapa konto');
-      }
-    } catch (error) {
-      console.error("AuthContext: Fel vid registrering:", error);
-      throw error;
+    if (response.ok) {
+      setLoading(true);
+      const data = await response.json();
+      const userData: User = {
+        id: data.id || data.email || '',
+        name: data.name || name,
+        email: data.email || '',
+        picture: data.picture,
+        onboardingCompleted: data.onboardingCompleted || false,
+      };
+      setUser(userData);
+      setLoading(false);
+    } else {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || 'Kunde inte skapa konto');
     }
   };
 
   const logout = async () => {
     try {
-      console.log("AuthContext: Loggar ut...");
       await fetch(API_ENDPOINTS.AUTH.LOGOUT, {
         method: 'POST',
         credentials: 'include',
       });
       setUser(null);
       window.location.href = '/login';
-    } catch (error) {
-      console.error('AuthContext: Fel vid utloggning:', error);
+    } catch {
       setUser(null);
     }
   };

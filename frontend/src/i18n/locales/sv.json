@@ -43,7 +43,7 @@
     "email": "Email",
     "emailPlaceholder": "din@email.com",
     "password": "Lösenord",
-    "passwordPlaceholder": "Minst 6 tecken",
+    "passwordPlaceholder": "Minst 8 tecken",
     "name": "Namn",
     "namePlaceholder": "Ditt namn",
     "loggingIn": "Loggar in...",
@@ -56,7 +56,17 @@
     "backButton": "← Tillbaka",
     "subtitle": "Din väg till personlig utveckling",
     "description": "Få motivering från din AI-coach, spåra dina framsteg och nå dina mål - en dag i taget.",
-    "success": "Lyckat!"
+    "success": "Lyckat!",
+    "validationEmailRequired": "E-postadress krävs",
+    "validationEmailInvalid": "Ange en giltig e-postadress",
+    "validationPasswordRequired": "Lösenord krävs",
+    "validationPasswordMinLength": "Lösenordet måste vara minst 8 tecken",
+    "validationPasswordHint": "Minst 8 tecken, inkludera gärna siffror och specialtecken",
+    "validationPasswordStrengthWeak": "Svagt",
+    "validationPasswordStrengthMedium": "Medel",
+    "validationPasswordStrengthStrong": "Starkt",
+    "validationNameRequired": "Namn krävs",
+    "validationNameMinLength": "Namnet måste vara minst 2 tecken"
   },
   "forgotPassword": {
     "title": "Återställ ditt lösenord",

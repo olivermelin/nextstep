@@ -43,7 +43,7 @@
     "email": "Email",
     "emailPlaceholder": "your@email.com",
     "password": "Password",
-    "passwordPlaceholder": "At least 6 characters",
+    "passwordPlaceholder": "At least 8 characters",
     "name": "Name",
     "namePlaceholder": "Your name",
     "loggingIn": "Logging in...",
@@ -56,7 +56,17 @@
     "backButton": "← Back",
     "subtitle": "Your path to personal development",
     "description": "Get motivation from your AI coach, track your progress and reach your goals - one day at a time.",
-    "success": "Success!"
+    "success": "Success!",
+    "validationEmailRequired": "Email address is required",
+    "validationEmailInvalid": "Please enter a valid email address",
+    "validationPasswordRequired": "Password is required",
+    "validationPasswordMinLength": "Password must be at least 8 characters",
+    "validationPasswordHint": "At least 8 characters, consider including numbers and special characters",
+    "validationPasswordStrengthWeak": "Weak",
+    "validationPasswordStrengthMedium": "Medium",
+    "validationPasswordStrengthStrong": "Strong",
+    "validationNameRequired": "Name is required",
+    "validationNameMinLength": "Name must be at least 2 characters"
   },
   "forgotPassword": {
     "title": "Reset your password",

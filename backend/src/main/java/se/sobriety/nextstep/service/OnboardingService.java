@@ -28,10 +28,14 @@ public class OnboardingService {
         this.userSettingsService = userSettingsService;
     }
 
+    private static final int MAX_TEXT_FIELD_LENGTH = 1000;
+
     /**
      * Slutför onboarding och spara användarens val
      */
     public void completeOnboarding(String userId, OnboardingDataDto data) {
+        validateOnboardingInput(userId, data);
+
         log.info("completeOnboarding called for userId: '{}'", userId);
 
         // Använd getOrCreateSettings för att undvika duplicerade rader
@@ -68,6 +72,10 @@ public class OnboardingService {
      */
     @Transactional(readOnly = true)
     public boolean isOnboardingCompleted(String userId) {
+        if (userId == null || userId.isBlank()) {
+            throw new IllegalArgumentException("userId must not be null or blank");
+        }
+
         // Kolla alla möjliga UserSettings-rader (hanterar eventuella duplikat och userId/email mismatch)
         var allByUserId = userSettingsRepository.findAllByUserId(userId);
         boolean byUserId = allByUserId.stream()
@@ -86,6 +94,26 @@ public class OnboardingService {
         log.info("isOnboardingCompleted('{}') = {} (byUserId={}, byEmail={}, rows: userId={}, email={})",
                 userId, byEmail, false, byEmail, allByUserId.size(), allByEmail.size());
         return byEmail;
+    }
+
+    /* ===================== PRIVATE ===================== */
+
+    private void validateOnboardingInput(String userId, OnboardingDataDto data) {
+        if (userId == null || userId.isBlank()) {
+            throw new IllegalArgumentException("userId must not be null or blank");
+        }
+        if (data == null) {
+            throw new IllegalArgumentException("Onboarding data must not be null");
+        }
+        if (data.userGoals() == null || data.userGoals().isEmpty()) {
+            throw new IllegalArgumentException("User goals are required");
+        }
+        if (data.recoveryStage() == null) {
+            throw new IllegalArgumentException("Recovery stage is required");
+        }
+        if (data.otherGoal() != null && data.otherGoal().length() > MAX_TEXT_FIELD_LENGTH) {
+            throw new IllegalArgumentException("Other goal text exceeds maximum length of " + MAX_TEXT_FIELD_LENGTH);
+        }
     }
 }
 

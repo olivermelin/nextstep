@@ -186,7 +186,7 @@ export const AIChat: React.FC<AIChatProps> = ({ quickPrompt, onQuickPromptConsum
   useEffect(() => {
     getCoachStatus()
       .then(setCoachStatus)
-      .catch((err) => console.warn("Kunde inte hämta coach-status:", err));
+      .catch(() => {});
   }, []);
 
   // Hantera snabbåtgärd från sidopanelen
@@ -243,8 +243,6 @@ export const AIChat: React.FC<AIChatProps> = ({ quickPrompt, onQuickPromptConsum
 
       setMessages((prev) => [...prev, aiMessage]);
     } catch (err) {
-      console.error("Fel vid kommunikation med backend:", err);
-
       let errorText = t('aiCoach.couldNotConnect');
 
       if (err instanceof Error) {

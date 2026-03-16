@@ -1,7 +1,9 @@
 package se.sobriety.nextstep.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import se.sobriety.nextstep.dto.*;
 import se.sobriety.nextstep.entity.*;
 import se.sobriety.nextstep.exception.UserNotFoundException;
@@ -14,11 +16,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 
+@Slf4j
 @Service
+@Transactional(readOnly = true)
 public class UserProgressService {
 
     private final UserProgressRepository progressRepository;
-    private final UserSettingsRepository setttingsRepository;
+    private final UserSettingsRepository settingsRepository;
     private final LevelService levelService;
     private final MailService mailService;
     private final CategoryProgressRepository categoryProgressRepository;
@@ -36,7 +40,7 @@ public class UserProgressService {
                               AchievementRepository achievementRepository,
                               UserAchievementRepository userAchievementRepository) {
         this.progressRepository = repo;
-        this.setttingsRepository = userSettingsRepository;
+        this.settingsRepository = userSettingsRepository;
         this.levelService = levelService;
         this.mailService = mailService;
         this.categoryProgressRepository = categoryProgressRepository;
@@ -54,12 +58,14 @@ public class UserProgressService {
                 .orElseThrow(() -> new UserNotFoundException(userId));
     }
 
+    @Transactional
     public UserProgress getOrCreateUser(String userId) {
         return progressRepository.findByUserId(userId)
                 .orElseGet(() -> progressRepository.save(new UserProgress(userId)));
     }
 
 
+    @Transactional
     public UserProgress createUser(String userId) {
         if (userId == null || userId.isBlank()) {
             throw new IllegalArgumentException("User ID cannot be empty");
@@ -72,11 +78,13 @@ public class UserProgressService {
         return progressRepository.save(new UserProgress(userId));
     }
 
+    @Transactional
     public void deleteUser(String userId) {
         UserProgress user = getUser(userId);
         progressRepository.delete(user);
     }
 
+    @Transactional
     public UserProgress resetProgress(String userId) {
         UserProgress user = getUser(userId);
 
@@ -89,6 +97,7 @@ public class UserProgressService {
     }
 
 
+    @Transactional
     public UserProgress addPoints(String userId, int points) {
         UserProgress user = getUser(userId);
         int previousLevel = user.getLevel();
@@ -98,7 +107,7 @@ public class UserProgressService {
 
         // Skicka level-up mail om nivå ökades
         if (newLevel > previousLevel) {
-            UserSettings userSettings = setttingsRepository.findByUserId(user.getUserId())
+            UserSettings userSettings = settingsRepository.findByUserId(user.getUserId())
                     .orElseThrow(() -> new UserNotFoundException(user.getUserId()));
 
             sendLevelUpEmail(userSettings, user.getUserId(), newLevel);
@@ -123,7 +132,7 @@ public class UserProgressService {
             mailService.sendMail(mailRequest);
         } catch (Exception e) {
             // Log-varning men fortsätt - mail-fel ska inte stoppa progress-uppdatering
-            System.err.println("Varning: Kunde inte skicka level-up mail till " + userSettings.getEmail() + ": " + e.getMessage());
+            log.warn("Kunde inte skicka level-up mail till användare {}: {}", userSettings.getUserId(), e.getMessage());
         }
     }
 
@@ -199,6 +208,7 @@ public class UserProgressService {
     /**
      * Lägg till poäng och uppdatera kategori-framsteg
      */
+    @Transactional
     public ProgressResponseDto addPointsWithCategory(String userId, int points, ChallengeCategory category) {
         // Uppdatera total progress
         UserProgress user = addPoints(userId, points);
@@ -219,19 +229,7 @@ public class UserProgressService {
         );
     }
 
-    /**
-     * Konvertera ChallengeCategory till ID-sträng
-     */
     private String getCategoryId(ChallengeCategory category) {
-        return switch (category) {
-            case MENTAL_HEALTH -> "mental";
-            case PHYSICAL_ACTIVITY -> "physical";
-            case FOCUS_DISCIPLINE -> "focus";
-            case PERSONAL_DEVELOPMENT -> "growth";
-            case DRAWING_EXERCISES -> "drawing";
-            case HEALTHY_HABITS -> "habits";
-            case SOCIAL_SKILLS -> "social";
-            case EMOTIONAL_AWARENESS -> "emotional";
-        };
+        return category.getId();
     }
 }

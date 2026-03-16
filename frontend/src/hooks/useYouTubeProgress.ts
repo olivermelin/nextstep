@@ -96,8 +96,8 @@ export function useYouTubeProgress(videoId: string | null, active: boolean): Use
           },
         },
       });
-    } catch (e) {
-      console.warn("Could not initialize YouTube player:", e);
+    } catch {
+      // YouTube player initialization can fail silently
     }
 
     return () => {

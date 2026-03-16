@@ -14,6 +14,8 @@ import se.sobriety.nextstep.service.ai.ClaudeApiService;
 
 import java.util.Map;
 
+import static se.sobriety.nextstep.util.SecurityUtils.verifyUserAccess;
+
 @RestController
 @RequestMapping("/api/coach")
 @Validated
@@ -46,6 +48,7 @@ public class AICoachController {
             @PathVariable String userId,
             @Valid @RequestBody AICoachRequestDto request
     ) {
+        verifyUserAccess(userId);
         // Create new request with userId from path
         AICoachRequestDto requestWithUserId = new AICoachRequestDto(
                 request.message(),
@@ -65,6 +68,7 @@ public class AICoachController {
             @PathVariable String userId,
             @RequestBody Map<String, String> body
     ) {
+        verifyUserAccess(userId);
         String message = body.getOrDefault("message", "Ge mig lite motivation!");
         if (message.length() > 2000) {
             throw new IllegalArgumentException("Message must be at most 2000 characters");
@@ -81,6 +85,7 @@ public class AICoachController {
             @PathVariable String userId,
             @RequestParam(defaultValue = "Ge mig lite motivation!") @Size(max = 2000) String message
     ) {
+        verifyUserAccess(userId);
         return aiCoachService.getPersonalizedCoaching(userId, message);
     }
 
@@ -95,6 +100,7 @@ public class AICoachController {
             @RequestParam String userId,
             @Valid @RequestBody CoachMessageRequest request
     ) {
+        verifyUserAccess(userId);
         return claudeApiService.sendMessage(userId, request.message());
     }
 

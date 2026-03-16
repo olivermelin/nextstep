@@ -74,10 +74,7 @@ function AppContent() {
         {user ? (
           // Redirecta till onboarding om inte slutförd
           !user.onboardingCompleted && location.pathname !== '/onboarding' ? (
-            (() => {
-              console.log("App: Redirectar till onboarding. user.onboardingCompleted =", user.onboardingCompleted);
-              return <Navigate to="/onboarding" replace />;
-            })()
+            <Navigate to="/onboarding" replace />
           ) : (
           <Routes>
             <Route path="/dashboard" element={<Dashboard />} />

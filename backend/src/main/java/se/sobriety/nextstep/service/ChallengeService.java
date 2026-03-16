@@ -77,49 +77,30 @@ public class ChallengeService {
     }
 
     /**
-     * Hämta alla challenges med completedToday-status för en användare.
-     * Challenges som redan är utförda idag filtreras bort.
+     * Mappa challenges med completedToday-status för en användare.
      */
+    private List<ChallengeOutDto> mapWithCompletionStatus(List<Challenge> challenges, String userId) {
+        Set<Long> completedTodayIds = getCompletedTodayIds(userId);
+        return challenges.stream()
+                .map(c -> challengeMapper.toDto(c, completedTodayIds.contains(c.getId())))
+                .collect(Collectors.toList());
+    }
+
     public List<ChallengeOutDto> getAllChallengesForUser(String userId) {
-        Set<Long> completedTodayIds = getCompletedTodayIds(userId);
-        return challengeRepository.findAll()
-                .stream()
-                .map(c -> challengeMapper.toDto(c, completedTodayIds.contains(c.getId())))
-                .collect(Collectors.toList());
+        return mapWithCompletionStatus(challengeRepository.findAll(), userId);
     }
 
-    /**
-     * Hämta challenges per kategori med completedToday-status för en användare.
-     */
     public List<ChallengeOutDto> getChallengesByCategoryForUser(ChallengeCategory category, String userId) {
-        Set<Long> completedTodayIds = getCompletedTodayIds(userId);
-        return challengeRepository.findByCategory(category)
-                .stream()
-                .map(c -> challengeMapper.toDto(c, completedTodayIds.contains(c.getId())))
-                .collect(Collectors.toList());
+        return mapWithCompletionStatus(challengeRepository.findByCategory(category), userId);
     }
 
-    /**
-     * Hämta challenges per svårighetsgrad med completedToday-status för en användare.
-     */
     public List<ChallengeOutDto> getChallengesByDifficultyForUser(ChallengeDifficulty difficulty, String userId) {
-        Set<Long> completedTodayIds = getCompletedTodayIds(userId);
-        return challengeRepository.findByDifficulty(difficulty)
-                .stream()
-                .map(c -> challengeMapper.toDto(c, completedTodayIds.contains(c.getId())))
-                .collect(Collectors.toList());
+        return mapWithCompletionStatus(challengeRepository.findByDifficulty(difficulty), userId);
     }
 
-    /**
-     * Hämta challenges per kategori och svårighetsgrad med completedToday-status för en användare.
-     */
     public List<ChallengeOutDto> getChallengesByCategoryAndDifficultyForUser(
             ChallengeCategory category, ChallengeDifficulty difficulty, String userId) {
-        Set<Long> completedTodayIds = getCompletedTodayIds(userId);
-        return challengeRepository.findByCategoryAndDifficulty(category, difficulty)
-                .stream()
-                .map(c -> challengeMapper.toDto(c, completedTodayIds.contains(c.getId())))
-                .collect(Collectors.toList());
+        return mapWithCompletionStatus(challengeRepository.findByCategoryAndDifficulty(category, difficulty), userId);
     }
 
     // ============ CRUD – Skapa, uppdatera och ta bort challenges dynamiskt ============

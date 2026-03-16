@@ -4,6 +4,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import se.sobriety.nextstep.dto.SignUpRequestDto;
 import se.sobriety.nextstep.dto.SignUpResponseDto;
 import se.sobriety.nextstep.entity.User;
@@ -24,12 +26,13 @@ class SignUpServiceTest {
     @Mock
     private MailNotificationService mailNotificationService;
 
+    private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     private SignUpService signUpService;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        signUpService = new SignUpService(userRepository, userInitializationService, mailNotificationService);
+        signUpService = new SignUpService(userRepository, passwordEncoder, userInitializationService, mailNotificationService);
     }
 
     @Test

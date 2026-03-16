@@ -7,6 +7,8 @@ import se.sobriety.nextstep.dto.UserSettingsInDto;
 import se.sobriety.nextstep.dto.UserSettingsOutDto;
 import se.sobriety.nextstep.service.UserSettingsService;
 
+import static se.sobriety.nextstep.util.SecurityUtils.verifyUserAccess;
+
 @RestController
 @RequestMapping("/api/settings")
 public class UserSettingsController {
@@ -22,6 +24,7 @@ public class UserSettingsController {
             @PathVariable String userId,
             @Valid @RequestBody UserSettingsInDto dto) {
 
+        verifyUserAccess(userId);
         UserSettingsOutDto updated = userSettingsService.updateUserSettings(userId, dto);
         return ResponseEntity.ok(updated);
     }
@@ -30,6 +33,7 @@ public class UserSettingsController {
     public ResponseEntity<UserSettingsOutDto> getUserSettings(
             @PathVariable String userId) {
 
+        verifyUserAccess(userId);
         UserSettingsOutDto settings = userSettingsService.getUserSettings(userId);
         return ResponseEntity.ok(settings);
     }
@@ -38,6 +42,7 @@ public class UserSettingsController {
     public ResponseEntity<Void> deleteUserSettings(
             @PathVariable String userId) {
 
+        verifyUserAccess(userId);
         userSettingsService.deleteUserSettings(userId);
         return ResponseEntity.noContent().build(); // 204 OK, tom body
     }

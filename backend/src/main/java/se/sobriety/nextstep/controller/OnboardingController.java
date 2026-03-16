@@ -11,6 +11,8 @@ import se.sobriety.nextstep.service.OnboardingService;
 /**
  * Controller för onboarding-endpoints
  */
+import static se.sobriety.nextstep.util.SecurityUtils.verifyUserAccess;
+
 @RestController
 @RequestMapping("/api/onboarding")
 public class OnboardingController {
@@ -30,6 +32,7 @@ public class OnboardingController {
             @PathVariable String userId,
             @Valid @RequestBody OnboardingDataDto data) {
 
+        verifyUserAccess(userId);
         onboardingService.completeOnboarding(userId, data);
 
         return ResponseEntity.ok(
@@ -43,6 +46,7 @@ public class OnboardingController {
      */
     @GetMapping("/status/{userId}")
     public ResponseEntity<OnboardingStatusDto> getOnboardingStatus(@PathVariable String userId) {
+        verifyUserAccess(userId);
         boolean completed = onboardingService.isOnboardingCompleted(userId);
         return ResponseEntity.ok(new OnboardingStatusDto(completed));
     }

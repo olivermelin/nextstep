@@ -6,6 +6,8 @@ import se.sobriety.nextstep.service.UserChallengeService;
 
 import java.util.List;
 
+import static se.sobriety.nextstep.util.SecurityUtils.verifyUserAccess;
+
 @RestController
 @RequestMapping("/api/user-challenges")
 public class UserChallengesController {
@@ -21,6 +23,7 @@ public class UserChallengesController {
      */
     @GetMapping("/user/{userId:.+}")
     public List<UserChallengeOutDto> getUserChallenges(@PathVariable String userId) {
+        verifyUserAccess(userId);
         return userChallengeService.getUserChallenges(userId);
     }
 
@@ -29,6 +32,7 @@ public class UserChallengesController {
      */
     @GetMapping("/user/{userId:.+}/completed")
     public List<UserChallengeOutDto> getUserCompletedChallenges(@PathVariable String userId) {
+        verifyUserAccess(userId);
         return userChallengeService.getUserCompletedChallenges(userId);
     }
 
@@ -37,6 +41,7 @@ public class UserChallengesController {
      */
     @GetMapping("/user/{userId:.+}/active")
     public List<UserChallengeOutDto> getUserActiveChallenges(@PathVariable String userId) {
+        verifyUserAccess(userId);
         return userChallengeService.getUserActiveChallenges(userId);
     }
 
@@ -47,6 +52,7 @@ public class UserChallengesController {
     public UserChallengeOutDto startChallenge(
             @PathVariable String userId,
             @PathVariable Long challengeId) {
+        verifyUserAccess(userId);
         return userChallengeService.startChallenge(userId, challengeId);
     }
 
@@ -57,6 +63,7 @@ public class UserChallengesController {
     public UserChallengeOutDto completeChallenge(
             @PathVariable String userId,
             @PathVariable Long challengeId) {
+        verifyUserAccess(userId);
         return userChallengeService.completeChallenge(userId, challengeId);
     }
 }

@@ -119,7 +119,7 @@ public class AuthController {
             boolean isValid = signUpService.validatePassword(email, password);
 
             if (!isValid) {
-                return ResponseEntity.status(401)
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                         .body(Map.of("error", "Invalid credentials"));
             }
 
@@ -141,10 +141,10 @@ public class AuthController {
                     "onboardingCompleted", onboardingCompleted
             ));
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(401)
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("error", "Invalid credentials"));
         } catch (Exception e) {
-            return ResponseEntity.status(500)
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "An error occurred during login"));
         }
     }

@@ -53,8 +53,8 @@ const Dashboard = () => {
         points: data.totalPoints || 0,
         level: data.level || 1,
       });
-    } catch (error) {
-      console.error("Fel vid hämtning av framsteg:", error);
+    } catch {
+      // Progress fetch failed silently; default values are used
     }
   };
 
@@ -65,8 +65,8 @@ const Dashboard = () => {
     try {
       const data = await userChallengeApi.getUserActiveChallenges(userId);
       setActiveChallenges(data);
-    } catch (error) {
-      console.error("Fel vid hämtning av aktiva challenges:", error);
+    } catch {
+      // Active challenges fetch failed silently
     } finally {
       setChallengesLoading(false);
     }
@@ -90,8 +90,7 @@ const Dashboard = () => {
       });
       const response = await sendCoachMessage(userId, contextMessage, null);
       setDailyCoachMessage(response.response);
-    } catch (error) {
-      console.error("Fel vid hämtning av coachmeddelande:", error);
+    } catch {
       // Fallback till en slumpmässig statisk fras
       const messages = t('dashboard.coachMessages', { returnObjects: true }) as string[];
       const randomMessage = messages[Math.floor(Math.random() * messages.length)];

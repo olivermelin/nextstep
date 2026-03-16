@@ -3,7 +3,7 @@ package se.sobriety.nextstep.service;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import se.sobriety.nextstep.entity.PasswordResetToken;
 import se.sobriety.nextstep.entity.User;
@@ -20,17 +20,18 @@ public class PasswordResetService {
     private final UserRepository userRepository;
     private final PasswordResetTokenRepository tokenRepository;
     private final MailNotificationService mailNotificationService;
-    private final BCryptPasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
     private final String frontendBaseUrl;
 
     public PasswordResetService(UserRepository userRepository,
                                 PasswordResetTokenRepository tokenRepository,
                                 MailNotificationService mailNotificationService,
+                                PasswordEncoder passwordEncoder,
                                 @Value("${app.frontend-base-url:http://localhost:8082}") String frontendBaseUrl) {
         this.userRepository = userRepository;
         this.tokenRepository = tokenRepository;
         this.mailNotificationService = mailNotificationService;
-        this.passwordEncoder = new BCryptPasswordEncoder();
+        this.passwordEncoder = passwordEncoder;
         this.frontendBaseUrl = frontendBaseUrl;
     }
 
@@ -43,7 +44,7 @@ public class PasswordResetService {
         var userOpt = userRepository.findByEmail(email);
 
         if (userOpt.isEmpty()) {
-            log.debug("Password reset requested for non-existent email: {}", email);
+            log.debug("Password reset requested for non-existent email");
             return;
         }
 
@@ -59,7 +60,7 @@ public class PasswordResetService {
         try {
             mailNotificationService.sendPasswordResetEmail(user.getEmail(), resetLink);
         } catch (Exception e) {
-            log.error("Failed to send password reset email to {}: {}", email, e.getMessage());
+            log.error("Failed to send password reset email: {}", e.getMessage());
         }
     }
 
@@ -69,6 +70,9 @@ public class PasswordResetService {
      */
     @Transactional
     public void resetPassword(String token, String newPassword) {
+        // Validera lösenordskomplexitet
+        validatePassword(newPassword);
+
         PasswordResetToken resetToken = tokenRepository.findByToken(token)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid or expired token"));
 
@@ -87,6 +91,12 @@ public class PasswordResetService {
         resetToken.markUsed();
         tokenRepository.save(resetToken);
 
-        log.info("Password reset successful for user: {}", user.getEmail());
+        log.info("Password reset successful for user ID: {}", user.getId());
+    }
+
+    private void validatePassword(String password) {
+        if (password == null || password.length() < 8) {
+            throw new IllegalArgumentException("Password must be at least 8 characters");
+        }
     }
 }

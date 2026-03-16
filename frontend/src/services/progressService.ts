@@ -22,7 +22,6 @@ export const progressService = {
         achievements: achievementsData || [],
       };
     } catch (error) {
-      console.error("Error fetching user progress:", error);
       throw error;
     }
   },
@@ -35,7 +34,6 @@ export const progressService = {
       const data = await fetchWithCredentials(API_ENDPOINTS.PROGRESS.GET_CATEGORY_PROGRESS(userId, days));
       return data.categories || data || [];
     } catch (error) {
-      console.error("Error fetching category progress:", error);
       throw error;
     }
   },
@@ -47,7 +45,6 @@ export const progressService = {
     try {
       return await fetchWithCredentials(API_ENDPOINTS.PROGRESS.GET_ACHIEVEMENTS(userId));
     } catch (error) {
-      console.error("Error fetching achievements:", error);
       throw error;
     }
   },

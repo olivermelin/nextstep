@@ -1,8 +1,28 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/components/ui/use-toast';
 import { Loader2, ArrowRight, Sparkles, AlertCircle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+type FieldErrors = {
+  name?: string;
+  email?: string;
+  password?: string;
+};
+
+function getPasswordStrength(password: string): 'weak' | 'medium' | 'strong' {
+  let score = 0;
+  if (password.length >= 8) score++;
+  if (password.length >= 12) score++;
+  if (/[0-9]/.test(password)) score++;
+  if (/[^a-zA-Z0-9]/.test(password)) score++;
+  if (/[A-Z]/.test(password) && /[a-z]/.test(password)) score++;
+  if (score <= 2) return 'weak';
+  if (score <= 3) return 'medium';
+  return 'strong';
+}
 
 const Login = () => {
   const { login, loginWithEmail, signupWithEmail } = useAuth();
@@ -16,16 +36,55 @@ const Login = () => {
   const [name, setName] = useState('');
   const [loading, setLoading] = useState(false);
   const [loginError, setLoginError] = useState<string | null>(null);
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
+
+  const fieldErrors = useMemo((): FieldErrors => {
+    const errors: FieldErrors = {};
+
+    // Email validation
+    if (!email.trim()) {
+      errors.email = t('auth.validationEmailRequired');
+    } else if (!EMAIL_REGEX.test(email.trim())) {
+      errors.email = t('auth.validationEmailInvalid');
+    }
+
+    // Password validation
+    if (!password) {
+      errors.password = t('auth.validationPasswordRequired');
+    } else if (isSignup && password.length < 8) {
+      errors.password = t('auth.validationPasswordMinLength');
+    }
+
+    // Name validation (signup only)
+    if (isSignup) {
+      if (!name.trim()) {
+        errors.name = t('auth.validationNameRequired');
+      } else if (name.trim().length < 2) {
+        errors.name = t('auth.validationNameMinLength');
+      }
+    }
+
+    return errors;
+  }, [email, password, name, isSignup, t]);
+
+  const passwordStrength = useMemo(() => {
+    if (!password || password.length < 8) return null;
+    return getPasswordStrength(password);
+  }, [password]);
+
+  const isFormValid = Object.keys(fieldErrors).length === 0;
+
+  const handleBlur = (field: string) => {
+    setTouched((prev) => ({ ...prev, [field]: true }));
+  };
 
   const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!email || !password || (isSignup && !name)) {
-      toast({
-        title: t('common.error'),
-        description: isSignup ? t('auth.fillAllFields') : t('auth.fillEmailPassword'),
-        variant: 'destructive',
-      });
+
+    // Mark all fields as touched to show errors
+    setTouched({ email: true, password: true, ...(isSignup ? { name: true } : {}) });
+
+    if (!isFormValid) {
       return;
     }
 
@@ -66,11 +125,12 @@ const Login = () => {
     setPassword('');
     setName('');
     setLoginError(null);
+    setTouched({});
   };
 
   const handleForgotPassword = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!email) {
       toast({
         title: t('common.error'),
@@ -114,20 +174,42 @@ const Login = () => {
     }
   };
 
+  const strengthColor = passwordStrength === 'strong'
+    ? 'text-green-600 dark:text-green-400'
+    : passwordStrength === 'medium'
+      ? 'text-yellow-600 dark:text-yellow-400'
+      : 'text-red-500 dark:text-red-400';
+
+  const strengthBarColor = passwordStrength === 'strong'
+    ? 'bg-green-500'
+    : passwordStrength === 'medium'
+      ? 'bg-yellow-500'
+      : 'bg-red-500';
+
+  const strengthBarWidth = passwordStrength === 'strong'
+    ? 'w-full'
+    : passwordStrength === 'medium'
+      ? 'w-2/3'
+      : 'w-1/3';
+
+  const inputErrorClass = 'border-red-400 focus:ring-red-400/50 focus:border-red-400';
+  const baseInputClass = 'w-full px-4 py-3.5 bg-background/50 border rounded-xl focus:outline-none focus:ring-2 transition-all text-foreground placeholder:text-muted-foreground';
+  const normalInputClass = 'border-border/50 focus:ring-primary/50 focus:border-primary';
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-background via-background to-primary/5 overflow-hidden relative">
       {/* Animated background elements - Apple style */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 -left-48 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-pulse" 
+        <div className="absolute top-1/4 -left-48 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-pulse"
              style={{ animationDuration: '8s' }} />
-        <div className="absolute bottom-1/4 -right-48 w-96 h-96 bg-accent/10 rounded-full blur-3xl animate-pulse" 
+        <div className="absolute bottom-1/4 -right-48 w-96 h-96 bg-accent/10 rounded-full blur-3xl animate-pulse"
              style={{ animationDuration: '10s', animationDelay: '2s' }} />
       </div>
 
       <div className="w-full max-w-md px-6 relative z-10">
         {/* Card container with glassmorphism effect */}
         <div className="bg-card/80 backdrop-blur-xl border border-border/50 rounded-3xl shadow-2xl p-8 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-          
+
           {/* Header */}
           <div className="text-center space-y-3">
             <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-primary/60 mb-2 shadow-lg">
@@ -137,9 +219,9 @@ const Login = () => {
               NextStep
             </h1>
             <p className="text-base text-muted-foreground">
-              {showForgotPassword 
+              {showForgotPassword
                 ? t('forgotPassword.title')
-                : showEmailForm 
+                : showEmailForm
                   ? (isSignup ? t('auth.createAccount') : t('auth.welcomeBack'))
                   : t('auth.subtitle')
               }
@@ -185,7 +267,7 @@ const Login = () => {
                   <span>{t('auth.loginWithEmail')}</span>
                   <ArrowRight className="w-5 h-5 text-primary group-hover:translate-x-1 transition-transform" />
                 </button>
-                
+
                 <button
                   onClick={() => {
                     setShowEmailForm(true);
@@ -215,7 +297,7 @@ const Login = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder={t('auth.emailPlaceholder')}
-                  className="w-full px-4 py-3.5 bg-background/50 border border-border/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all text-foreground placeholder:text-muted-foreground"
+                  className={`${baseInputClass} ${normalInputClass}`}
                   disabled={loading}
                 />
               </div>
@@ -266,10 +348,16 @@ const Login = () => {
                     type="text"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
+                    onBlur={() => handleBlur('name')}
                     placeholder={t('auth.namePlaceholder')}
-                    className="w-full px-4 py-3.5 bg-background/50 border border-border/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all text-foreground placeholder:text-muted-foreground"
+                    className={`${baseInputClass} ${touched.name && fieldErrors.name ? inputErrorClass : normalInputClass}`}
                     disabled={loading}
                   />
+                  {touched.name && fieldErrors.name && (
+                    <p className="text-sm text-red-500 dark:text-red-400 animate-in fade-in slide-in-from-top-1 duration-200">
+                      {fieldErrors.name}
+                    </p>
+                  )}
                 </div>
               )}
 
@@ -282,10 +370,16 @@ const Login = () => {
                   type="email"
                   value={email}
                   onChange={(e) => { setEmail(e.target.value); setLoginError(null); }}
+                  onBlur={() => handleBlur('email')}
                   placeholder={t('auth.emailPlaceholder')}
-                  className="w-full px-4 py-3.5 bg-background/50 border border-border/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all text-foreground placeholder:text-muted-foreground"
+                  className={`${baseInputClass} ${touched.email && fieldErrors.email ? inputErrorClass : normalInputClass}`}
                   disabled={loading}
                 />
+                {touched.email && fieldErrors.email && (
+                  <p className="text-sm text-red-500 dark:text-red-400 animate-in fade-in slide-in-from-top-1 duration-200">
+                    {fieldErrors.email}
+                  </p>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -297,15 +391,40 @@ const Login = () => {
                   type="password"
                   value={password}
                   onChange={(e) => { setPassword(e.target.value); setLoginError(null); }}
+                  onBlur={() => handleBlur('password')}
                   placeholder={t('auth.passwordPlaceholder')}
-                  className="w-full px-4 py-3.5 bg-background/50 border border-border/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all text-foreground placeholder:text-muted-foreground"
+                  className={`${baseInputClass} ${touched.password && fieldErrors.password ? inputErrorClass : normalInputClass}`}
                   disabled={loading}
                 />
+                {touched.password && fieldErrors.password && (
+                  <p className="text-sm text-red-500 dark:text-red-400 animate-in fade-in slide-in-from-top-1 duration-200">
+                    {fieldErrors.password}
+                  </p>
+                )}
+                {isSignup && password.length > 0 && !fieldErrors.password && (
+                  <div className="space-y-1.5 animate-in fade-in duration-200">
+                    <div className="flex items-center gap-2">
+                      <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
+                        <div className={`h-full rounded-full transition-all duration-300 ${strengthBarColor} ${strengthBarWidth}`} />
+                      </div>
+                      <span className={`text-xs font-medium ${strengthColor}`}>
+                        {passwordStrength === 'strong'
+                          ? t('auth.validationPasswordStrengthStrong')
+                          : passwordStrength === 'medium'
+                            ? t('auth.validationPasswordStrengthMedium')
+                            : t('auth.validationPasswordStrengthWeak')}
+                      </span>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      {t('auth.validationPasswordHint')}
+                    </p>
+                  </div>
+                )}
               </div>
 
               <button
                 type="submit"
-                disabled={loading}
+                disabled={loading || !isFormValid}
                 className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-primary to-primary/80 text-primary-foreground px-6 py-4 rounded-xl hover:shadow-lg font-semibold transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
               >
                 {loading ? (
@@ -326,7 +445,7 @@ const Login = () => {
                 >
                   {t('auth.backButton')}
                  </button>
-                
+
                 {!isSignup ? (
                   <button
                     type="button"
@@ -348,7 +467,7 @@ const Login = () => {
                   </button>
                 )}
               </div>
-              
+
               {!isSignup && (
                 <div className="text-center pt-2">
                   <button

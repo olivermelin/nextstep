@@ -5,6 +5,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import se.sobriety.nextstep.entity.PasswordResetToken;
 import se.sobriety.nextstep.entity.User;
 import se.sobriety.nextstep.repository.PasswordResetTokenRepository;
@@ -26,13 +28,14 @@ class PasswordResetServiceTest {
     @Mock
     private MailNotificationService mailNotificationService;
 
+    private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     private PasswordResetService passwordResetService;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
         passwordResetService = new PasswordResetService(
-                userRepository, tokenRepository, mailNotificationService, "http://localhost:8082");
+                userRepository, tokenRepository, mailNotificationService, passwordEncoder, "http://localhost:8082");
     }
 
     // --- requestReset ---
