@@ -12,6 +12,7 @@ public record UserChallengeOutDto(
         String status,
         LocalDateTime startedAt,
         LocalDateTime completedAt,
-        int pointsEarned
+        int pointsEarned,
+        int actualMinutes
 ) {}
 

@@ -1,4 +1,4 @@
-import { API_ENDPOINTS } from "@/config/api";
+import { API_ENDPOINTS, fetchWithCredentials, ApiError } from "@/config/api";
 
 // --- Typer ---
 
@@ -45,49 +45,25 @@ export async function sendCoachMessage(
   message: string,
   sessionId: string | null
 ): Promise<CoachMessageResponse> {
-  const response = await fetch(API_ENDPOINTS.COACH.MESSAGE(userId), {
-    method: "POST",
-    credentials: "include",
-    headers: {
-      "Content-Type": "application/json",
-      Accept: "application/json",
-    },
-    body: JSON.stringify({
-      message,
-      sessionId,
-    } satisfies CoachMessageRequest),
-  });
-
-  if (response.status === 429) {
-    throw new Error("insufficient_quota");
+  try {
+    return await fetchWithCredentials(API_ENDPOINTS.COACH.MESSAGE(userId), {
+      method: "POST",
+      body: JSON.stringify({
+        message,
+        sessionId,
+      } satisfies CoachMessageRequest),
+    });
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 429) {
+      throw new Error("insufficient_quota");
+    }
+    throw error;
   }
-
-  if (response.status === 500) {
-    throw new Error("server_error");
-  }
-
-  if (!response.ok) {
-    throw new Error(`HTTP ${response.status}`);
-  }
-
-  return response.json();
 }
 
 /**
  * Hämta status för AI Coach (vilka modeller som är online).
  */
 export async function getCoachStatus(): Promise<CoachStatusResponse> {
-  const response = await fetch(API_ENDPOINTS.COACH.STATUS, {
-    method: "GET",
-    credentials: "include",
-    headers: {
-      Accept: "application/json",
-    },
-  });
-
-  if (!response.ok) {
-    throw new Error(`HTTP ${response.status}`);
-  }
-
-  return response.json();
+  return fetchWithCredentials(API_ENDPOINTS.COACH.STATUS);
 }

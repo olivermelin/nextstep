@@ -10,11 +10,6 @@ interface ProtectedRouteProps {
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const { user, loading } = useAuth();
   const location = useLocation();
-  const isPreview = typeof window !== 'undefined' && (window.location.hostname.includes('lovable.app') || window.location.hostname.includes('lovableproject.com'));
-
-  if (isPreview) {
-    return <>{children}</>;
-  }
 
   if (loading) {
     return (

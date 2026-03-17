@@ -22,7 +22,8 @@ public class UserChallengeMapper {
                 status,
                 entity.getStartedAt(),
                 entity.getCompletedAt(),
-                entity.getPointsEarned()
+                entity.getPointsEarned(),
+                entity.getActualMinutes()
         );
     }
 }

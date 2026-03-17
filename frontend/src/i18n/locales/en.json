@@ -85,7 +85,7 @@
     "confirmPlaceholder": "Enter the password again",
     "submit": "Reset password",
     "submitting": "Resetting...",
-    "minLength": "Password must be at least 6 characters",
+    "minLength": "Password must be at least 8 characters",
     "mismatch": "Passwords do not match",
     "success": "Password reset! ✅",
     "successDesc": "You can now log in with your new password",
@@ -238,6 +238,7 @@
     },
     "connecting": "Connecting...",
     "newConversation": "New conversation",
+    "resumePreviousChat": "Resume previous conversation",
     "startConversation": "Start a conversation",
     "startConversationDesc": "Ask a question or tell me how you're feeling",
     "inputPlaceholder": "Type your message...",
@@ -284,6 +285,9 @@
     "mustBeLoggedIn": "You must be logged in to start a challenge",
     "couldNotLoadChallenges": "Could not load challenges. Please try again.",
     "couldNotStart": "Could not start challenge. Please try again.",
+    "alreadyActiveTitle": "You already have an active activity",
+    "alreadyActiveDesc": "Complete \"{{name}}\" first before starting a new one.",
+    "alreadyActiveErrorDesc": "Complete your current activity before starting a new one.",
     "couldNotComplete": "Could not complete challenge. Please try again.",
     "difficulty": {
       "easy": "Easy",
@@ -303,6 +307,13 @@
       "brushSize": "Brush size",
       "clear": "Clear",
       "badge": "Drawing"
+    },
+    "timePicker": {
+      "title": "How long did you spend?",
+      "custom": "Other",
+      "minutesPlaceholder": "Enter minutes",
+      "xpPreview": "You earn",
+      "confirm": "Complete with {{xp}} XP"
     }
   },
   "progress": {
@@ -334,6 +345,7 @@
     }
   },
   "navigation": {
+    "mainNav": "Main navigation",
     "home": "Home",
     "progress": "Progress",
     "challenges": "Challenges",
@@ -348,5 +360,41 @@
     "title": "404",
     "message": "Page not found",
     "returnHome": "Return to home"
+  },
+  "sos": {
+    "buttonLabel": "Crisis support - call for help",
+    "title": "Need to talk to someone?",
+    "description": "You are not alone. Call one of these numbers to talk to someone who understands.",
+    "mindSelfmordslinje": "Mind Suicide Hotline",
+    "mindDesc": "24/7, every day",
+    "jourhavandeMedmanniska": "Jourhavande Medmänniska",
+    "jourhavandeMedmanniskaDesc": "Evenings and nights",
+    "beroendelinjen": "Addiction Helpline",
+    "beroendelinjenDesc": "Addiction support, every day",
+    "emergencyNote": "In case of immediate danger, always call 112"
+  },
+  "sobriety": {
+    "title": "Sobriety Timer",
+    "setupDesc": "Keep track of how long you've been sober. Start your timer here.",
+    "startToday": "Start today",
+    "chooseDate": "Choose date",
+    "since": "Since",
+    "reset": "Reset timer",
+    "years_one": "year",
+    "years_other": "years",
+    "months_one": "month",
+    "months_other": "months"
+  },
+  "checkin": {
+    "howAreYou": "How are you feeling today?",
+    "thankYou": "Thanks for checking in!",
+    "todayMood": "Today's check-in",
+    "moods": {
+      "struggling": "Struggling",
+      "okay": "Okay",
+      "good": "Good",
+      "great": "Great",
+      "amazing": "Amazing"
+    }
   }
 }

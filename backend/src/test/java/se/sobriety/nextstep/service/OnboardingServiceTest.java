@@ -134,13 +134,18 @@ class OnboardingServiceTest {
     }
 
     @Test
-    void completeOnboarding_nullRecoveryStage_throwsException() {
+    void completeOnboarding_nullRecoveryStage_succeeds() {
         OnboardingDataDto data = new OnboardingDataDto(
                 List.of(UserGoal.DAILY_STABILITY), null, null, null
         );
 
-        assertThrows(IllegalArgumentException.class,
-                () -> onboardingService.completeOnboarding("user-123", data));
+        UserSettings settings = new UserSettings("user-123");
+        when(userSettingsService.getOrCreateSettings("user-123")).thenReturn(settings);
+        when(userSettingsRepository.save(any(UserSettings.class))).thenReturn(settings);
+
+        assertDoesNotThrow(() -> onboardingService.completeOnboarding("user-123", data));
+        verify(userSettingsRepository).save(any(UserSettings.class));
+        assertNull(settings.getRecoveryStage());
     }
 
     @Test

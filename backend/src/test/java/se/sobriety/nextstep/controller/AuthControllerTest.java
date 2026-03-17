@@ -6,6 +6,10 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import se.sobriety.nextstep.dto.ForgotPasswordRequestDto;
@@ -21,6 +25,7 @@ import se.sobriety.nextstep.service.SignUpService;
 import se.sobriety.nextstep.service.UserInitializationService;
 import se.sobriety.nextstep.service.UserProgressService;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -53,6 +58,9 @@ class AuthControllerTest {
     @Mock
     private UserRepository userRepository;
 
+    @Mock
+    private AuthenticationManager authenticationManager;
+
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
@@ -62,7 +70,8 @@ class AuthControllerTest {
                 onboardingService,
                 signUpService,
                 passwordResetService,
-                userRepository
+                userRepository,
+                authenticationManager
         );
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }
@@ -127,8 +136,11 @@ class AuthControllerTest {
     void login_validCredentials_returns200() throws Exception {
         LoginRequestDto request = new LoginRequestDto("test@example.com", "password123");
 
+        Authentication mockAuth = new UsernamePasswordAuthenticationToken(
+                "test@example.com", null, List.of());
+        when(authenticationManager.authenticate(any())).thenReturn(mockAuth);
+
         User user = new User("test@example.com", "hashedPwd", "Test User");
-        when(signUpService.validatePassword("test@example.com", "password123")).thenReturn(true);
         when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(user));
         when(onboardingService.isOnboardingCompleted("test@example.com")).thenReturn(false);
 
@@ -146,7 +158,8 @@ class AuthControllerTest {
     void login_invalidCredentials_returns401() throws Exception {
         LoginRequestDto request = new LoginRequestDto("test@example.com", "wrongpassword");
 
-        when(signUpService.validatePassword("test@example.com", "wrongpassword")).thenReturn(false);
+        when(authenticationManager.authenticate(any()))
+                .thenThrow(new BadCredentialsException("Invalid credentials"));
 
         mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -159,8 +172,8 @@ class AuthControllerTest {
     void login_nonexistentUser_returns401() throws Exception {
         LoginRequestDto request = new LoginRequestDto("unknown@example.com", "password123");
 
-        when(signUpService.validatePassword("unknown@example.com", "password123"))
-                .thenThrow(new IllegalArgumentException("User not found"));
+        when(authenticationManager.authenticate(any()))
+                .thenThrow(new BadCredentialsException("Invalid credentials"));
 
         mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)

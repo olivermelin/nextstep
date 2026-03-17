@@ -108,9 +108,7 @@ public class OnboardingService {
         if (data.userGoals() == null || data.userGoals().isEmpty()) {
             throw new IllegalArgumentException("User goals are required");
         }
-        if (data.recoveryStage() == null) {
-            throw new IllegalArgumentException("Recovery stage is required");
-        }
+        // recoveryStage är valfritt — användaren kan hoppa över steg 3
         if (data.otherGoal() != null && data.otherGoal().length() > MAX_TEXT_FIELD_LENGTH) {
             throw new IllegalArgumentException("Other goal text exceeds maximum length of " + MAX_TEXT_FIELD_LENGTH);
         }

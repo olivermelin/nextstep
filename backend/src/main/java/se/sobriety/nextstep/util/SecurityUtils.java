@@ -1,5 +1,6 @@
 package se.sobriety.nextstep.util;
 
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
@@ -7,7 +8,7 @@ import se.sobriety.nextstep.exception.UnauthorizedAccessException;
 
 /**
  * Utility class for extracting and verifying the authenticated user
- * from the Spring Security context.
+ * from the Spring Security context. Stödjer både OAuth2 och email/password.
  */
 public final class SecurityUtils {
 
@@ -17,6 +18,7 @@ public final class SecurityUtils {
 
     /**
      * Returns the authenticated user's ID (email) from the security context.
+     * Stödjer OAuth2AuthenticationToken och UsernamePasswordAuthenticationToken.
      *
      * @return the current user's ID (email), or null if not authenticated
      */
@@ -24,6 +26,9 @@ public final class SecurityUtils {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth instanceof OAuth2AuthenticationToken oauthToken) {
             return (String) oauthToken.getPrincipal().getAttribute("email");
+        }
+        if (auth instanceof UsernamePasswordAuthenticationToken && auth.isAuthenticated()) {
+            return auth.getName(); // email används som username
         }
         return null;
     }

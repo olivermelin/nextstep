@@ -55,23 +55,14 @@ const Challenges = () => {
     }
   }, [selectedCategory]);
 
-  // Load specific challenge when challengeId is in URL
+  // Load specific challenge when challengeId is in URL – visa enbart, starta INTE automatiskt
   useEffect(() => {
     if (challengeId) {
       const openChallenge = async () => {
         try {
           const fullChallenge = await challengeApi.getChallengeById(Number(challengeId));
           setSelectedChallenge(fullChallenge);
-
-          const userId = user?.email || user?.id;
-          if (userId && !fullChallenge.completedToday) {
-            try {
-              await userChallengeApi.startChallenge(userId, fullChallenge.id);
-              await loadUserChallenges();
-            } catch {
-              // Ignore auto-start errors
-            }
-          }
+          await loadUserChallenges();
         } catch {
           navigate("/challenges", { replace: true });
         }
@@ -143,8 +134,8 @@ const Challenges = () => {
     const activeChallenge = getActiveChallenges().find(uc => uc.challengeId !== challenge.id);
     if (activeChallenge) {
       toast({
-        title: "Du har redan en pågående aktivitet",
-        description: `Slutför "${activeChallenge.challengeName}" först innan du startar en ny.`,
+        title: t('challenges.alreadyActiveTitle'),
+        description: t('challenges.alreadyActiveDesc', { name: activeChallenge.challengeName }),
       });
       return;
     }
@@ -169,8 +160,8 @@ const Challenges = () => {
         setAllChallenges(prev => prev.map(c => c.id === challenge.id ? { ...c, completedToday: true } : c));
       } else if (msg.includes('pågående aktivitet')) {
         toast({
-          title: "Du har redan en pågående aktivitet",
-          description: "Slutför din pågående aktivitet innan du startar en ny.",
+          title: t('challenges.alreadyActiveTitle'),
+          description: t('challenges.alreadyActiveErrorDesc'),
         });
       } else {
         setError(t('challenges.couldNotStart'));
@@ -180,7 +171,7 @@ const Challenges = () => {
     }
   };
 
-  const handleCompleteChallenge = async () => {
+  const handleCompleteChallenge = async (actualMinutes: number = 0) => {
     if ((!user?.email && !user?.id) || !selectedChallenge) return;
     const userId = user.email || user.id;
 
@@ -188,7 +179,7 @@ const Challenges = () => {
     setError(null);
 
     try {
-      await userChallengeApi.completeChallenge(userId, selectedChallenge.id);
+      await userChallengeApi.completeChallenge(userId, selectedChallenge.id, actualMinutes);
       await loadUserChallenges();
 
       clearChallengeTimer(selectedChallenge.id);
@@ -254,7 +245,7 @@ const Challenges = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5 p-4 pb-24 pt-4">
+    <div className="min-h-full bg-gradient-to-br from-primary/5 via-background to-secondary/5 p-4 pt-4">
       <div className="max-w-4xl mx-auto space-y-6">
         {/* Header */}
         <div className="pt-2">
@@ -322,11 +313,22 @@ const Challenges = () => {
 
         {/* ACTIVITY EXECUTION VIEW */}
         {viewMode === "activity" && selectedChallenge && (
-          <ChallengeActivityView
-            challenge={selectedChallenge}
-            loading={loading}
-            onComplete={handleCompleteChallenge}
-          />
+          isChallengeStarted(selectedChallenge.id)
+            ? (
+              <ChallengeActivityView
+                challenge={selectedChallenge}
+                loading={loading}
+                onComplete={handleCompleteChallenge}
+              />
+            ) : (
+              /* Challenge ej startad – visa info + startknapp */
+              <ChallengeActivityView
+                challenge={selectedChallenge}
+                loading={loading}
+                onComplete={(_minutes) => handleStartChallenge(selectedChallenge)}
+                previewOnly
+              />
+            )
         )}
       </div>
     </div>

@@ -17,7 +17,7 @@ const ResetPassword = () => {
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (password.length < 6) {
+    if (password.length < 8) {
       toast({
         title: t('common.error'),
         description: t('resetPassword.minLength'),

@@ -11,22 +11,41 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.time.Duration;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Rate limiting filter for API endpoints.
  * - AI coach endpoints: 20 requests per minute per IP
  * - Auth endpoints: 10 requests per minute per IP
  * - General API: 100 requests per minute per IP
+ *
+ * Bucket-maps har en maxstorlek på 10 000 entries per typ
+ * för att förhindra minnesläckor vid DDoS.
  */
 @Component
 @Order(1)
 public class RateLimitingFilter implements Filter {
 
-    private final Map<String, Bucket> coachBuckets = new ConcurrentHashMap<>();
-    private final Map<String, Bucket> authBuckets = new ConcurrentHashMap<>();
-    private final Map<String, Bucket> generalBuckets = new ConcurrentHashMap<>();
+    private static final int MAX_BUCKETS_PER_TYPE = 10_000;
+
+    private final Map<String, Bucket> coachBuckets = createBoundedMap(MAX_BUCKETS_PER_TYPE);
+    private final Map<String, Bucket> authBuckets = createBoundedMap(MAX_BUCKETS_PER_TYPE);
+    private final Map<String, Bucket> generalBuckets = createBoundedMap(MAX_BUCKETS_PER_TYPE);
+
+    /**
+     * Skapar en thread-safe LRU-cache med maxstorlek.
+     * Äldsta entries tas bort automatiskt när gränsen nås.
+     */
+    private static Map<String, Bucket> createBoundedMap(int maxSize) {
+        return Collections.synchronizedMap(new LinkedHashMap<>(16, 0.75f, true) {
+            @Override
+            protected boolean removeEldestEntry(Map.Entry<String, Bucket> eldest) {
+                return size() > maxSize;
+            }
+        });
+    }
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)

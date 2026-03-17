@@ -85,7 +85,7 @@
     "confirmPlaceholder": "Ange lösenordet igen",
     "submit": "Återställ lösenord",
     "submitting": "Återställer...",
-    "minLength": "Lösenordet måste vara minst 6 tecken",
+    "minLength": "Lösenordet måste vara minst 8 tecken",
     "mismatch": "Lösenorden matchar inte",
     "success": "Lösenord återställt! ✅",
     "successDesc": "Du kan nu logga in med ditt nya lösenord",
@@ -238,6 +238,7 @@
     },
     "connecting": "Ansluter...",
     "newConversation": "Ny konversation",
+    "resumePreviousChat": "Återuppta tidigare konversation",
     "startConversation": "Starta en konversation",
     "startConversationDesc": "Ställ en fråga eller berätta hur du mår",
     "inputPlaceholder": "Skriv ditt meddelande...",
@@ -284,6 +285,9 @@
     "mustBeLoggedIn": "Du måste vara inloggad för att starta en challenge",
     "couldNotLoadChallenges": "Kunde inte ladda challenges. Försök igen.",
     "couldNotStart": "Kunde inte starta challenge. Försök igen.",
+    "alreadyActiveTitle": "Du har redan en pågående aktivitet",
+    "alreadyActiveDesc": "Slutför \"{{name}}\" först innan du startar en ny.",
+    "alreadyActiveErrorDesc": "Slutför din pågående aktivitet innan du startar en ny.",
     "couldNotComplete": "Kunde inte slutföra challenge. Försök igen.",
     "difficulty": {
       "easy": "Lätt",
@@ -303,6 +307,13 @@
       "brushSize": "Penselstorlek",
       "clear": "Rensa",
       "badge": "Ritning"
+    },
+    "timePicker": {
+      "title": "Hur länge höll du på?",
+      "custom": "Annat",
+      "minutesPlaceholder": "Ange minuter",
+      "xpPreview": "Du tjänar",
+      "confirm": "Slutför med {{xp}} XP"
     }
   },
   "progress": {
@@ -334,6 +345,7 @@
     }
   },
   "navigation": {
+    "mainNav": "Huvudnavigation",
     "home": "Hem",
     "progress": "Framsteg",
     "challenges": "Utmaningar",
@@ -348,5 +360,41 @@
     "title": "404",
     "message": "Sidan hittades inte",
     "returnHome": "Tillbaka till startsidan"
+  },
+  "sos": {
+    "buttonLabel": "Krisstöd - ring för hjälp",
+    "title": "Behöver du prata med någon?",
+    "description": "Du är inte ensam. Ring något av dessa nummer för att prata med någon som förstår.",
+    "mindSelfmordslinje": "Mind Självmordslinjen",
+    "mindDesc": "Dygnet runt, alla dagar",
+    "jourhavandeMedmanniska": "Jourhavande Medmänniska",
+    "jourhavandeMedmanniskaDesc": "Kvällar och nätter",
+    "beroendelinjen": "Beroendelinjen",
+    "beroendelinjenDesc": "Stöd vid beroende, alla dagar",
+    "emergencyNote": "Vid akut fara, ring alltid 112"
+  },
+  "sobriety": {
+    "title": "Nykterhetstimer",
+    "setupDesc": "Håll koll på hur länge du varit nykter. Starta din timer här.",
+    "startToday": "Starta idag",
+    "chooseDate": "Välj datum",
+    "since": "Sedan",
+    "reset": "Nollställ timer",
+    "years_one": "år",
+    "years_other": "år",
+    "months_one": "månad",
+    "months_other": "månader"
+  },
+  "checkin": {
+    "howAreYou": "Hur mår du idag?",
+    "thankYou": "Tack för din incheckning!",
+    "todayMood": "Dagens incheckning",
+    "moods": {
+      "struggling": "Kämpar",
+      "okay": "Okej",
+      "good": "Bra",
+      "great": "Jättebra",
+      "amazing": "Fantastiskt"
+    }
   }
 }

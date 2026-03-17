@@ -6,9 +6,15 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.web.bind.annotation.*;
 import se.sobriety.nextstep.dto.ForgotPasswordRequestDto;
 import se.sobriety.nextstep.dto.LoginRequestDto;
@@ -35,52 +41,68 @@ public class AuthController {
     private final SignUpService signUpService;
     private final PasswordResetService passwordResetService;
     private final UserRepository userRepository;
+    private final AuthenticationManager authenticationManager;
 
     public AuthController(UserProgressService progressService,
                          UserInitializationService initializationService,
                          OnboardingService onboardingService,
                          SignUpService signUpService,
                          PasswordResetService passwordResetService,
-                         UserRepository userRepository) {
+                         UserRepository userRepository,
+                         AuthenticationManager authenticationManager) {
         this.initializationService = initializationService;
         this.progressService = progressService;
         this.onboardingService = onboardingService;
         this.signUpService = signUpService;
         this.passwordResetService = passwordResetService;
         this.userRepository = userRepository;
+        this.authenticationManager = authenticationManager;
     }
 
     /**
      * GET /api/auth/me
-     * OAuth2-autentisering - hämta inloggad användare
-     * Användare skapas AUTOMATISKT vid första OAuth2-inloggningen (ingen signup behövs)
+     * Hämta inloggad användare — stödjer både OAuth2 och email/password-sessioner.
      */
     @GetMapping("/me")
-    public ResponseEntity<Map<String, Object>> me(OAuth2AuthenticationToken auth) {
-        if (auth == null) {
-            return ResponseEntity.ok(Map.of("authenticated", false));
+    public ResponseEntity<Map<String, Object>> me() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+        // OAuth2-inloggning
+        if (auth instanceof OAuth2AuthenticationToken oauthToken) {
+            String email = (String) oauthToken.getPrincipal().getAttribute("email");
+            String name = (String) oauthToken.getPrincipal().getAttribute("name");
+
+            initializationService.ensureUserExistsAndUpdateFromAuth(email, name, email);
+            boolean onboardingCompleted = onboardingService.isOnboardingCompleted(email);
+
+            return ResponseEntity.ok(Map.of(
+                    "authenticated", true,
+                    "id", email,
+                    "name", name != null ? name : "",
+                    "email", email != null ? email : "",
+                    "picture", oauthToken.getPrincipal().getAttribute("picture") != null ? oauthToken.getPrincipal().getAttribute("picture") : "",
+                    "onboardingCompleted", onboardingCompleted
+            ));
         }
 
-        String email = (String) auth.getPrincipal().getAttribute("email");
-        String name = (String) auth.getPrincipal().getAttribute("name");
+        // Email/password-inloggning
+        if (auth instanceof UsernamePasswordAuthenticationToken && auth.isAuthenticated()) {
+            String email = auth.getName();
+            User user = userRepository.findByEmail(email).orElse(null);
+            if (user != null) {
+                boolean onboardingCompleted = onboardingService.isOnboardingCompleted(email);
+                return ResponseEntity.ok(Map.of(
+                        "authenticated", true,
+                        "id", email,
+                        "name", user.getName(),
+                        "email", user.getEmail(),
+                        "picture", "",
+                        "onboardingCompleted", onboardingCompleted
+                ));
+            }
+        }
 
-        // Använd email som konsekvent userId genom hela systemet
-        String resolvedUserId = email;
-
-        // OAuth2: Skapa användare automatiskt vid första inloggningen
-        initializationService.ensureUserExistsAndUpdateFromAuth(resolvedUserId, name, email);
-
-        // Hämta onboarding status
-        boolean onboardingCompleted = onboardingService.isOnboardingCompleted(resolvedUserId);
-
-        return ResponseEntity.ok(Map.of(
-                "authenticated", true,
-                "id", resolvedUserId,
-                "name", name != null ? name : "",
-                "email", email != null ? email : "",
-                "picture", auth.getPrincipal().getAttribute("picture") != null ? auth.getPrincipal().getAttribute("picture") : "",
-                "onboardingCompleted", onboardingCompleted
-        ));
+        return ResponseEntity.ok(Map.of("authenticated", false));
     }
 
     /**
@@ -106,31 +128,32 @@ public class AuthController {
 
     /**
      * POST /api/auth/login
-     * Email/Password-inloggning - validera credentials
-     * Används ENDAST för email/password-flow, INTE för OAuth2
+     * Email/Password-inloggning — autentiserar via Spring Security AuthenticationManager
+     * och skapar en HTTP-session så att efterföljande API-anrop fungerar.
      */
     @PostMapping("/login")
-    public ResponseEntity<Map<String, Object>> login(@Valid @RequestBody LoginRequestDto request) {
-        String email = request.email();
-        String password = request.password();
-
+    public ResponseEntity<Map<String, Object>> login(
+            @Valid @RequestBody LoginRequestDto request,
+            HttpServletRequest httpRequest) {
         try {
-            // Validera lösenord
-            boolean isValid = signUpService.validatePassword(email, password);
+            // Autentisera via Spring Security — skapar en riktig Authentication
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(request.email(), request.password())
+            );
 
-            if (!isValid) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                        .body(Map.of("error", "Invalid credentials"));
-            }
+            // Spara i SecurityContext och knyt till HTTP-sessionen
+            SecurityContext context = SecurityContextHolder.createEmptyContext();
+            context.setAuthentication(authentication);
+            SecurityContextHolder.setContext(context);
+            httpRequest.getSession(true)
+                    .setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, context);
 
-            // Hämta användare
+            // Hämta användardata
+            String email = authentication.getName();
             User user = userRepository.findByEmail(email)
                     .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
-            // Säkerställ att UserProgress och UserSettings finns
             initializationService.ensureUserExistsAndUpdateFromAuth(email, user.getName(), email);
-
-            // Hämta onboarding status
             boolean onboardingCompleted = onboardingService.isOnboardingCompleted(email);
 
             return ResponseEntity.ok(Map.of(
@@ -140,12 +163,9 @@ public class AuthController {
                     "name", user.getName(),
                     "onboardingCompleted", onboardingCompleted
             ));
-        } catch (IllegalArgumentException e) {
+        } catch (BadCredentialsException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("error", "Invalid credentials"));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "An error occurred during login"));
         }
     }
 

@@ -58,13 +58,16 @@ public class UserChallengesController {
 
     /**
      * POST /api/user-challenges/user/{userId}/complete/{challengeId} - Slutför en challenge
+     *
+     * @param actualMinutes faktisk tid i minuter (valfri, 0 = använd standardtid för utmaningen)
      */
     @PostMapping("/user/{userId:.+}/complete/{challengeId}")
     public UserChallengeOutDto completeChallenge(
             @PathVariable String userId,
-            @PathVariable Long challengeId) {
+            @PathVariable Long challengeId,
+            @RequestParam(defaultValue = "0") int actualMinutes) {
         verifyUserAccess(userId);
-        return userChallengeService.completeChallenge(userId, challengeId);
+        return userChallengeService.completeChallenge(userId, challengeId, actualMinutes);
     }
 }
 

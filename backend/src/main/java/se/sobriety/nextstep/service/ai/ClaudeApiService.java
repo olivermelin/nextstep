@@ -111,13 +111,18 @@ public class ClaudeApiService {
         messageHistory = new java.util.ArrayList<>(messageHistory);
         messageHistory.add(Map.of("role", "user", "content", userMessage));
 
-        // 6. Anropa AI API (Groq eller Claude)
+        // 6. Anropa AI API (Groq eller Claude) – eller fallback om ej konfigurerat
         String assistantResponse;
-        try {
-            assistantResponse = callApi(systemPrompt, messageHistory);
-        } catch (Exception e) {
-            log.error("Failed to call AI API for user {}: {}", userId, e.getMessage(), e);
+        if (!isAvailable()) {
+            log.debug("No AI API configured – using fallback response for user {}", userId);
             assistantResponse = buildFallbackResponse(userId);
+        } else {
+            try {
+                assistantResponse = callApi(systemPrompt, messageHistory);
+            } catch (Exception e) {
+                log.error("Failed to call AI API for user {}: {}", userId, e.getMessage(), e);
+                assistantResponse = buildFallbackResponse(userId);
+            }
         }
 
         // 7. Parsa challenge-rekommendationer ur svaret
@@ -304,12 +309,12 @@ public class ClaudeApiService {
      * Kontrollerar om AI API är konfigurerat och tillgängligt (Claude eller Groq).
      */
     public boolean isAvailable() {
-        if (!properties.isEnabled()) return false;
-
+        // Groq-nyckel konfigurerad?
         if (properties.isUseGroq()) {
             return properties.getGroqApiKey() != null && !properties.getGroqApiKey().isBlank();
         }
 
+        // Anthropic-nyckel konfigurerad?
         return properties.getAnthropicApiKey() != null && !properties.getAnthropicApiKey().isBlank();
     }
 }

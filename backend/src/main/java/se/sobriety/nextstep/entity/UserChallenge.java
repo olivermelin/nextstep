@@ -12,6 +12,10 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @Setter
+@Table(indexes = {
+        @Index(name = "idx_user_challenge_user_id", columnList = "userId"),
+        @Index(name = "idx_user_challenge_user_completed", columnList = "userId, completed")
+})
 public class UserChallenge {
 
     @Id
@@ -34,6 +38,10 @@ public class UserChallenge {
     @Column(nullable = false)
     private int pointsEarned;
 
+    /** Faktisk tid (minuter) som användaren angav vid slutförande. 0 = ej angiven. */
+    @Column(nullable = false)
+    private int actualMinutes;
+
     @Column(nullable = false, updatable = false)
     private LocalDateTime startedAt;
 
@@ -48,10 +56,23 @@ public class UserChallenge {
         this.startedAt = LocalDateTime.now();
     }
 
-    public void complete() {
+    /**
+     * Slutför utmaningen och beräknar poäng baserat på svårighetsgrad och faktisk tid.
+     *
+     * @param actualMinutes faktisk tid som användaren spenderade (0 = använd standardtid)
+     */
+    public void complete(int actualMinutes) {
         this.completed = true;
         this.completedAt = LocalDateTime.now();
-        this.pointsEarned = this.challenge.getDifficulty().getPoints();
+
+        int defaultMinutes = this.challenge.getDurationMinutes();
+        this.actualMinutes = actualMinutes > 0 ? actualMinutes : defaultMinutes;
+
+        int basePoints = this.challenge.getDifficulty().getPoints();
+        // Tidsskalning: 50 % av baspoäng minimum, 300 % maximum
+        double ratio = (double) this.actualMinutes / Math.max(1, defaultMinutes);
+        double clamped = Math.max(0.5, Math.min(3.0, ratio));
+        this.pointsEarned = (int) Math.round(basePoints * clamped);
     }
 
     @PrePersist

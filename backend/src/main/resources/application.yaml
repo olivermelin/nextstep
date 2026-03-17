@@ -1,10 +1,23 @@
 spring:
+  application:
+    name: NextStep
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/sobrietydb}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
   ai:
     openai:
-      api-key: ${OPENAI_API_KEY:}
+      api-key: ${OPENAI_API_KEY:sk-placeholder-not-configured}
       chat:
         options:
-          model: ${AI_COACH_MODEL:gpt-4}
+          model: ${AI_COACH_MODEL:gpt-4o-mini}
           max-tokens: ${AI_COACH_MAX_TOKENS:500}
           temperature: ${AI_COACH_TEMPERATURE:0.7}
   mail:
@@ -31,19 +44,23 @@ spring:
 server:
   port: 8080
 
+logging:
+  level:
+    org.springframework.ai: DEBUG
+
 # AI Coach Configuration
 ai:
   coach:
     enabled: ${AI_COACH_ENABLED:false}
     api-key: ${OPENAI_API_KEY:}
-    model: ${AI_COACH_MODEL:gpt-4}
+    model: ${AI_COACH_MODEL:gpt-4o-mini}
     max-tokens: ${AI_COACH_MAX_TOKENS:500}
     temperature: ${AI_COACH_TEMPERATURE:0.7}
     # Anthropic Claude
     anthropic-api-key: ${ANTHROPIC_API_KEY:}
     claude-model: ${CLAUDE_MODEL:claude-haiku-4-5}
-    # Groq (gratis under utveckling – sätt USE_GROQ=true + GROQ_API_KEY)
-    use-groq: ${USE_GROQ:false}
+    # Groq (gratis under utveckling) - används som default om GROQ_API_KEY är satt
+    # Sätt USE_GROQ=false + ANTHROPIC_API_KEY för att använda Claude i produktion
+    use-groq: ${USE_GROQ:true}
     groq-api-key: ${GROQ_API_KEY:}
     groq-model: ${GROQ_MODEL:llama-3.1-8b-instant}
-

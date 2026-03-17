@@ -81,8 +81,10 @@ public class UserChallengeService {
     /**
      * Slutför en challenge och tilldela poäng.
      * Blockerar om samma challenge redan slutförts idag.
+     *
+     * @param actualMinutes faktisk tid som användaren spenderade (0 = använd standardtid för utmaningen)
      */
-    public UserChallengeOutDto completeChallenge(String userId, Long challengeId) {
+    public UserChallengeOutDto completeChallenge(String userId, Long challengeId, int actualMinutes) {
         // Kolla om redan slutförd idag
         LocalDateTime startOfDay = LocalDate.now().atStartOfDay();
         boolean alreadyCompletedToday = userChallengeRepository
@@ -97,9 +99,8 @@ public class UserChallengeService {
                 .findTopByUserIdAndChallengeIdAndCompletedOrderByStartedAtDesc(userId, challengeId, false)
                 .orElseThrow(() -> new IllegalArgumentException("User challenge not found"));
 
-
-        // Markera som slutförd och tilldela poäng
-        userChallenge.complete();
+        // Markera som slutförd och tilldela poäng (tidsskalat)
+        userChallenge.complete(actualMinutes);
         userChallenge = userChallengeRepository.save(userChallenge);
 
         // Lägg till poäng i UserProgress

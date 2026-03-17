@@ -97,9 +97,8 @@ export const fetchWithCredentials = async (url: string, options?: RequestInit) =
   });
 
   if (!response.ok) {
-    // Session utgången eller saknar behörighet → redirecta till login
-    if (response.status === 401 || response.status === 403) {
-      // Undvik redirect-loop om vi redan är på login/reset-password
+    // Session utgången → redirecta till login (bara vid 401, inte 403)
+    if (response.status === 401) {
       const path = window.location.pathname;
       if (!path.startsWith('/login') && !path.startsWith('/reset-password')) {
         window.location.href = '/login';

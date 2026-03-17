@@ -24,7 +24,8 @@ import java.util.regex.Pattern;
 public class ChallengeRecommendationParser {
 
     private static final Logger log = LoggerFactory.getLogger(ChallengeRecommendationParser.class);
-    private static final Pattern CHALLENGE_TAG_PATTERN = Pattern.compile("\\[CHALLENGE:(\\d+)]");
+    // Matchar [CHALLENGE:1], [CHALLENGE: 1] och [CHALLENGE : 1] (AI-modeller kan variera formatet)
+    private static final Pattern CHALLENGE_TAG_PATTERN = Pattern.compile("\\[CHALLENGE\\s*:\\s*(\\d+)\\s*]");
 
     private final ChallengeRepository challengeRepository;
 

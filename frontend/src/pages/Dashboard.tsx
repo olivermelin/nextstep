@@ -12,6 +12,9 @@ import { sendCoachMessage } from "@/services/coachService";
 import { userChallengeApi } from "@/services/challengeService";
 import { formatMarkdown } from "@/components/AIChat";
 import { UserChallengeOutDto } from "@/types/challenge";
+import SobrietyCounter from "@/components/SobrietyCounter";
+import DailyCheckIn from "@/components/DailyCheckIn";
+import SOSButton from "@/components/SOSButton";
 
 interface UserProgress {
   points: number;
@@ -72,33 +75,43 @@ const Dashboard = () => {
     }
   };
 
-  // Hämta personligt AI-coachmeddelande baserat på framsteg
-  useEffect(() => {
-    if (userId && userProgress) {
-      fetchCoachMessage();
-    }
-  }, [userId, userProgress.points, userProgress.level]);
+  // Hämta personligt AI-coachmeddelande EN gång per session (cachad)
+  const [hasFetchedCoach, setHasFetchedCoach] = useState(false);
 
-  const fetchCoachMessage = async () => {
-    if (!userId) return;
-    setCoachLoading(true);
-    try {
-      const contextMessage = t('dashboard.coachPrompt', {
-        level: userProgress.level,
-        points: userProgress.points,
-        activeChallenges: activeChallenges.length,
-      });
-      const response = await sendCoachMessage(userId, contextMessage, null);
-      setDailyCoachMessage(response.response);
-    } catch {
-      // Fallback till en slumpmässig statisk fras
-      const messages = t('dashboard.coachMessages', { returnObjects: true }) as string[];
-      const randomMessage = messages[Math.floor(Math.random() * messages.length)];
-      setDailyCoachMessage(randomMessage);
-    } finally {
-      setCoachLoading(false);
+  useEffect(() => {
+    if (!userId || hasFetchedCoach) return;
+
+    // Kolla sessionStorage-cache först
+    const cached = sessionStorage.getItem(`coach_message_${userId}`);
+    if (cached) {
+      setDailyCoachMessage(cached);
+      setHasFetchedCoach(true);
+      return;
     }
-  };
+
+    const fetchCoachMessage = async () => {
+      setCoachLoading(true);
+      try {
+        const contextMessage = t('dashboard.coachPrompt', {
+          level: userProgress.level,
+          points: userProgress.points,
+          activeChallenges: activeChallenges.length,
+        });
+        const response = await sendCoachMessage(userId, contextMessage, null);
+        setDailyCoachMessage(response.response);
+        sessionStorage.setItem(`coach_message_${userId}`, response.response);
+      } catch {
+        const messages = t('dashboard.coachMessages', { returnObjects: true }) as string[];
+        const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+        setDailyCoachMessage(randomMessage);
+      } finally {
+        setCoachLoading(false);
+        setHasFetchedCoach(true);
+      }
+    };
+
+    fetchCoachMessage();
+  }, [userId, hasFetchedCoach]);
 
   const progressToNextLevel = userProgress.points % 100;
 
@@ -126,14 +139,14 @@ const Dashboard = () => {
 
   if (!user) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex items-center justify-center min-h-full">
         <p>{t('dashboard.loadingUser')}</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5 p-4 pb-20 pt-4">
+    <div className="min-h-full bg-gradient-to-br from-primary/5 via-background to-secondary/5 p-4 pt-4">
       <div className="max-w-4xl mx-auto space-y-6">
         {/* Debug info */}
         {!userId && (
@@ -147,6 +160,12 @@ const Dashboard = () => {
           <h1 className="text-3xl font-bold text-foreground mb-2">{t('dashboard.title')}</h1>
           <p className="text-muted-foreground">{t('dashboard.subtitle')}</p>
         </div>
+
+        {/* Daily Check-In */}
+        {userId && <DailyCheckIn userId={userId} />}
+
+        {/* Sobriety Counter */}
+        {userId && <SobrietyCounter userId={userId} />}
 
         {/* Level & Points Card */}
         <Card className="p-6 bg-gradient-to-br from-card to-muted/20 shadow-[var(--shadow-card)] animate-fade-in-up stagger-1 card-hover">
@@ -237,6 +256,9 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
+
+      {/* SOS Button */}
+      <SOSButton />
     </div>
   );
 };

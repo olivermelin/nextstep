@@ -51,7 +51,7 @@ class UserChallengeServiceTest {
 
         testDto = new UserChallengeOutDto(1L, CHALLENGE_ID, "Test Challenge",
                 "MENTAL_HEALTH", "EASY", 15, "IN_PROGRESS",
-                LocalDateTime.now(), null, 0);
+                LocalDateTime.now(), null, 0, 0);
     }
 
     // --- startChallenge ---
@@ -135,10 +135,10 @@ class UserChallengeServiceTest {
         when(userChallengeRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
         UserChallengeOutDto completedDto = new UserChallengeOutDto(1L, CHALLENGE_ID, "Test",
                 "MENTAL_HEALTH", "EASY", 15, "COMPLETED",
-                LocalDateTime.now(), LocalDateTime.now(), 10);
+                LocalDateTime.now(), LocalDateTime.now(), 10, 15);
         when(userChallengeMapper.toDto(any())).thenReturn(completedDto);
 
-        UserChallengeOutDto result = service.completeChallenge(USER_ID, CHALLENGE_ID);
+        UserChallengeOutDto result = service.completeChallenge(USER_ID, CHALLENGE_ID, 0);
 
         assertEquals("COMPLETED", result.status());
         verify(userProgressService).addPoints(eq(USER_ID), anyInt());
@@ -149,7 +149,7 @@ class UserChallengeServiceTest {
         when(userChallengeRepository.existsCompletedSince(eq(USER_ID), eq(CHALLENGE_ID), any())).thenReturn(true);
 
         assertThrows(IllegalArgumentException.class,
-                () -> service.completeChallenge(USER_ID, CHALLENGE_ID));
+                () -> service.completeChallenge(USER_ID, CHALLENGE_ID, 0));
     }
 
     @Test
@@ -159,7 +159,7 @@ class UserChallengeServiceTest {
                 .thenReturn(Optional.empty());
 
         assertThrows(IllegalArgumentException.class,
-                () -> service.completeChallenge(USER_ID, CHALLENGE_ID));
+                () -> service.completeChallenge(USER_ID, CHALLENGE_ID, 0));
     }
 
     // --- getUserChallenges ---
@@ -167,7 +167,7 @@ class UserChallengeServiceTest {
     @Test
     void getUserCompletedChallenges_returnsOnlyCompleted() {
         UserChallenge completed = new UserChallenge(USER_ID, testChallenge);
-        completed.complete();
+        completed.complete(0);
         when(userChallengeRepository.findByUserIdAndCompleted(USER_ID, true)).thenReturn(List.of(completed));
         when(userChallengeMapper.toDto(any())).thenReturn(testDto);
 

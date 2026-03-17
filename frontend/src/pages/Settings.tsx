@@ -174,7 +174,7 @@ const Settings = () => {
   // Visa loading
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
+      <div className="flex items-center justify-center min-h-full bg-gradient-to-br from-background via-background to-primary/5">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     );
@@ -182,14 +182,14 @@ const Settings = () => {
 
   if (!settings) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
+      <div className="flex items-center justify-center min-h-full bg-gradient-to-br from-background via-background to-primary/5">
         <p className="text-red-500">{t('settings.loadErrorGeneric')}</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 relative overflow-hidden">
+    <div className="min-h-full bg-gradient-to-br from-background via-background to-primary/5 relative overflow-hidden">
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div
@@ -202,7 +202,7 @@ const Settings = () => {
         />
       </div>
 
-      <div className="relative z-10 max-w-2xl mx-auto p-4 pb-28 pt-6 space-y-5 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <div className="relative z-10 max-w-2xl mx-auto p-4 pt-6 space-y-5 animate-in fade-in slide-in-from-bottom-4 duration-700">
         {/* Page Header */}
         <div className="text-center space-y-2 pb-2">
           <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-primary/60 shadow-lg mb-1">

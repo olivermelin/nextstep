@@ -2,6 +2,7 @@ package se.sobriety.nextstep.controller;
 
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import se.sobriety.nextstep.dto.ChallengeInDto;
 import se.sobriety.nextstep.dto.ChallengeOutDto;
@@ -116,27 +117,30 @@ public class ChallengesController {
     /* ============ CRUD – Skapa, uppdatera och ta bort challenges ============ */
 
     /**
-     * POST /api/challenges - Skapa en ny challenge dynamiskt
+     * POST /api/challenges - Skapa en ny challenge dynamiskt (kräver ADMIN-roll)
      */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("hasRole('ADMIN')")
     public ChallengeOutDto createChallenge(@Valid @RequestBody ChallengeInDto challengeInDto) {
         return challengeService.createChallenge(challengeInDto);
     }
 
     /**
-     * PUT /api/challenges/{id} - Uppdatera en befintlig challenge
+     * PUT /api/challenges/{id} - Uppdatera en befintlig challenge (kräver ADMIN-roll)
      */
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ChallengeOutDto updateChallenge(@PathVariable Long id, @Valid @RequestBody ChallengeInDto challengeInDto) {
         return challengeService.updateChallenge(id, challengeInDto);
     }
 
     /**
-     * DELETE /api/challenges/{id} - Ta bort en challenge
+     * DELETE /api/challenges/{id} - Ta bort en challenge (kräver ADMIN-roll)
      */
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("hasRole('ADMIN')")
     public void deleteChallenge(@PathVariable Long id) {
         challengeService.deleteChallenge(id);
     }

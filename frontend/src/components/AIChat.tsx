@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { Button } from "./ui/button";
-import { Loader2, Send, AlertCircle, RotateCcw, Phone, ShieldAlert, Bot, User, Target, ArrowRight, Clock } from "lucide-react";
+import { Loader2, Send, AlertCircle, RotateCcw, Phone, ShieldAlert, Bot, User, Target, ArrowRight, Clock, History } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import {
   sendCoachMessage,
@@ -156,6 +156,80 @@ const ChallengeCards: React.FC<{ challenges: SuggestedChallenge[] }> = ({ challe
   );
 };
 
+// --- Persistens-helpers ---
+
+const MAX_STORED_MESSAGES = 100;
+
+function storageKey(userId: string) {
+  return `aiChat_${userId}`;
+}
+
+interface StoredChat {
+  messages: (Omit<Message, "timestamp"> & { timestamp: string })[];
+  sessionId: string | null;
+  showCrisisBanner: boolean;
+}
+
+function loadChat(userId: string): { messages: Message[]; sessionId: string | null; showCrisisBanner: boolean } {
+  try {
+    const raw = localStorage.getItem(storageKey(userId));
+    if (!raw) return { messages: [], sessionId: null, showCrisisBanner: false };
+    const stored: StoredChat = JSON.parse(raw);
+    const messages: Message[] = stored.messages.map((m) => ({
+      ...m,
+      timestamp: new Date(m.timestamp),
+    }));
+    return { messages, sessionId: stored.sessionId, showCrisisBanner: stored.showCrisisBanner ?? false };
+  } catch {
+    return { messages: [], sessionId: null, showCrisisBanner: false };
+  }
+}
+
+function saveChat(userId: string, messages: Message[], sessionId: string | null, showCrisisBanner: boolean) {
+  try {
+    const trimmed = messages.slice(-MAX_STORED_MESSAGES);
+    const stored: StoredChat = {
+      messages: trimmed.map((m) => ({ ...m, timestamp: m.timestamp.toISOString() })),
+      sessionId,
+      showCrisisBanner,
+    };
+    localStorage.setItem(storageKey(userId), JSON.stringify(stored));
+  } catch {
+    // localStorage full or unavailable – ignore
+  }
+}
+
+function clearChat(userId: string) {
+  localStorage.removeItem(storageKey(userId));
+}
+
+function archivedKey(userId: string) {
+  return `aiChatArchived_${userId}`;
+}
+
+function hasArchivedChat(userId: string): boolean {
+  return localStorage.getItem(archivedKey(userId)) !== null;
+}
+
+function loadArchivedChat(userId: string): { messages: Message[]; sessionId: string | null; showCrisisBanner: boolean } {
+  try {
+    const raw = localStorage.getItem(archivedKey(userId));
+    if (!raw) return { messages: [], sessionId: null, showCrisisBanner: false };
+    const stored: StoredChat = JSON.parse(raw);
+    const messages: Message[] = stored.messages.map((m) => ({
+      ...m,
+      timestamp: new Date(m.timestamp),
+    }));
+    return { messages, sessionId: stored.sessionId, showCrisisBanner: stored.showCrisisBanner ?? false };
+  } catch {
+    return { messages: [], sessionId: null, showCrisisBanner: false };
+  }
+}
+
+function clearArchivedChat(userId: string) {
+  localStorage.removeItem(archivedKey(userId));
+}
+
 // --- Huvudkomponent ---
 
 interface AIChatProps {
@@ -166,13 +240,18 @@ interface AIChatProps {
 export const AIChat: React.FC<AIChatProps> = ({ quickPrompt, onQuickPromptConsumed }) => {
   const { t } = useTranslation();
   const { user } = useAuth();
-  const [messages, setMessages] = useState<Message[]>([]);
+
+  const userId = user?.email || user?.id || "anonymous";
+
+  // Ladda sparad historik direkt vid initialisering
+  const [messages, setMessages] = useState<Message[]>(() => loadChat(userId).messages);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [sessionId, setSessionId] = useState<string | null>(null);
-  const [showCrisisBanner, setShowCrisisBanner] = useState(false);
+  const [sessionId, setSessionId] = useState<string | null>(() => loadChat(userId).sessionId);
+  const [showCrisisBanner, setShowCrisisBanner] = useState<boolean>(() => loadChat(userId).showCrisisBanner);
   const [coachStatus, setCoachStatus] = useState<CoachStatusResponse | null>(null);
+  const [canResume, setCanResume] = useState<boolean>(() => hasArchivedChat(userId));
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -182,6 +261,11 @@ export const AIChat: React.FC<AIChatProps> = ({ quickPrompt, onQuickPromptConsum
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  // Spara chatten varje gång messages, sessionId eller showCrisisBanner ändras
+  useEffect(() => {
+    saveChat(userId, messages, sessionId, showCrisisBanner);
+  }, [messages, sessionId, showCrisisBanner, userId]);
 
   useEffect(() => {
     getCoachStatus()
@@ -202,6 +286,18 @@ export const AIChat: React.FC<AIChatProps> = ({ quickPrompt, onQuickPromptConsum
     setMessages([]);
     setError(null);
     setShowCrisisBanner(false);
+    setCanResume(false);
+    clearChat(userId);
+    clearArchivedChat(userId);
+  };
+
+  const handleResumeChat = () => {
+    const archived = loadArchivedChat(userId);
+    setMessages(archived.messages);
+    setSessionId(archived.sessionId);
+    setShowCrisisBanner(archived.showCrisisBanner);
+    clearArchivedChat(userId);
+    setCanResume(false);
   };
 
   const handleSendMessage = async () => {
@@ -217,6 +313,7 @@ export const AIChat: React.FC<AIChatProps> = ({ quickPrompt, onQuickPromptConsum
     };
 
     setMessages((prev) => [...prev, userMessage]);
+    setCanResume(false);
     const messageText = input;
     setInput("");
     setLoading(true);
@@ -319,6 +416,15 @@ export const AIChat: React.FC<AIChatProps> = ({ quickPrompt, onQuickPromptConsum
                   {t('aiCoach.startConversationDesc')}
                 </p>
               </div>
+              {canResume && (
+                <button
+                  onClick={handleResumeChat}
+                  className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary/10 border border-primary/20 hover:bg-primary/20 transition-all duration-200 text-sm font-medium text-primary animate-in fade-in duration-300"
+                >
+                  <History className="w-4 h-4" />
+                  {t('aiCoach.resumePreviousChat')}
+                </button>
+              )}
             </div>
           ) : (
             <>

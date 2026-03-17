@@ -84,16 +84,13 @@ export const userChallengeApi = {
     );
   },
 
-  // Slutför en challenge
+  // Slutför en challenge (actualMinutes = 0 → backend använder standardtid)
   completeChallenge: async (
     userId: string,
-    challengeId: number
+    challengeId: number,
+    actualMinutes: number = 0
   ): Promise<UserChallengeOutDto> => {
-    return fetchWithCredentials(
-      API_ENDPOINTS.USER_CHALLENGES.COMPLETE(userId, challengeId),
-      {
-        method: "POST",
-      }
-    );
+    const url = `${API_ENDPOINTS.USER_CHALLENGES.COMPLETE(userId, challengeId)}?actualMinutes=${actualMinutes}`;
+    return fetchWithCredentials(url, { method: "POST" });
   },
 };

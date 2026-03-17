@@ -43,7 +43,12 @@ public class SystemPromptBuilder {
         prompt.append("- Uppmuntra självreflektion\n");
         prompt.append("- Håll svaren koncisa (2-4 meningar) om inte användaren ber om mer\n");
         prompt.append("- Du är INTE läkare eller terapeut – hänvisa till professionell hjälp vid behov\n");
-        prompt.append("- Fira framsteg och styrkor hos användaren\n\n");
+        prompt.append("- Fira framsteg och styrkor hos användaren\n");
+        prompt.append("\nNAMNREGEL – följ dessa strikt:\n");
+        prompt.append("- Använd ALDRIG användarens namn i svaren. ALDRIG. Det låter robotaktigt.\n");
+        prompt.append("- ENDA undantaget: allra första hälsningen i en ny konversation. Då skriver du 'Hej [förnamn]!' – ENBART förnamnet.\n");
+        prompt.append("- Förnamnet = BARA det första ordet. Om namnet är 'Oliver Melin' skriver du 'Hej Oliver!' – ALDRIG 'Oliver Melin'.\n");
+        prompt.append("- I alla efterföljande svar: använd INTE namnet alls. Svara direkt utan att tilltala personen vid namn.\n\n");
 
         // Formateringsregler
         prompt.append("FORMATERING:\n");
@@ -136,10 +141,11 @@ public class SystemPromptBuilder {
 
         StringBuilder catalog = new StringBuilder();
         catalog.append("\nTILLGÄNGLIGA UTMANINGAR I APPEN:\n");
-        catalog.append("När användaren pratar om aktiviteter, träning, mindfulness eller andra ämnen som matchar en utmaning, ");
-        catalog.append("rekommendera relevanta utmaningar genom att inkludera taggen [CHALLENGE:id] i ditt svar.\n");
-        catalog.append("Rekommmendera 1-3 utmaningar när det passar naturligt i samtalet. Tvinga inte in rekommendationer.\n");
-        catalog.append("Skriv en kort personlig rekommendation innan taggen, t.ex. 'Det finns en utmaning som passar perfekt för det du beskriver.'\n\n");
+        catalog.append("När användaren pratar om aktiviteter, träning, mindfulness eller annat som matchar en utmaning, ");
+        catalog.append("rekommendera relevanta utmaningar med exakt formatet [CHALLENGE:id] (utan mellanslag) i ditt svar.\n");
+        catalog.append("VIKTIGT: Skriv taggen exakt så här: [CHALLENGE:5] – inte [CHALLENGE: 5] eller [Challenge:5].\n");
+        catalog.append("Rekommendera 1-2 utmaningar när det passar naturligt. Tvinga inte in rekommendationer.\n");
+        catalog.append("Taggen är osynlig för användaren – den ersätts med en klickbar knapp i appen.\n\n");
 
         for (Challenge c : challenges) {
             catalog.append("[").append(c.getId()).append("] ")

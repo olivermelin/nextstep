@@ -70,7 +70,7 @@ function AppContent() {
       </header>
 
       {/* Huvudinnehål */}
-      <main className="flex-1 overflow-y-auto bg-background">
+      <main className="flex-1 overflow-y-auto bg-background pb-16">
         {user ? (
           // Redirecta till onboarding om inte slutförd
           !user.onboardingCompleted && location.pathname !== '/onboarding' ? (

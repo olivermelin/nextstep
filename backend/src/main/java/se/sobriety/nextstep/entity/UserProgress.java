@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Getter
+@Table(indexes = @Index(name = "idx_user_progress_user_id", columnList = "userId"))
 public class UserProgress extends BaseUserData {
 
     @Column(nullable = false)

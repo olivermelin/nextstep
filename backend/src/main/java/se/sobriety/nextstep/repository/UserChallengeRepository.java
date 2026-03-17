@@ -15,6 +15,11 @@ public interface UserChallengeRepository extends JpaRepository<UserChallenge, Lo
 
     List<UserChallenge> findByUserIdAndCompleted(String userId, boolean completed);
 
+    /**
+     * Räkna antal slutförda challenges för en användare (effektivare än att hämta alla och räkna i Java)
+     */
+    long countByUserIdAndCompleted(String userId, boolean completed);
+
     Optional<UserChallenge> findTopByUserIdAndChallengeIdAndCompletedOrderByStartedAtDesc(String userId, Long challengeId, boolean completed);
 
     /**

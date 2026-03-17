@@ -11,6 +11,7 @@ import java.util.List;
 @Getter
 @Setter
 @Entity
+@Table(indexes = @Index(name = "idx_user_settings_user_id", columnList = "userId"))
 public class UserSettings extends BaseUserData {
 
     private String name;
