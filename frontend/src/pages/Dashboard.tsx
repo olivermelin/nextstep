@@ -4,7 +4,8 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { Sparkles, ArrowRight, Target, Loader2 } from "lucide-react";
+import { Sparkles, ArrowRight, Target } from "lucide-react";
+import { CoachMessageSkeleton, ActiveChallengesSkeleton } from "@/components/skeletons/DashboardSkeleton";
 import { useAuth } from "@/context/AuthContext";
 import { API_ENDPOINTS } from "@/config/api";
 import { useTranslation } from "react-i18next";
@@ -15,6 +16,10 @@ import { UserChallengeOutDto } from "@/types/challenge";
 import SobrietyCounter from "@/components/SobrietyCounter";
 import DailyCheckIn from "@/components/DailyCheckIn";
 import SOSButton from "@/components/SOSButton";
+import MilestoneCelebration from "@/components/MilestoneCelebration";
+import DailyRewardBox from "@/components/DailyRewardBox";
+import { rewardService, DailyRewardData } from "@/services/rewardService";
+import { useCallback } from "react";
 
 interface UserProgress {
   points: number;
@@ -33,9 +38,34 @@ const Dashboard = () => {
   const [coachLoading, setCoachLoading] = useState(false);
   const [activeChallenges, setActiveChallenges] = useState<UserChallengeOutDto[]>([]);
   const [challengesLoading, setChallengesLoading] = useState(false);
+  const [milestoneDays, setMilestoneDays] = useState<number | null>(null);
+  const [dailyReward, setDailyReward] = useState<DailyRewardData | null>(null);
 
   // Härledd userId från AuthContext (email prioriterat)
   const userId = user?.email || user?.id || null;
+
+  const handleMilestone = useCallback((days: number) => {
+    setMilestoneDays(days);
+  }, []);
+
+  // Generera daily reward efter check-in
+  const handleCheckIn = useCallback(async () => {
+    if (!userId) return;
+    try {
+      const reward = await rewardService.generateReward(userId);
+      setDailyReward(reward);
+    } catch {
+      // Reward generation failed silently
+    }
+  }, [userId]);
+
+  // Hämta ev. redan genererad reward
+  useEffect(() => {
+    if (!userId) return;
+    rewardService.getTodayReward(userId).then((reward) => {
+      if (reward) setDailyReward(reward);
+    });
+  }, [userId]);
 
   // Hämta användarens framsteg
   useEffect(() => {
@@ -137,6 +167,23 @@ const Dashboard = () => {
     return map[category] || category.toLowerCase();
   };
 
+  // Time-aware greeting
+  const getTimeGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 6) return t('dashboard.greetingNight', { defaultValue: 'God natt' });
+    if (hour < 12) return t('dashboard.greetingMorning', { defaultValue: 'God morgon' });
+    if (hour < 17) return t('dashboard.greetingAfternoon', { defaultValue: 'God eftermiddag' });
+    return t('dashboard.greetingEvening', { defaultValue: 'God kv\u00e4ll' });
+  };
+
+  const getTimeGradient = () => {
+    const hour = new Date().getHours();
+    if (hour < 6) return "from-indigo-500/8 via-background to-blue-500/5";
+    if (hour < 12) return "from-amber-500/8 via-background to-orange-500/5";
+    if (hour < 17) return "from-primary/5 via-background to-secondary/5";
+    return "from-blue-500/8 via-background to-indigo-500/5";
+  };
+
   if (!user) {
     return (
       <div className="flex items-center justify-center min-h-full">
@@ -146,7 +193,7 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="min-h-full bg-gradient-to-br from-primary/5 via-background to-secondary/5 p-4 pt-4">
+    <div className={`min-h-full bg-gradient-to-br ${getTimeGradient()} p-4 pt-4`}>
       <div className="max-w-4xl mx-auto space-y-6">
         {/* Debug info */}
         {!userId && (
@@ -155,17 +202,31 @@ const Dashboard = () => {
           </Card>
         )}
 
-        {/* Header */}
+        {/* Header with time-aware greeting */}
         <div className="pt-2">
-          <h1 className="text-3xl font-bold text-foreground mb-2">{t('dashboard.title')}</h1>
+          <h1 className="text-3xl font-bold text-foreground mb-2">
+            {getTimeGreeting()}{user.name ? `, ${user.name.split(' ')[0]}` : ''} {'\u{1F44B}'}
+          </h1>
           <p className="text-muted-foreground">{t('dashboard.subtitle')}</p>
         </div>
 
         {/* Daily Check-In */}
-        {userId && <DailyCheckIn userId={userId} />}
+        {userId && <DailyCheckIn userId={userId} onCheckIn={handleCheckIn} />}
+
+        {/* Daily Reward (Mystery Box) — visas efter check-in */}
+        {userId && dailyReward && !dailyReward.claimed && (
+          <DailyRewardBox
+            userId={userId}
+            reward={dailyReward}
+            onClaimed={() => {
+              setDailyReward((prev) => prev ? { ...prev, claimed: true } : null);
+              fetchUserProgress(); // Uppdatera XP
+            }}
+          />
+        )}
 
         {/* Sobriety Counter */}
-        {userId && <SobrietyCounter userId={userId} />}
+        {userId && <SobrietyCounter userId={userId} onMilestone={handleMilestone} />}
 
         {/* Level & Points Card */}
         <Card className="p-6 bg-gradient-to-br from-card to-muted/20 shadow-[var(--shadow-card)] animate-fade-in-up stagger-1 card-hover">
@@ -190,33 +251,28 @@ const Dashboard = () => {
         </Card>
 
         {/* Daily Coach Message */}
-        <Card className="p-6 bg-gradient-to-br from-primary/10 to-secondary/10 border-primary/20 shadow-[var(--shadow-glow)] animate-fade-in-up stagger-2 card-hover">
-          <div className="flex items-start gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-primary/20 flex items-center justify-center flex-shrink-0">
-              <Sparkles className="w-6 h-6 text-primary" />
-            </div>
-            <div className="flex-1">
-              <h3 className="font-semibold text-lg mb-2 text-foreground">{t('dashboard.aiCoachSays')}</h3>
-              {coachLoading ? (
-                <div className="flex items-center gap-2 text-muted-foreground">
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  <span>{t('dashboard.coachThinking')}</span>
-                </div>
-              ) : (
+        {coachLoading ? (
+          <CoachMessageSkeleton />
+        ) : (
+          <Card className="p-6 bg-gradient-to-br from-primary/10 to-secondary/10 border-primary/20 shadow-[var(--shadow-glow)] animate-fade-in-up stagger-2 card-hover">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-primary/20 flex items-center justify-center flex-shrink-0">
+                <Sparkles className="w-6 h-6 text-primary" />
+              </div>
+              <div className="flex-1">
+                <h3 className="font-semibold text-lg mb-2 text-foreground">{t('dashboard.aiCoachSays')}</h3>
                 <p className="text-foreground/90">{formatMarkdown(dailyCoachMessage)}</p>
-              )}
+              </div>
             </div>
-          </div>
-        </Card>
+          </Card>
+        )}
 
         {/* Today's Active Challenges */}
         <div className="space-y-4">
           <h2 className="text-xl font-semibold text-foreground">{t('dashboard.todayActivities')}</h2>
           <div className="grid gap-4">
             {challengesLoading ? (
-              <Card className="p-6 flex justify-center">
-                <Loader2 className="w-6 h-6 animate-spin text-primary" />
-              </Card>
+              <ActiveChallengesSkeleton />
             ) : activeChallenges.length === 0 ? (
               <Card className="p-6 text-center">
                 <Target className="w-10 h-10 mx-auto mb-3 text-muted-foreground" />
@@ -259,6 +315,12 @@ const Dashboard = () => {
 
       {/* SOS Button */}
       <SOSButton />
+
+      {/* Milestone Celebration */}
+      <MilestoneCelebration
+        days={milestoneDays}
+        onClose={() => setMilestoneDays(null)}
+      />
     </div>
   );
 };

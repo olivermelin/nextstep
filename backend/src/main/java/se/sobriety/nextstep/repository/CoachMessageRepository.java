@@ -13,5 +13,8 @@ public interface CoachMessageRepository extends JpaRepository<CoachMessage, Long
     List<CoachMessage> findBySessionIdOrderByTimestampDesc(Long sessionId, Pageable pageable);
 
     List<CoachMessage> findBySession_SessionIdOrderByTimestampAsc(String sessionId);
+
+    /** Hämta antal meddelanden per session (via DB-id) */
+    long countBySessionId(Long sessionId);
 }
 

@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { motion, AnimatePresence } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -35,6 +36,13 @@ const Onboarding = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const directionRef = useRef(1); // 1 = forward, -1 = backward
+
+  const stepVariants = {
+    initial: (direction: number) => ({ opacity: 0, x: direction > 0 ? 60 : -60 }),
+    animate: { opacity: 1, x: 0 },
+    exit: (direction: number) => ({ opacity: 0, x: direction > 0 ? -60 : 60 }),
+  };
 
   // Steg 1 - Mål
   const [selectedGoals, setSelectedGoals] = useState<UserGoal[]>([]);
@@ -122,11 +130,13 @@ const Onboarding = () => {
       return;
     }
     setError(null);
+    directionRef.current = 1;
     setCurrentStep((prev) => Math.min(prev + 1, totalSteps));
   };
 
   const handleBack = () => {
     setError(null);
+    directionRef.current = -1;
     setCurrentStep((prev) => Math.max(prev - 1, 1));
   };
 
@@ -202,9 +212,20 @@ const Onboarding = () => {
           </Alert>
         )}
 
+        {/* Step Content */}
+        <AnimatePresence mode="wait" custom={directionRef.current}>
         {/* STEG 1 - Mål */}
         {currentStep === 1 && (
-          <div className="space-y-6 animate-fade-in-up">
+          <motion.div
+            key="step1"
+            custom={directionRef.current}
+            variants={stepVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
+            className="space-y-6"
+          >
             <div>
               <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
                 {t('onboarding.step1Title')}
@@ -252,12 +273,21 @@ const Onboarding = () => {
                 />
               </div>
             )}
-          </div>
+          </motion.div>
         )}
 
         {/* STEG 2 - Bakgrund */}
         {currentStep === 2 && (
-          <div className="space-y-6 animate-fade-in-up">
+          <motion.div
+            key="step2"
+            custom={directionRef.current}
+            variants={stepVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
+            className="space-y-6"
+          >
             <div>
               <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
                 {t('onboarding.step2Title')}
@@ -344,12 +374,21 @@ const Onboarding = () => {
                 ))}
               </div>
             </div>
-          </div>
+          </motion.div>
         )}
 
         {/* STEG 3 - Recovery Stage */}
         {currentStep === 3 && (
-          <div className="space-y-6 animate-fade-in-up">
+          <motion.div
+            key="step3"
+            custom={directionRef.current}
+            variants={stepVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
+            className="space-y-6"
+          >
             <div>
               <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
                 {t('onboarding.step3Title')}
@@ -390,8 +429,9 @@ const Onboarding = () => {
                 ))}
               </div>
             </RadioGroup>
-          </div>
+          </motion.div>
         )}
+        </AnimatePresence>
 
         {/* Navigation Buttons */}
         <div className="flex gap-3 mt-8">

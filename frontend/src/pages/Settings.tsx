@@ -1,10 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/components/ui/use-toast";
-import { Bell, User, Palette, LogOut, Settings as SettingsIcon, Loader2 } from "lucide-react";
+import { Bell, User, Palette, LogOut, Settings as SettingsIcon } from "lucide-react";
+import { SettingsPageSkeleton } from "@/components/skeletons/SettingsSkeleton";
 import { useAuth } from "@/context/AuthContext";
 import { API_ENDPOINTS } from "@/config/api";
 import { useTranslation } from "react-i18next";
@@ -25,9 +26,10 @@ const Settings = () => {
   const { t, i18n } = useTranslation();
   const [settings, setSettings] = useState<UserSettings | null>(null);
   const [loading, setLoading] = useState(true);
+  const hasFetched = useRef(false);
 
   // Applicera tema
-  const applyTheme = (isDark: boolean) => {
+  const applyTheme = useCallback((isDark: boolean) => {
     const root = document.documentElement;
     if (isDark) {
       root.classList.add("dark");
@@ -36,7 +38,7 @@ const Settings = () => {
       root.classList.remove("dark");
       localStorage.setItem("theme", "light");
     }
-  };
+  }, []);
 
   // Hantera mörkt läge
   const handleDarkModeChange = (checked: boolean) => {
@@ -49,12 +51,14 @@ const Settings = () => {
     });
   };
 
-  // Ladda settings från backend
-  useEffect(() => {
-    const loadSettings = async () => {
-      if (!user?.email && !user?.id) return;
-      const userId = user.email || user.id;
+  // Ladda settings från backend — körs en gång per userId
+  const userId = user?.email || user?.id || null;
 
+  useEffect(() => {
+    if (!userId || hasFetched.current) return;
+    hasFetched.current = true;
+
+    const loadSettings = async () => {
       try {
         const res = await fetch(API_ENDPOINTS.SETTINGS.GET_USER_SETTINGS(userId), {
           method: "GET",
@@ -63,29 +67,35 @@ const Settings = () => {
 
         if (res.ok) {
           const data = await res.json();
+          const darkMode = data.darkModeEnabled ?? false;
+          const lang = data.language === "en" ? "en" : "sv";
           setSettings({
-            name: data.name || user.name || "",
-            email: data.email || user.email || "",
+            name: data.name || user?.name || "",
+            email: data.email || user?.email || "",
             phone: data.phone || "",
             notificationsEnabled: data.notificationsEnabled ?? true,
             aiNotificationsEnabled: data.aiNotificationsEnabled ?? false,
-            darkModeEnabled: data.darkModeEnabled ?? false,
-            language: data.language === "sv" ? "sv" : "en",
+            darkModeEnabled: darkMode,
+            language: lang,
           });
-          applyTheme(data.darkModeEnabled ?? false);
+          applyTheme(darkMode);
+          // Synka i18n-språk med backend-värdet (single source of truth)
+          if (i18n.language !== lang) {
+            i18n.changeLanguage(lang);
+            localStorage.setItem("i18nLanguage", lang);
+          }
         } else {
           // Om inställningar inte finns, skapa defaults
-          const defaultSettings = {
+          const isDark = localStorage.getItem("theme") === "dark";
+          setSettings({
             name: user?.name || "",
             email: user?.email || "",
             phone: "",
             notificationsEnabled: true,
             aiNotificationsEnabled: false,
-            darkModeEnabled: localStorage.getItem("theme") === "dark",
+            darkModeEnabled: isDark,
             language: "sv" as const,
-          };
-          setSettings(defaultSettings);
-          applyTheme(defaultSettings.darkModeEnabled);
+          });
         }
       } catch {
         toast({
@@ -99,7 +109,8 @@ const Settings = () => {
     };
 
     loadSettings();
-  }, [user, toast]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userId]);
 
   // Spara inställningar
   const handleSave = async () => {
@@ -127,6 +138,12 @@ const Settings = () => {
 
       if (!res.ok) {
         throw new Error(`HTTP error! status: ${res.status}`);
+      }
+
+      // Applicera språkbyte efter lyckad sparning
+      if (i18n.language !== settings.language) {
+        i18n.changeLanguage(settings.language);
+        localStorage.setItem("i18nLanguage", settings.language);
       }
 
       toast({
@@ -173,11 +190,7 @@ const Settings = () => {
 
   // Visa loading
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-full bg-gradient-to-br from-background via-background to-primary/5">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
-      </div>
-    );
+    return <SettingsPageSkeleton />;
   }
 
   if (!settings) {
@@ -348,8 +361,6 @@ const Settings = () => {
                     ...settings,
                     language: newLang,
                   });
-                  i18n.changeLanguage(newLang);
-                  localStorage.setItem('i18nLanguage', newLang);
                 }}
                 className="w-full px-4 py-2.5 rounded-xl border border-border/50 bg-background/50 text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all cursor-pointer"
               >

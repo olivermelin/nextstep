@@ -22,7 +22,7 @@ const AICoach: React.FC = () => {
   ];
 
   return (
-    <div className="flex min-h-[calc(100vh-4rem)] bg-gradient-to-br from-background via-background to-primary/5 relative overflow-hidden">
+    <div className="flex h-full bg-gradient-to-br from-background via-background to-primary/5 relative overflow-hidden">
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div
@@ -36,7 +36,7 @@ const AICoach: React.FC = () => {
       </div>
 
       {/* Main content area */}
-      <div className="flex-1 flex relative z-10 p-4 pb-24 gap-4 max-w-[1400px] mx-auto w-full animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <div className="flex-1 flex relative z-10 p-4 gap-4 max-w-[1400px] mx-auto w-full h-full animate-in fade-in slide-in-from-bottom-4 duration-700">
 
         {/* Sidopanel - vänster (gömd på mobil) */}
         <aside className="hidden lg:flex flex-col w-72 flex-shrink-0 space-y-4">

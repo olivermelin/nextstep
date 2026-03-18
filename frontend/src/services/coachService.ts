@@ -67,3 +67,51 @@ export async function sendCoachMessage(
 export async function getCoachStatus(): Promise<CoachStatusResponse> {
   return fetchWithCredentials(API_ENDPOINTS.COACH.STATUS);
 }
+
+// --- Multi-konversation ---
+
+export interface SessionSummary {
+  sessionId: string;
+  status: "ACTIVE" | "CLOSED";
+  preview: string;
+  createdAt: string;
+  lastMessageAt: string;
+  messageCount: number;
+}
+
+export interface SessionMessage {
+  role: "user" | "assistant";
+  content: string;
+  crisisLevel: string;
+  timestamp: string;
+}
+
+export interface SessionMessages {
+  sessionId: string;
+  status: string;
+  createdAt: string;
+  messages: SessionMessage[];
+}
+
+/**
+ * Hämta alla konversationer för en användare.
+ */
+export async function getCoachSessions(userId: string): Promise<SessionSummary[]> {
+  return fetchWithCredentials(API_ENDPOINTS.COACH.SESSIONS(userId));
+}
+
+/**
+ * Hämta alla meddelanden för en specifik konversation.
+ */
+export async function getSessionMessages(userId: string, sessionId: string): Promise<SessionMessages> {
+  return fetchWithCredentials(API_ENDPOINTS.COACH.SESSION_MESSAGES(userId, sessionId));
+}
+
+/**
+ * Skapa en ny konversation (stänger aktiv).
+ */
+export async function createNewSession(userId: string): Promise<SessionSummary> {
+  return fetchWithCredentials(API_ENDPOINTS.COACH.NEW_SESSION(userId), {
+    method: "POST",
+  });
+}

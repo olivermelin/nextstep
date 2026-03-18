@@ -71,8 +71,15 @@ public class ClaudeApiService {
      * 7. Sparar och returnerar svaret
      */
     public CoachMessageResponse sendMessage(String userId, String userMessage) {
-        // 1. Hämta eller skapa aktiv session
-        CoachSession session = conversationService.getOrCreateActiveSession(userId);
+        return sendMessage(userId, userMessage, null);
+    }
+
+    /**
+     * Skicka meddelande till en specifik session (eller skapa/hämta aktiv).
+     */
+    public CoachMessageResponse sendMessage(String userId, String userMessage, String sessionId) {
+        // 1. Hämta eller skapa/återaktivera session
+        CoachSession session = conversationService.getOrReactivateSession(userId, sessionId);
 
         // 2. Krisdetektering
         CrisisLevel crisisLevel = crisisDetectionService.analyze(userMessage);

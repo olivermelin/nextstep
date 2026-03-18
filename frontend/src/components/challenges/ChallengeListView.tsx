@@ -10,7 +10,10 @@ import {
   Youtube,
   Loader2,
   Pencil,
+  Eye,
+  ArrowRight,
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import {
   ChallengeOutDto,
   ChallengeCategory,
@@ -28,6 +31,7 @@ interface ChallengeListViewProps {
   loading: boolean;
   onStartChallenge: (challenge: ChallengeOutDto) => void;
   isChallengeStarted: (challengeId: number) => boolean;
+  onViewChallenge?: (challenge: ChallengeOutDto) => void;
 }
 
 const ChallengeListView = ({
@@ -36,8 +40,10 @@ const ChallengeListView = ({
   loading,
   onStartChallenge,
   isChallengeStarted,
+  onViewChallenge,
 }: ChallengeListViewProps) => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
 
   const currentCategory = categoryConfigs.find(c => c.id === selectedCategory);
 
@@ -109,23 +115,26 @@ const ChallengeListView = ({
               </div>
 
               {!challenge.completedToday && (
-                <Button
-                  className="w-full gap-2"
-                  onClick={() => onStartChallenge(challenge)}
-                  disabled={loading || isChallengeStarted(challenge.id)}
-                >
-                  {isChallengeStarted(challenge.id) ? (
-                    <>
-                      <CheckCircle2 className="w-4 h-4" />
-                      {t('challenges.alreadyStarted')}
-                    </>
-                  ) : (
-                    <>
-                      <Play className="w-4 h-4" />
-                      {t('challenges.startActivity')}
-                    </>
-                  )}
-                </Button>
+                isChallengeStarted(challenge.id) ? (
+                  <Button
+                    className="w-full gap-2"
+                    onClick={() => onViewChallenge?.(challenge)}
+                    variant="outline"
+                  >
+                    <ArrowRight className="w-4 h-4" />
+                    {t('challenges.continueActivity', { defaultValue: 'Fortsätt aktivitet' })}
+                  </Button>
+                ) : (
+                  <Button
+                    className="w-full gap-2"
+                    onClick={() => onViewChallenge?.(challenge)}
+                    variant="outline"
+                    disabled={loading}
+                  >
+                    <Eye className="w-4 h-4" />
+                    {t('challenges.viewDetails', { defaultValue: 'Visa detaljer' })}
+                  </Button>
+                )
               )}
             </Card>
           ))}

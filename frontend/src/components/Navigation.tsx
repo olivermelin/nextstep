@@ -1,6 +1,7 @@
-import { Home, TrendingUp, Zap, MessageCircle, Settings } from "lucide-react";
+import { Home, TrendingUp, Zap, MessageCircle } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { motion } from "framer-motion";
 
 const Navigation = () => {
   const location = useLocation();
@@ -12,7 +13,6 @@ const Navigation = () => {
     { path: "/progress", icon: TrendingUp, label: t('navigation.progress') },
     { path: "/challenges", icon: Zap, label: t('navigation.challenges') },
     { path: "/ai-coach", icon: MessageCircle, label: t('navigation.aiCoach') },
-    { path: "/settings", icon: Settings, label: t('navigation.settings') }
   ];
 
   // Visa inte navigation på onboarding-sidan
@@ -32,25 +32,39 @@ const Navigation = () => {
           const isActive = location.pathname === item.path ||
             (item.path !== "/dashboard" && location.pathname.startsWith(item.path));
           return (
-            <button
+            <motion.button
               key={item.path}
               onClick={() => navigate(item.path)}
               aria-label={item.label}
               aria-current={isActive ? "page" : undefined}
-              className={`relative flex flex-col items-center justify-center gap-0.5 py-1 px-3 rounded-xl transition-all duration-300 ${
+              whileTap={{ scale: 0.9 }}
+              className={`relative flex flex-col items-center justify-center gap-0.5 py-1 px-3 rounded-xl transition-colors duration-300 ${
                 isActive
                   ? "text-primary"
-                  : "text-muted-foreground hover:text-foreground active:scale-95"
+                  : "text-muted-foreground hover:text-foreground"
               }`}
             >
               {isActive && (
-                <span className="absolute -top-0.5 left-0 right-0 mx-auto w-5 h-0.5 rounded-full bg-primary animate-scale-in" aria-hidden="true" />
+                <motion.span
+                  layoutId="activeTab"
+                  className="absolute -top-0.5 left-0 right-0 mx-auto w-5 h-0.5 rounded-full bg-primary"
+                  aria-hidden="true"
+                  transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                />
               )}
-              <Icon className={`w-5 h-5 transition-transform duration-300 ${isActive ? "scale-110" : ""}`} aria-hidden="true" />
-              <span className={`text-[10px] font-medium transition-opacity duration-200 ${isActive ? "opacity-100" : "opacity-70"}`}>
+              <motion.div
+                animate={isActive ? { scale: 1.1 } : { scale: 1 }}
+                transition={{ type: "spring", stiffness: 300, damping: 20 }}
+              >
+                <Icon className="w-5 h-5" aria-hidden="true" />
+              </motion.div>
+              <motion.span
+                animate={isActive ? { opacity: 1 } : { opacity: 0.7 }}
+                className="text-[10px] font-medium"
+              >
                 {item.label}
-              </span>
-            </button>
+              </motion.span>
+            </motion.button>
           );
         })}
       </div>

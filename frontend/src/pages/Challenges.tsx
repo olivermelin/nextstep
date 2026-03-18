@@ -308,6 +308,10 @@ const Challenges = () => {
             loading={loading}
             onStartChallenge={handleStartChallenge}
             isChallengeStarted={isChallengeStarted}
+            onViewChallenge={(challenge) => {
+              const slug = categoryToSlug[challenge.category];
+              navigate(`/challenges/${slug}/${challenge.id}`);
+            }}
           />
         )}
 
@@ -325,7 +329,8 @@ const Challenges = () => {
               <ChallengeActivityView
                 challenge={selectedChallenge}
                 loading={loading}
-                onComplete={(_minutes) => handleStartChallenge(selectedChallenge)}
+                onComplete={() => {}}
+                onStart={(_challenge, _chosenMinutes) => handleStartChallenge(selectedChallenge)}
                 previewOnly
               />
             )

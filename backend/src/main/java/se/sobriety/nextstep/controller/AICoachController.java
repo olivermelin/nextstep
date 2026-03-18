@@ -5,13 +5,13 @@ import jakarta.validation.constraints.Size;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import se.sobriety.nextstep.dto.AICoachRequestDto;
-import se.sobriety.nextstep.dto.AICoachResponseDto;
-import se.sobriety.nextstep.dto.CoachMessageRequest;
-import se.sobriety.nextstep.dto.CoachMessageResponse;
+import se.sobriety.nextstep.dto.*;
+import se.sobriety.nextstep.entity.CoachSession;
 import se.sobriety.nextstep.service.AICoachService;
 import se.sobriety.nextstep.service.ai.ClaudeApiService;
+import se.sobriety.nextstep.service.ai.ConversationService;
 
+import java.util.List;
 import java.util.Map;
 
 import static se.sobriety.nextstep.util.SecurityUtils.verifyUserAccess;
@@ -23,10 +23,14 @@ public class AICoachController {
 
     private final AICoachService aiCoachService;
     private final ClaudeApiService claudeApiService;
+    private final ConversationService conversationService;
 
-    public AICoachController(AICoachService aiCoachService, ClaudeApiService claudeApiService) {
+    public AICoachController(AICoachService aiCoachService,
+                             ClaudeApiService claudeApiService,
+                             ConversationService conversationService) {
         this.aiCoachService = aiCoachService;
         this.claudeApiService = claudeApiService;
+        this.conversationService = conversationService;
     }
 
     /**
@@ -101,7 +105,49 @@ public class AICoachController {
             @Valid @RequestBody CoachMessageRequest request
     ) {
         verifyUserAccess(userId);
-        return claudeApiService.sendMessage(userId, request.message());
+        return claudeApiService.sendMessage(userId, request.message(), request.sessionId());
+    }
+
+    // ── Multi-konversation endpoints ──────────────────────────────────
+
+    /**
+     * GET /api/coach/sessions?userId=...
+     * Lista alla konversationer för en användare
+     */
+    @GetMapping("/sessions")
+    public List<CoachSessionSummaryDto> getSessions(@RequestParam String userId) {
+        verifyUserAccess(userId);
+        return conversationService.getUserSessions(userId);
+    }
+
+    /**
+     * GET /api/coach/sessions/{sessionId}/messages?userId=...
+     * Hämta alla meddelanden för en specifik konversation
+     */
+    @GetMapping("/sessions/{sessionId}/messages")
+    public CoachSessionMessagesDto getSessionMessages(
+            @PathVariable String sessionId,
+            @RequestParam String userId) {
+        verifyUserAccess(userId);
+        return conversationService.getSessionMessages(sessionId, userId);
+    }
+
+    /**
+     * POST /api/coach/sessions/new?userId=...
+     * Skapa en ny konversation (stänger aktiv)
+     */
+    @PostMapping("/sessions/new")
+    public CoachSessionSummaryDto createNewSession(@RequestParam String userId) {
+        verifyUserAccess(userId);
+        CoachSession session = conversationService.createNewSession(userId);
+        return new CoachSessionSummaryDto(
+                session.getSessionId(),
+                session.getStatus().name(),
+                "",
+                session.getCreatedAt().toString(),
+                session.getLastMessageAt().toString(),
+                0
+        );
     }
 
     /**

@@ -65,5 +65,10 @@ public class CoachSession {
     public boolean isActive() {
         return this.status == SessionStatus.ACTIVE;
     }
+
+    public void reactivate() {
+        this.status = SessionStatus.ACTIVE;
+        this.lastMessageAt = LocalDateTime.now();
+    }
 }
 

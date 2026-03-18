@@ -150,17 +150,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const logout = async () => {
-    // Arkivera AI-coach-chatten och rensa den aktiva chatten
-    const userId = user?.email || user?.id;
-    if (userId) {
-      const activeKey = `aiChat_${userId}`;
-      const archivedKey = `aiChatArchived_${userId}`;
-      const currentChat = localStorage.getItem(activeKey);
-      if (currentChat) {
-        localStorage.setItem(archivedKey, currentChat);
-        localStorage.removeItem(activeKey);
-      }
-    }
+    // Chatten hanteras nu helt av backend — ingen localStorage-arkivering behövs
     try {
       await fetch(API_ENDPOINTS.AUTH.LOGOUT, {
         method: 'POST',

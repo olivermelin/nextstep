@@ -59,11 +59,36 @@ export const API_ENDPOINTS = {
     UPDATE_USER_SETTINGS: (userId: string) => `${API_BASE_URL}/settings/${encodeURIComponent(userId)}`,
   },
   
+  // Streak endpoints
+  STREAKS: {
+    GET_DATA: (userId: string, weeks?: number) =>
+      `${API_BASE_URL}/streaks/${encodeURIComponent(userId)}${weeks ? `?weeks=${weeks}` : ''}`,
+    LOG_ACTIVITY: (userId: string) =>
+      `${API_BASE_URL}/streaks/${encodeURIComponent(userId)}/activity`,
+  },
+
+  // Reward endpoints
+  REWARDS: {
+    GET_TODAY: (userId: string) =>
+      `${API_BASE_URL}/rewards/${encodeURIComponent(userId)}/today`,
+    GENERATE: (userId: string) =>
+      `${API_BASE_URL}/rewards/${encodeURIComponent(userId)}/generate`,
+    CLAIM: (userId: string) =>
+      `${API_BASE_URL}/rewards/${encodeURIComponent(userId)}/claim`,
+    GET_COLLECTION: (userId: string) =>
+      `${API_BASE_URL}/rewards/${encodeURIComponent(userId)}/collection`,
+  },
+
   // AI Coach endpoints
   COACH: {
     // Ny Claude AI Coach-endpoint (primär)
     MESSAGE: (userId: string) => `${API_BASE_URL}/coach/message?userId=${encodeURIComponent(userId)}`,
     STATUS: `${API_BASE_URL}/coach/status`,
+    // Multi-konversation
+    SESSIONS: (userId: string) => `${API_BASE_URL}/coach/sessions?userId=${encodeURIComponent(userId)}`,
+    SESSION_MESSAGES: (userId: string, sessionId: string) =>
+      `${API_BASE_URL}/coach/sessions/${sessionId}/messages?userId=${encodeURIComponent(userId)}`,
+    NEW_SESSION: (userId: string) => `${API_BASE_URL}/coach/sessions/new?userId=${encodeURIComponent(userId)}`,
     // Bakåtkompatibla endpoints (kan fasas ut)
     MOTIVATE: (message: string) => `${API_BASE_URL}/coach/motivate?message=${encodeURIComponent(message)}`,
   },

@@ -6,6 +6,31 @@ import { Trophy, Target, Zap, Star, Award, Crown, Brain, Activity, Focus, Lightb
 import { useAuth } from "@/context/AuthContext";
 import { progressService } from "@/services/progressService";
 import { CategoryProgress, Achievement } from "@/types/progress";
+import { ProgressPageSkeleton } from "@/components/skeletons/ProgressSkeleton";
+import { motion, useMotionValue, useTransform, animate as motionAnimate } from "framer-motion";
+import { staggerContainer, staggerItem } from "@/lib/animations";
+import StreakCalendar from "@/components/StreakCalendar";
+import StreakBadges from "@/components/StreakBadges";
+import RewardCollection from "@/components/RewardCollection";
+import { streakService, StreakData } from "@/services/streakService";
+import { rewardService, CollectibleData } from "@/services/rewardService";
+
+function AnimatedCounter({ value, className }: { value: number; className?: string }) {
+  const motionValue = useMotionValue(0);
+  const rounded = useTransform(motionValue, (v) => Math.round(v));
+  const [display, setDisplay] = useState(0);
+
+  useEffect(() => {
+    const controls = motionAnimate(motionValue, value, {
+      duration: 1,
+      ease: [0.23, 1, 0.32, 1],
+    });
+    const unsubscribe = rounded.on("change", (v) => setDisplay(v));
+    return () => { controls.stop(); unsubscribe(); };
+  }, [value]);
+
+  return <span className={className}>{display}</span>;
+}
 
 const Progress = () => {
   const { t } = useTranslation();
@@ -16,6 +41,8 @@ const Progress = () => {
   const [categoryProgress, setCategoryProgress] = useState<CategoryProgress[]>([]);
   const [achievements, setAchievements] = useState<Achievement[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [streakData, setStreakData] = useState<StreakData | null>(null);
+  const [collectibles, setCollectibles] = useState<CollectibleData[]>([]);
 
   // Mappning av kategori-ID till ikoner och färger
   const getCategoryStyle = (categoryId: string) => {
@@ -64,6 +91,7 @@ const Progress = () => {
   useEffect(() => {
     if (user?.id) {
       fetchUserProgress();
+      fetchStreakAndCollection();
     }
     // Trigger animationen efter en kort delay för att låta komponenten rendera
     const timer = setTimeout(() => {
@@ -71,6 +99,21 @@ const Progress = () => {
     }, 100);
     return () => clearTimeout(timer);
   }, [user?.id]);
+
+  const fetchStreakAndCollection = async () => {
+    if (!user?.email && !user?.id) return;
+    const userId = user.email || user.id;
+    try {
+      const [streak, collection] = await Promise.all([
+        streakService.getStreakData(userId, 12).catch(() => null),
+        rewardService.getCollection(userId).catch(() => []),
+      ]);
+      if (streak) setStreakData(streak);
+      setCollectibles(collection);
+    } catch {
+      // Silently ignore
+    }
+  };
 
   const fetchUserProgress = async () => {
     if (!user?.email && !user?.id) return;
@@ -134,6 +177,10 @@ const Progress = () => {
     { label: t('progress.unlockedAchievements'), value: achievements.filter(a => a.unlocked).length, color: "text-secondary" },
   ];
 
+  if (isLoading) {
+    return <ProgressPageSkeleton />;
+  }
+
   return (
     <div className="min-h-full bg-gradient-to-br from-primary/5 via-background to-secondary/5 p-4 pt-4">
       <div className="max-w-4xl mx-auto space-y-6">
@@ -144,29 +191,65 @@ const Progress = () => {
         </div>
 
         {/* Avatar Card */}
-        <Card className="p-8 bg-gradient-to-br from-card to-muted/20 shadow-[var(--shadow-card)] animate-fade-in-up stagger-1">
+        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease: [0.23, 1, 0.32, 1] }}>
+        <Card className="p-8 bg-gradient-to-br from-card to-muted/20 shadow-[var(--shadow-card)]">
           <div className="flex flex-col items-center space-y-4">
-            <div className="w-28 h-28 rounded-full bg-gradient-to-br from-primary to-primary-glow flex items-center justify-center shadow-[var(--shadow-glow)] animate-celebrate">
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ type: "spring", stiffness: 200, damping: 12, delay: 0.2 }}
+              className="w-28 h-28 rounded-full bg-gradient-to-br from-primary to-primary-glow flex items-center justify-center shadow-[var(--shadow-glow)]"
+            >
               <Trophy className="w-14 h-14 text-primary-foreground" />
-            </div>
+            </motion.div>
             <Badge className="bg-primary text-primary-foreground text-xl px-6 py-2">
               {t('common.level')} {level}
             </Badge>
           </div>
         </Card>
+        </motion.div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 animate-fade-in-up stagger-2">
+        <motion.div
+          variants={staggerContainer}
+          initial="initial"
+          animate="animate"
+          className="grid grid-cols-1 md:grid-cols-3 gap-4"
+        >
           {stats.map((stat, index) => (
-            <Card key={index} className="p-5 text-center card-hover">
-              <p className={`text-3xl font-bold ${stat.color}`}>{stat.value}</p>
-              <p className="text-sm text-muted-foreground mt-1">{stat.label}</p>
-            </Card>
+            <motion.div key={index} variants={staggerItem} whileHover={{ y: -2 }} whileTap={{ scale: 0.98 }}>
+              <Card className="p-5 text-center">
+                <AnimatedCounter value={stat.value} className={`text-3xl font-bold ${stat.color}`} />
+                <p className="text-sm text-muted-foreground mt-1">{stat.label}</p>
+              </Card>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
+
+        {/* Streak Badges + Calendar */}
+        {streakData && (
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2, ease: [0.23, 1, 0.32, 1] }}
+            className="space-y-3"
+          >
+            <StreakBadges
+              currentStreak={streakData.currentStreak}
+              longestStreak={streakData.longestStreak}
+              streakFreezes={streakData.streakFreezes}
+            />
+            <StreakCalendar calendarDays={streakData.calendarDays} />
+          </motion.div>
+        )}
 
         {/* Framsteg per kategori */}
-        <div className="space-y-4 animate-fade-in-up stagger-3">
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.3, ease: [0.23, 1, 0.32, 1] }}
+          className="space-y-4"
+        >
           <div>
             <h2 className="text-xl font-semibold text-foreground">{t('progress.categoryProgress')}</h2>
             <p className="text-sm text-muted-foreground mt-1">{t('progress.last7Days')}</p>
@@ -240,7 +323,7 @@ const Progress = () => {
               </Card>
             )}
           </div>
-        </div>
+        </motion.div>
 
         {/* Achievements */}
         <div className="space-y-4">
@@ -249,16 +332,20 @@ const Progress = () => {
             {achievements.map((achievement, index) => {
               const Icon = achievement.icon;
               return (
-                <Card 
-                  key={achievement.id} 
-                  className={`p-4 transition-all duration-700 card-hover ${
-                    achievement.unlocked 
-                      ? "bg-gradient-to-br from-primary/15 to-accent/15 border-primary/50 shadow-[var(--shadow-card)]" 
+                <motion.div
+                  key={achievement.id}
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.4 + index * 0.08, duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
+                  whileHover={{ y: -2 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                <Card
+                  className={`p-4 ${
+                    achievement.unlocked
+                      ? "bg-gradient-to-br from-primary/15 to-accent/15 border-primary/50 shadow-[var(--shadow-card)]"
                       : "opacity-50 bg-muted/30"
-                  } ${showAchievements ? "opacity-100" : "opacity-0"}`}
-                  style={{
-                    transitionDelay: showAchievements ? `${index * 80}ms` : "0ms",
-                  }}
+                  }`}
                 >
                   <div className="flex items-center gap-4">
                     <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${
@@ -279,10 +366,22 @@ const Progress = () => {
                     )}
                   </div>
                 </Card>
+                </motion.div>
               );
             })}
           </div>
         </div>
+
+        {/* Reward Collection */}
+        {collectibles.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.5, ease: [0.23, 1, 0.32, 1] }}
+          >
+            <RewardCollection collectibles={collectibles} />
+          </motion.div>
+        )}
       </div>
     </div>
   );

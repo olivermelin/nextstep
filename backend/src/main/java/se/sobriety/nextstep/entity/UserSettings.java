@@ -44,7 +44,7 @@ public class UserSettings extends BaseUserData {
         this.name = "Default Name";
         this.email = "";
         this.phone = "";
-        this.language = "en";
+        this.language = "sv";
         this.notificationsEnabled = true;
         this.aiNotificationsEnabled = false;
         this.darkModeEnabled = false;

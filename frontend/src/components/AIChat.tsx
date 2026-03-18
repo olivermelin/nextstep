@@ -1,16 +1,22 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { Button } from "./ui/button";
 import { Loader2, Send, AlertCircle, RotateCcw, Phone, ShieldAlert, Bot, User, Target, ArrowRight, Clock, History } from "lucide-react";
+import { motion } from "framer-motion";
 import { useAuth } from "@/context/AuthContext";
 import {
   sendCoachMessage,
   getCoachStatus,
+  getCoachSessions,
+  getSessionMessages,
+  createNewSession,
   type CrisisLevel,
   type CoachStatusResponse,
   type SuggestedChallenge,
+  type SessionSummary,
 } from "@/services/coachService";
+import ConversationList from "@/components/ConversationList";
 
 interface Message {
   id: string;
@@ -64,7 +70,6 @@ function crisisBubbleClasses(crisisLevel?: CrisisLevel): string {
 // --- Markdown-formatering ---
 
 export function formatMarkdown(text: string): React.ReactNode[] {
-  // Split by newlines first to handle paragraphs
   const lines = text.split(/\n/);
   const result: React.ReactNode[] = [];
 
@@ -73,10 +78,7 @@ export function formatMarkdown(text: string): React.ReactNode[] {
       result.push(<br key={`br-${lineIndex}`} />);
     }
 
-    // Strip markdown headers (## etc.)
     const strippedLine = line.replace(/^#{1,6}\s+/, "");
-
-    // Split by **bold** and *italic* patterns
     const parts = strippedLine.split(/(\*\*[^*]+\*\*|\*[^*]+\*)/g);
     parts.forEach((part, i) => {
       if (part.startsWith("**") && part.endsWith("**")) {
@@ -156,80 +158,6 @@ const ChallengeCards: React.FC<{ challenges: SuggestedChallenge[] }> = ({ challe
   );
 };
 
-// --- Persistens-helpers ---
-
-const MAX_STORED_MESSAGES = 100;
-
-function storageKey(userId: string) {
-  return `aiChat_${userId}`;
-}
-
-interface StoredChat {
-  messages: (Omit<Message, "timestamp"> & { timestamp: string })[];
-  sessionId: string | null;
-  showCrisisBanner: boolean;
-}
-
-function loadChat(userId: string): { messages: Message[]; sessionId: string | null; showCrisisBanner: boolean } {
-  try {
-    const raw = localStorage.getItem(storageKey(userId));
-    if (!raw) return { messages: [], sessionId: null, showCrisisBanner: false };
-    const stored: StoredChat = JSON.parse(raw);
-    const messages: Message[] = stored.messages.map((m) => ({
-      ...m,
-      timestamp: new Date(m.timestamp),
-    }));
-    return { messages, sessionId: stored.sessionId, showCrisisBanner: stored.showCrisisBanner ?? false };
-  } catch {
-    return { messages: [], sessionId: null, showCrisisBanner: false };
-  }
-}
-
-function saveChat(userId: string, messages: Message[], sessionId: string | null, showCrisisBanner: boolean) {
-  try {
-    const trimmed = messages.slice(-MAX_STORED_MESSAGES);
-    const stored: StoredChat = {
-      messages: trimmed.map((m) => ({ ...m, timestamp: m.timestamp.toISOString() })),
-      sessionId,
-      showCrisisBanner,
-    };
-    localStorage.setItem(storageKey(userId), JSON.stringify(stored));
-  } catch {
-    // localStorage full or unavailable – ignore
-  }
-}
-
-function clearChat(userId: string) {
-  localStorage.removeItem(storageKey(userId));
-}
-
-function archivedKey(userId: string) {
-  return `aiChatArchived_${userId}`;
-}
-
-function hasArchivedChat(userId: string): boolean {
-  return localStorage.getItem(archivedKey(userId)) !== null;
-}
-
-function loadArchivedChat(userId: string): { messages: Message[]; sessionId: string | null; showCrisisBanner: boolean } {
-  try {
-    const raw = localStorage.getItem(archivedKey(userId));
-    if (!raw) return { messages: [], sessionId: null, showCrisisBanner: false };
-    const stored: StoredChat = JSON.parse(raw);
-    const messages: Message[] = stored.messages.map((m) => ({
-      ...m,
-      timestamp: new Date(m.timestamp),
-    }));
-    return { messages, sessionId: stored.sessionId, showCrisisBanner: stored.showCrisisBanner ?? false };
-  } catch {
-    return { messages: [], sessionId: null, showCrisisBanner: false };
-  }
-}
-
-function clearArchivedChat(userId: string) {
-  localStorage.removeItem(archivedKey(userId));
-}
-
 // --- Huvudkomponent ---
 
 interface AIChatProps {
@@ -243,15 +171,20 @@ export const AIChat: React.FC<AIChatProps> = ({ quickPrompt, onQuickPromptConsum
 
   const userId = user?.email || user?.id || "anonymous";
 
-  // Ladda sparad historik direkt vid initialisering
-  const [messages, setMessages] = useState<Message[]>(() => loadChat(userId).messages);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [sessionId, setSessionId] = useState<string | null>(() => loadChat(userId).sessionId);
-  const [showCrisisBanner, setShowCrisisBanner] = useState<boolean>(() => loadChat(userId).showCrisisBanner);
+  const [sessionId, setSessionId] = useState<string | null>(null);
+  const [showCrisisBanner, setShowCrisisBanner] = useState(false);
   const [coachStatus, setCoachStatus] = useState<CoachStatusResponse | null>(null);
-  const [canResume, setCanResume] = useState<boolean>(() => hasArchivedChat(userId));
+
+  // Multi-konversation state
+  const [sessions, setSessions] = useState<SessionSummary[]>([]);
+  const [sessionsLoading, setSessionsLoading] = useState(false);
+  const [showConversationList, setShowConversationList] = useState(false);
+  const [messagesLoading, setMessagesLoading] = useState(false);
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -262,10 +195,30 @@ export const AIChat: React.FC<AIChatProps> = ({ quickPrompt, onQuickPromptConsum
     scrollToBottom();
   }, [messages]);
 
-  // Spara chatten varje gång messages, sessionId eller showCrisisBanner ändras
+  // Ladda sessioner och aktiv konversation vid mount
   useEffect(() => {
-    saveChat(userId, messages, sessionId, showCrisisBanner);
-  }, [messages, sessionId, showCrisisBanner, userId]);
+    if (userId === "anonymous") return;
+
+    const loadInitialData = async () => {
+      setSessionsLoading(true);
+      try {
+        const sessionList = await getCoachSessions(userId);
+        setSessions(sessionList);
+
+        // Hitta aktiv session och ladda dess meddelanden
+        const activeSession = sessionList.find((s) => s.status === "ACTIVE");
+        if (activeSession && activeSession.messageCount > 0) {
+          await loadSessionMessages(activeSession.sessionId);
+        }
+      } catch {
+        // Silently ignore
+      } finally {
+        setSessionsLoading(false);
+      }
+    };
+
+    loadInitialData();
+  }, [userId]);
 
   useEffect(() => {
     getCoachStatus()
@@ -281,24 +234,58 @@ export const AIChat: React.FC<AIChatProps> = ({ quickPrompt, onQuickPromptConsum
     }
   }, [quickPrompt]);
 
-  const handleNewConversation = () => {
-    setSessionId(null);
-    setMessages([]);
-    setError(null);
-    setShowCrisisBanner(false);
-    setCanResume(false);
-    clearChat(userId);
-    clearArchivedChat(userId);
-  };
+  const loadSessionMessages = useCallback(async (targetSessionId: string) => {
+    setMessagesLoading(true);
+    try {
+      const data = await getSessionMessages(userId, targetSessionId);
+      const loadedMessages: Message[] = data.messages.map((msg, i) => ({
+        id: `${targetSessionId}-${i}`,
+        text: msg.content,
+        sender: msg.role === "user" ? "user" : "ai",
+        timestamp: new Date(msg.timestamp),
+        crisisLevel: msg.crisisLevel as CrisisLevel,
+      }));
+      setMessages(loadedMessages);
+      setSessionId(targetSessionId);
+      setShowCrisisBanner(
+        loadedMessages.some((m) => m.crisisLevel === "CRITICAL")
+      );
+    } catch {
+      // Failed to load session
+    } finally {
+      setMessagesLoading(false);
+    }
+  }, [userId]);
 
-  const handleResumeChat = () => {
-    const archived = loadArchivedChat(userId);
-    setMessages(archived.messages);
-    setSessionId(archived.sessionId);
-    setShowCrisisBanner(archived.showCrisisBanner);
-    clearArchivedChat(userId);
-    setCanResume(false);
-  };
+  const handleSelectSession = useCallback(async (targetSessionId: string) => {
+    await loadSessionMessages(targetSessionId);
+    // Uppdatera sessions-listan för att markera rätt aktiv
+    try {
+      const sessionList = await getCoachSessions(userId);
+      setSessions(sessionList);
+    } catch {
+      // Ignore
+    }
+  }, [loadSessionMessages, userId]);
+
+  const handleNewConversation = useCallback(async () => {
+    try {
+      const newSession = await createNewSession(userId);
+      setSessionId(newSession.sessionId);
+      setMessages([]);
+      setError(null);
+      setShowCrisisBanner(false);
+      // Uppdatera sessionslistans
+      const sessionList = await getCoachSessions(userId);
+      setSessions(sessionList);
+    } catch {
+      // Fallback: rensa lokalt
+      setSessionId(null);
+      setMessages([]);
+      setError(null);
+      setShowCrisisBanner(false);
+    }
+  }, [userId]);
 
   const handleSendMessage = async () => {
     if (!input.trim() || !user) return;
@@ -313,7 +300,6 @@ export const AIChat: React.FC<AIChatProps> = ({ quickPrompt, onQuickPromptConsum
     };
 
     setMessages((prev) => [...prev, userMessage]);
-    setCanResume(false);
     const messageText = input;
     setInput("");
     setLoading(true);
@@ -339,6 +325,9 @@ export const AIChat: React.FC<AIChatProps> = ({ quickPrompt, onQuickPromptConsum
       };
 
       setMessages((prev) => [...prev, aiMessage]);
+
+      // Uppdatera sessions-listan i bakgrunden
+      getCoachSessions(userId).then(setSessions).catch(() => {});
     } catch (err) {
       let errorText = t('aiCoach.couldNotConnect');
 
@@ -367,7 +356,7 @@ export const AIChat: React.FC<AIChatProps> = ({ quickPrompt, onQuickPromptConsum
 
   return (
     <div className="flex flex-col h-full">
-      {/* Status bar - glassmorphism */}
+      {/* Status bar */}
       <div className="flex items-center justify-between px-5 py-3 border-b border-border/30 bg-background/50 backdrop-blur-sm">
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
           {coachStatus ? (
@@ -388,13 +377,27 @@ export const AIChat: React.FC<AIChatProps> = ({ quickPrompt, onQuickPromptConsum
             </>
           )}
         </div>
-        <button
-          onClick={handleNewConversation}
-          className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground font-medium transition-colors"
-        >
-          <RotateCcw className="w-3 h-3" />
-          {t('aiCoach.newConversation')}
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setShowConversationList(true)}
+            className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground font-medium transition-colors"
+          >
+            <History className="w-3 h-3" />
+            {t('aiCoach.history', { defaultValue: 'Historik' })}
+            {sessions.length > 0 && (
+              <span className="bg-muted text-muted-foreground rounded-full px-1.5 py-0.5 text-[10px] font-semibold">
+                {sessions.length}
+              </span>
+            )}
+          </button>
+          <button
+            onClick={handleNewConversation}
+            className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground font-medium transition-colors"
+          >
+            <RotateCcw className="w-3 h-3" />
+            {t('aiCoach.newConversation')}
+          </button>
+        </div>
       </div>
 
       {/* Persistent kris-banner vid CRITICAL */}
@@ -403,7 +406,14 @@ export const AIChat: React.FC<AIChatProps> = ({ quickPrompt, onQuickPromptConsum
       {/* Meddelandelista */}
       <div className="flex-1 overflow-y-auto p-4 bg-gradient-to-b from-background/30 to-background/10">
         <div className="w-full max-w-3xl mx-auto space-y-4">
-          {messages.length === 0 ? (
+          {messagesLoading ? (
+            <div className="flex flex-col items-center justify-center h-full py-16 gap-3">
+              <Loader2 className="w-6 h-6 animate-spin text-primary" />
+              <p className="text-sm text-muted-foreground">
+                {t('aiCoach.loadingMessages', { defaultValue: 'Laddar konversation...' })}
+              </p>
+            </div>
+          ) : messages.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full py-16 gap-4 animate-in fade-in duration-500">
               <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center">
                 <Bot className="w-6 h-6 text-primary" />
@@ -416,22 +426,25 @@ export const AIChat: React.FC<AIChatProps> = ({ quickPrompt, onQuickPromptConsum
                   {t('aiCoach.startConversationDesc')}
                 </p>
               </div>
-              {canResume && (
+              {sessions.length > 0 && (
                 <button
-                  onClick={handleResumeChat}
+                  onClick={() => setShowConversationList(true)}
                   className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary/10 border border-primary/20 hover:bg-primary/20 transition-all duration-200 text-sm font-medium text-primary animate-in fade-in duration-300"
                 >
                   <History className="w-4 h-4" />
-                  {t('aiCoach.resumePreviousChat')}
+                  {t('aiCoach.viewPreviousChats', { defaultValue: 'Visa tidigare konversationer' })}
                 </button>
               )}
             </div>
           ) : (
             <>
-              {messages.map((msg) => (
-                <div
+              {messages.map((msg, msgIndex) => (
+                <motion.div
                   key={msg.id}
-                  className={`flex items-end gap-2 animate-in fade-in slide-in-from-bottom-2 duration-300 ${
+                  initial={{ opacity: 0, y: 12, scale: 0.97 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 25, delay: msgIndex < 3 ? msgIndex * 0.05 : 0 }}
+                  className={`flex items-end gap-2 ${
                     msg.sender === "user" ? "justify-end" : "justify-start"
                   }`}
                 >
@@ -481,7 +494,7 @@ export const AIChat: React.FC<AIChatProps> = ({ quickPrompt, onQuickPromptConsum
                       <User className="w-4 h-4 text-primary" />
                     </div>
                   )}
-                </div>
+                </motion.div>
               ))}
               {loading && (
                 <div className="flex items-end gap-2 animate-in fade-in">
@@ -537,6 +550,17 @@ export const AIChat: React.FC<AIChatProps> = ({ quickPrompt, onQuickPromptConsum
           </div>
         </div>
       </div>
+
+      {/* Konversationslista (overlay) */}
+      <ConversationList
+        sessions={sessions}
+        activeSessionId={sessionId}
+        onSelectSession={handleSelectSession}
+        onNewConversation={handleNewConversation}
+        loading={sessionsLoading}
+        open={showConversationList}
+        onClose={() => setShowConversationList(false)}
+      />
     </div>
   );
 };
