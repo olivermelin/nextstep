@@ -9,7 +9,7 @@ import { CoachMessageSkeleton, ActiveChallengesSkeleton } from "@/components/ske
 import { useAuth } from "@/context/AuthContext";
 import { API_ENDPOINTS } from "@/config/api";
 import { useTranslation } from "react-i18next";
-import { sendCoachMessage } from "@/services/coachService";
+import { getMotivation } from "@/services/coachService";
 import { userChallengeApi } from "@/services/challengeService";
 import { formatMarkdown } from "@/components/AIChat";
 import { UserChallengeOutDto } from "@/types/challenge";
@@ -127,9 +127,9 @@ const Dashboard = () => {
           points: userProgress.points,
           activeChallenges: activeChallenges.length,
         });
-        const response = await sendCoachMessage(userId, contextMessage, null);
-        setDailyCoachMessage(response.response);
-        sessionStorage.setItem(`coach_message_${userId}`, response.response);
+        const text = await getMotivation(contextMessage);
+        setDailyCoachMessage(text);
+        sessionStorage.setItem(`coach_message_${userId}`, text);
       } catch {
         const messages = t('dashboard.coachMessages', { returnObjects: true }) as string[];
         const randomMessage = messages[Math.floor(Math.random() * messages.length)];
