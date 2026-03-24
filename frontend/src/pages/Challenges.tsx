@@ -234,10 +234,6 @@ const Challenges = () => {
     return allChallenges.filter(c => c.completedToday);
   };
 
-  const getCompletedChallenges = () => {
-    return userChallenges.filter(uc => uc.status === "COMPLETED");
-  };
-
   const isChallengeStarted = (challengeId: number) => {
     return userChallenges.some(
       uc => uc.challengeId === challengeId && uc.status !== "COMPLETED"
@@ -293,7 +289,6 @@ const Challenges = () => {
             activeTab={activeTab}
             onTabChange={setActiveTab}
             activeChallenges={getActiveChallenges()}
-            completedChallenges={getCompletedChallenges()}
             completedTodayChallenges={getCompletedTodayChallenges()}
             loading={loading}
             onSelectCategory={handleSelectCategory}

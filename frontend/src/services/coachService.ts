@@ -134,6 +134,27 @@ export async function getSessionMessages(userId: string, sessionId: string): Pro
 }
 
 /**
+ * Hämta ett dagligt motivationstips utan att spara till konversationshistoriken.
+ * Använder /coach/personalized som är stateless och påverkar inte AI Coach-sessioner.
+ */
+export async function getDailyCoachTip(userId: string, message: string): Promise<string> {
+  const data = await fetchWithCredentials(API_ENDPOINTS.COACH.PERSONALIZED(userId), {
+    method: "POST",
+    body: JSON.stringify({ message }),
+  }) as { response: string };
+  return data.response;
+}
+
+/**
+ * Ta bort en konversation och alla dess meddelanden permanent.
+ */
+export async function deleteCoachSession(userId: string, sessionId: string): Promise<void> {
+  await fetchWithCredentials(API_ENDPOINTS.COACH.DELETE_SESSION(sessionId, userId), {
+    method: "DELETE",
+  });
+}
+
+/**
  * Skapa en ny konversation (stänger aktiv).
  */
 export async function createNewSession(userId: string): Promise<SessionSummary> {

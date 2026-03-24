@@ -27,7 +27,6 @@ interface CategoriesViewProps {
   activeTab: "available" | "active" | "completed";
   onTabChange: (tab: "available" | "active" | "completed") => void;
   activeChallenges: UserChallengeOutDto[];
-  completedChallenges: UserChallengeOutDto[];
   completedTodayChallenges: ChallengeOutDto[];
   loading: boolean;
   onSelectCategory: (category: ChallengeCategory) => void;
@@ -37,7 +36,6 @@ const CategoriesView = ({
   activeTab,
   onTabChange,
   activeChallenges,
-  completedChallenges,
   completedTodayChallenges,
   loading,
   onSelectCategory,
@@ -59,9 +57,9 @@ const CategoriesView = ({
         </TabsTrigger>
         <TabsTrigger value="completed">
           {t('challenges.completed')}
-          {(completedChallenges.length > 0 || completedTodayChallenges.length > 0) && (
+          {completedTodayChallenges.length > 0 && (
             <Badge className="ml-2" variant="secondary">
-              {completedTodayChallenges.length || completedChallenges.length}
+              {completedTodayChallenges.length}
             </Badge>
           )}
         </TabsTrigger>
@@ -129,7 +127,7 @@ const CategoriesView = ({
               return (
                 <Card
                   key={uc.id}
-                  className="p-4 cursor-pointer hover:shadow-md transition-all border-primary/30 bg-primary/5"
+                  className="p-4 cursor-pointer hover:shadow-md transition-all border-primary/40 bg-primary/10"
                   onClick={() => navigate(`/challenges/${categoryToSlug[uc.category]}/${uc.challengeId}`)}
                 >
                   <div className="flex items-start justify-between mb-2">
@@ -168,7 +166,7 @@ const CategoriesView = ({
       </TabsContent>
 
       <TabsContent value="completed" className="mt-6">
-        {completedTodayChallenges.length === 0 && completedChallenges.length === 0 ? (
+        {completedTodayChallenges.length === 0 ? (
           <Card className="p-8 text-center">
             <Trophy className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
             <p className="text-muted-foreground">{t('challenges.noCompleted')}</p>
@@ -178,59 +176,26 @@ const CategoriesView = ({
           </Card>
         ) : (
           <div className="space-y-3">
-            {completedTodayChallenges.length > 0 && (
-              <>
-                <p className="text-sm font-medium text-muted-foreground">{t('challenges.completedTodaySection')}</p>
-                {completedTodayChallenges.map((challenge) => (
-                  <Card key={`today-${challenge.id}`} className="p-4 bg-green-500/5 border-green-500/20">
-                    <div className="flex items-start justify-between mb-2">
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <CheckCircle2 className="w-4 h-4 text-green-600" />
-                          <h3 className="font-semibold text-foreground">{challenge.title}</h3>
-                        </div>
-                        <p className="text-sm text-muted-foreground">
-                          {t(`challenges.categories.${getCategoryKey(challenge.category)}`)}{" · "}
-                          {getDifficultyLabel(challenge.difficulty, t)}
-                          {challenge.durationMinutes ? ` · ${challenge.durationMinutes} min` : ""}
-                        </p>
-                      </div>
-                      <Badge className={getDifficultyColor(challenge.difficulty)}>
-                        {getDifficultyLabel(challenge.difficulty, t)}
-                      </Badge>
+            {completedTodayChallenges.map((challenge) => (
+              <Card key={`today-${challenge.id}`} className="p-4 bg-green-100 border-green-300 dark:bg-green-500/15 dark:border-green-500/40">
+                <div className="flex items-start justify-between mb-2">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <CheckCircle2 className="w-4 h-4 text-green-600" />
+                      <h3 className="font-semibold text-foreground">{challenge.title}</h3>
                     </div>
-                  </Card>
-                ))}
-              </>
-            )}
-
-            {completedChallenges.length > 0 && (
-              <>
-                {completedTodayChallenges.length > 0 && (
-                  <p className="text-sm font-medium text-muted-foreground mt-4">{t('challenges.previouslyCompleted')}</p>
-                )}
-                {completedChallenges.map((uc) => (
-                  <Card key={uc.id} className="p-4 bg-green-500/5 border-green-500/20">
-                    <div className="flex items-start justify-between mb-2">
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <CheckCircle2 className="w-4 h-4 text-green-600" />
-                          <h3 className="font-semibold text-foreground">{uc.challengeName}</h3>
-                        </div>
-                        <p className="text-sm text-muted-foreground">
-                          {t(`challenges.categories.${getCategoryKey(uc.category)}`)}{" · "}
-                          {getDifficultyLabel(uc.difficulty, t)}
-                          {uc.durationMinutes ? ` · ${uc.durationMinutes} min` : ""}
-                        </p>
-                      </div>
-                      <Badge className={getDifficultyColor(uc.difficulty)}>
-                        {getDifficultyLabel(uc.difficulty, t)}
-                      </Badge>
-                    </div>
-                  </Card>
-                ))}
-              </>
-            )}
+                    <p className="text-sm text-muted-foreground">
+                      {t(`challenges.categories.${getCategoryKey(challenge.category)}`)}{" · "}
+                      {getDifficultyLabel(challenge.difficulty, t)}
+                      {challenge.durationMinutes ? ` · ${challenge.durationMinutes} min` : ""}
+                    </p>
+                  </div>
+                  <Badge className={getDifficultyColor(challenge.difficulty)}>
+                    {getDifficultyLabel(challenge.difficulty, t)}
+                  </Badge>
+                </div>
+              </Card>
+            ))}
           </div>
         )}
       </TabsContent>

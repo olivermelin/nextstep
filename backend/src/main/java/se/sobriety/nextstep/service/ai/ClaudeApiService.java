@@ -313,6 +313,8 @@ public class ClaudeApiService {
                 - Fokusera på små, konkreta steg framåt
                 - Uppmuntra självreflektion
                 - Håll svaren koncisa (2-4 meningar)
+                - Använd INGA emojis eller unicode-symboler, varken ensamma eller i parenteser
+                - Separera stycken med en tom rad om svaret har flera delar
                 - Du är INTE läkare eller terapeut – hänvisa till professionell hjälp vid behov
                 
                 KRISHJÄLP:

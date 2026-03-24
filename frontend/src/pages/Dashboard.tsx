@@ -10,6 +10,7 @@ import { useAuth } from "@/context/AuthContext";
 import { API_ENDPOINTS } from "@/config/api";
 import { useTranslation } from "react-i18next";
 import { getMotivation } from "@/services/coachService";
+import { getDailyCoachTip } from "@/services/coachService";
 import { userChallengeApi } from "@/services/challengeService";
 import { formatMarkdown } from "@/components/AIChat";
 import { UserChallengeOutDto } from "@/types/challenge";
@@ -127,9 +128,9 @@ const Dashboard = () => {
           points: userProgress.points,
           activeChallenges: activeChallenges.length,
         });
-        const text = await getMotivation(contextMessage);
-        setDailyCoachMessage(text);
-        sessionStorage.setItem(`coach_message_${userId}`, text);
+        const tipText = await getDailyCoachTip(userId, contextMessage);
+        setDailyCoachMessage(tipText);
+        sessionStorage.setItem(`coach_message_${userId}`, response.response);
       } catch {
         const messages = t('dashboard.coachMessages', { returnObjects: true }) as string[];
         const randomMessage = messages[Math.floor(Math.random() * messages.length)];

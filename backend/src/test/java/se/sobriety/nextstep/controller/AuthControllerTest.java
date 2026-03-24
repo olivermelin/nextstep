@@ -19,6 +19,7 @@ import se.sobriety.nextstep.dto.SignUpRequestDto;
 import se.sobriety.nextstep.dto.SignUpResponseDto;
 import se.sobriety.nextstep.entity.User;
 import se.sobriety.nextstep.repository.UserRepository;
+import se.sobriety.nextstep.service.MailNotificationService;
 import se.sobriety.nextstep.service.OnboardingService;
 import se.sobriety.nextstep.service.PasswordResetService;
 import se.sobriety.nextstep.service.SignUpService;
@@ -61,6 +62,9 @@ class AuthControllerTest {
     @Mock
     private AuthenticationManager authenticationManager;
 
+    @Mock
+    private MailNotificationService mailNotificationService;
+
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
@@ -71,7 +75,8 @@ class AuthControllerTest {
                 signUpService,
                 passwordResetService,
                 userRepository,
-                authenticationManager
+                authenticationManager,
+                mailNotificationService
         );
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }
