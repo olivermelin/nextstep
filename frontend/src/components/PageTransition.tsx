@@ -11,7 +11,7 @@ const PageTransition = ({ children }: PageTransitionProps) => (
     animate={{ opacity: 1, y: 0 }}
     exit={{ opacity: 0, y: -8 }}
     transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }}
-    className="h-full"
+    className="min-h-full"
   >
     {children}
   </motion.div>
