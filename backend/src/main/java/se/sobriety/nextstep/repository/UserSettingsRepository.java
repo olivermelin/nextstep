@@ -13,4 +13,6 @@ public interface UserSettingsRepository extends JpaRepository<UserSettings, Long
     List<UserSettings> findAllByUserId(String userId);
 
     List<UserSettings> findAllByEmail(String email);
+
+    void deleteByUserId(String userId);
 }

@@ -1,6 +1,8 @@
 package se.sobriety.nextstep.dto;
 
+import se.sobriety.nextstep.entity.CoachPersonality;
 import se.sobriety.nextstep.entity.RecoveryStage;
+import se.sobriety.nextstep.entity.SubscriptionTier;
 import se.sobriety.nextstep.entity.UserGoal;
 
 import java.time.LocalDateTime;
@@ -20,5 +22,7 @@ public record UserSettingsOutDto(
         String otherGoal,
         RecoveryStage recoveryStage,
         BackgroundInfoDto backgroundInfo,
-        LocalDateTime lastUpdated
+        LocalDateTime lastUpdated,
+        SubscriptionTier subscriptionTier,
+        CoachPersonality coachPersonality
 ) {}

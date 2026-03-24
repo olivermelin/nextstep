@@ -15,6 +15,7 @@ export const API_ENDPOINTS = {
     FORGOT_PASSWORD: `${API_BASE_URL}/auth/forgot-password`,
     RESET_PASSWORD: `${API_BASE_URL}/auth/reset-password`,
     OAUTH_GOOGLE: `${API_BASE_URL.replace('/api', '')}/oauth2/authorization/google`,
+    DELETE_ACCOUNT: `${API_BASE_URL}/auth/account`,
   },
   
   // Progress endpoints
@@ -79,12 +80,39 @@ export const API_ENDPOINTS = {
       `${API_BASE_URL}/rewards/${encodeURIComponent(userId)}/collection`,
   },
 
+  // Check-in endpoints
+  CHECKINS: {
+    CHECK_IN: (userId: string) => `${API_BASE_URL}/checkins/${encodeURIComponent(userId)}`,
+    GET_TODAY: (userId: string) => `${API_BASE_URL}/checkins/${encodeURIComponent(userId)}/today`,
+    GET_HISTORY: (userId: string, days?: number) =>
+      `${API_BASE_URL}/checkins/${encodeURIComponent(userId)}/history${days ? `?days=${days}` : ''}`,
+  },
+
+  // Social endpoints (vänner, dueller, liga)
+  SOCIAL: {
+    FRIENDS: (userId: string) => `${API_BASE_URL}/social/friends?userId=${encodeURIComponent(userId)}`,
+    FRIENDS_PENDING: (userId: string) => `${API_BASE_URL}/social/friends/pending?userId=${encodeURIComponent(userId)}`,
+    FRIEND_REQUEST: (userId: string) => `${API_BASE_URL}/social/friends/request?userId=${encodeURIComponent(userId)}`,
+    FRIEND_ACCEPT: (friendshipId: number, userId: string) => `${API_BASE_URL}/social/friends/${friendshipId}/accept?userId=${encodeURIComponent(userId)}`,
+    FRIEND_DECLINE: (friendshipId: number, userId: string) => `${API_BASE_URL}/social/friends/${friendshipId}/decline?userId=${encodeURIComponent(userId)}`,
+    FRIEND_REMOVE: (friendshipId: number, userId: string) => `${API_BASE_URL}/social/friends/${friendshipId}?userId=${encodeURIComponent(userId)}`,
+    DUELS: (userId: string) => `${API_BASE_URL}/social/duels?userId=${encodeURIComponent(userId)}`,
+    DUEL_CREATE: (userId: string) => `${API_BASE_URL}/social/duels?userId=${encodeURIComponent(userId)}`,
+    DUEL_ACCEPT: (duelId: number, userId: string) => `${API_BASE_URL}/social/duels/${duelId}/accept?userId=${encodeURIComponent(userId)}`,
+    DUEL_DECLINE: (duelId: number, userId: string) => `${API_BASE_URL}/social/duels/${duelId}/decline?userId=${encodeURIComponent(userId)}`,
+    DUEL_COMPLETE: (duelId: number, userId: string) => `${API_BASE_URL}/social/duels/${duelId}/complete?userId=${encodeURIComponent(userId)}`,
+    LEAGUE: (userId: string) => `${API_BASE_URL}/social/league?userId=${encodeURIComponent(userId)}`,
+    LEAGUE_ME: (userId: string) => `${API_BASE_URL}/social/league/me?userId=${encodeURIComponent(userId)}`,
+  },
+
   // AI Coach endpoints
   COACH: {
     // Ny Claude AI Coach-endpoint (primär)
     MESSAGE: (userId: string) => `${API_BASE_URL}/coach/message?userId=${encodeURIComponent(userId)}`,
     PERSONALIZED: (userId: string) => `${API_BASE_URL}/coach/personalized/${encodeURIComponent(userId)}`,
     STATUS: `${API_BASE_URL}/coach/status`,
+    // Kvotstatus
+    QUOTA: (userId: string) => `${API_BASE_URL}/coach/quota/${encodeURIComponent(userId)}`,
     // Multi-konversation
     SESSIONS: (userId: string) => `${API_BASE_URL}/coach/sessions?userId=${encodeURIComponent(userId)}`,
     SESSION_MESSAGES: (userId: string, sessionId: string) =>

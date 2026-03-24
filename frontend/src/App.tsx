@@ -15,6 +15,7 @@ import Progress from "./pages/Progress";
 import Challenges from "./pages/Challenges";
 import Settings from "./pages/Settings";
 import AICoach from "./pages/AICoach";
+import Social from "./pages/Social";
 import Navigation from "./components/Navigation";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
@@ -88,6 +89,7 @@ function AppContent() {
             <Route path="/challenges" element={<PageTransition><Challenges /></PageTransition>} />
             <Route path="/challenges/:categorySlug" element={<PageTransition><Challenges /></PageTransition>} />
             <Route path="/challenges/:categorySlug/:challengeId" element={<PageTransition><Challenges /></PageTransition>} />
+            <Route path="/social" element={<PageTransition><Social /></PageTransition>} />
             <Route path="/ai-coach" element={<PageTransition><AICoach /></PageTransition>} />
             <Route path="/settings" element={<PageTransition><Settings /></PageTransition>} />
             <Route path="/onboarding" element={<PageTransition><Onboarding /></PageTransition>} />

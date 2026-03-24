@@ -46,5 +46,7 @@ public interface UserChallengeRepository extends JpaRepository<UserChallenge, Lo
            "WHERE uc.userId = :userId AND uc.completed = true AND uc.completedAt >= :since")
     List<Long> findCompletedChallengeIdsSince(@Param("userId") String userId,
                                               @Param("since") LocalDateTime since);
+
+    void deleteByUserId(String userId);
 }
 

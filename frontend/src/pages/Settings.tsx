@@ -4,11 +4,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/components/ui/use-toast";
-import { Bell, User, Palette, LogOut, Settings as SettingsIcon } from "lucide-react";
+import { Bell, User, Palette, LogOut, Settings as SettingsIcon, Bot, Trash2, AlertTriangle } from "lucide-react";
 import { SettingsPageSkeleton } from "@/components/skeletons/SettingsSkeleton";
 import { useAuth } from "@/context/AuthContext";
 import { API_ENDPOINTS } from "@/config/api";
 import { useTranslation } from "react-i18next";
+import CoachPersonaSelector, { type CoachPersonality } from "@/components/CoachPersonaSelector";
 
 interface UserSettings {
   name: string;
@@ -18,6 +19,7 @@ interface UserSettings {
   aiNotificationsEnabled: boolean;
   darkModeEnabled: boolean;
   language: "sv" | "en";
+  coachPersonality: CoachPersonality;
 }
 
 const Settings = () => {
@@ -27,6 +29,9 @@ const Settings = () => {
   const [settings, setSettings] = useState<UserSettings | null>(null);
   const [loading, setLoading] = useState(true);
   const hasFetched = useRef(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState("");
+  const [deleting, setDeleting] = useState(false);
 
   // Applicera tema
   const applyTheme = useCallback((isDark: boolean) => {
@@ -77,6 +82,7 @@ const Settings = () => {
             aiNotificationsEnabled: data.aiNotificationsEnabled ?? false,
             darkModeEnabled: darkMode,
             language: lang,
+            coachPersonality: data.coachPersonality ?? "SUPPORTIVE",
           });
           applyTheme(darkMode);
           // Synka i18n-språk med backend-värdet (single source of truth)
@@ -95,6 +101,7 @@ const Settings = () => {
             aiNotificationsEnabled: false,
             darkModeEnabled: isDark,
             language: "sv" as const,
+            coachPersonality: "SUPPORTIVE",
           });
         }
       } catch {
@@ -133,6 +140,7 @@ const Settings = () => {
           aiNotificationsEnabled: settings.aiNotificationsEnabled,
           darkModeEnabled: settings.darkModeEnabled,
           language: settings.language,
+          coachPersonality: settings.coachPersonality,
         }),
       });
 
@@ -185,6 +193,32 @@ const Settings = () => {
         description: t('auth.logoutErrorDesc'),
         variant: "destructive",
       });
+    }
+  };
+
+  // Radera konto (GDPR artikel 17)
+  const handleDeleteAccount = async () => {
+    if (!user || deleting) return;
+    setDeleting(true);
+    try {
+      const res = await fetch(API_ENDPOINTS.AUTH.DELETE_ACCOUNT, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      if (res.ok) {
+        localStorage.clear();
+        window.location.href = "/login";
+      } else {
+        throw new Error("Delete failed");
+      }
+    } catch {
+      toast({
+        title: "Något gick fel",
+        description: "Det gick inte att radera kontot. Försök igen.",
+        variant: "destructive",
+      });
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -371,6 +405,23 @@ const Settings = () => {
           </div>
         </div>
 
+        {/* Coach-personlighet */}
+        <div className="bg-card/80 backdrop-blur-xl border border-border/50 rounded-2xl shadow-lg p-6 space-y-4 text-left">
+          <div className="flex items-center gap-3 mb-1">
+            <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+              <Bot className="w-4.5 h-4.5 text-primary" />
+            </div>
+            <div>
+              <h2 className="text-lg font-semibold text-foreground">Din coach</h2>
+              <p className="text-xs text-muted-foreground">Välj vilken coachstil du trivs bäst med</p>
+            </div>
+          </div>
+          <CoachPersonaSelector
+            value={settings.coachPersonality}
+            onChange={(p) => setSettings({ ...settings, coachPersonality: p })}
+          />
+        </div>
+
         {/* Sparaknapp & Logout */}
         <div className="space-y-3 pt-1">
           <button
@@ -386,6 +437,59 @@ const Settings = () => {
             <LogOut className="w-4 h-4" />
             {t('auth.logout')}
           </button>
+        </div>
+
+        {/* Radera konto */}
+        <div className="bg-red-50/50 dark:bg-red-950/20 border border-red-200/50 dark:border-red-800/30 rounded-2xl p-5 space-y-3 text-left">
+          <div className="flex items-start gap-3">
+            <div className="w-9 h-9 rounded-xl bg-red-100 dark:bg-red-900/40 flex items-center justify-center flex-shrink-0 mt-0.5">
+              <Trash2 className="w-4 h-4 text-red-600 dark:text-red-400" />
+            </div>
+            <div>
+              <h2 className="text-base font-semibold text-red-700 dark:text-red-400">Radera konto</h2>
+              <p className="text-xs text-red-600/70 dark:text-red-400/70 mt-0.5">
+                Raderar all din data permanent — konversationer, framsteg, incheckningar och inställningar. Kan inte ångras.
+              </p>
+            </div>
+          </div>
+
+          {!showDeleteConfirm ? (
+            <button
+              onClick={() => setShowDeleteConfirm(true)}
+              className="w-full py-3 rounded-xl border border-red-300/60 dark:border-red-700/40 text-red-600 dark:text-red-400 text-sm font-medium hover:bg-red-100/60 dark:hover:bg-red-900/30 transition-all duration-200"
+            >
+              Radera mitt konto
+            </button>
+          ) : (
+            <div className="space-y-3 animate-in fade-in duration-200">
+              <div className="flex items-center gap-2 text-xs text-red-700 dark:text-red-400 bg-red-100/60 dark:bg-red-900/30 rounded-xl p-3">
+                <AlertTriangle className="w-4 h-4 flex-shrink-0" />
+                <span>Skriv <strong>radera</strong> för att bekräfta att du vill ta bort kontot permanent.</span>
+              </div>
+              <input
+                type="text"
+                value={deleteConfirmText}
+                onChange={(e) => setDeleteConfirmText(e.target.value)}
+                placeholder="radera"
+                className="w-full px-4 py-2.5 rounded-xl border border-red-300/60 dark:border-red-700/40 bg-background/50 text-sm focus:outline-none focus:ring-2 focus:ring-red-400/40 text-foreground placeholder:text-muted-foreground"
+              />
+              <div className="flex gap-2">
+                <button
+                  onClick={() => { setShowDeleteConfirm(false); setDeleteConfirmText(""); }}
+                  className="flex-1 py-2.5 rounded-xl border border-border/50 text-sm font-medium hover:bg-muted transition-colors"
+                >
+                  Avbryt
+                </button>
+                <button
+                  onClick={handleDeleteAccount}
+                  disabled={deleteConfirmText.toLowerCase() !== "radera" || deleting}
+                  className="flex-1 py-2.5 rounded-xl bg-red-600 text-white text-sm font-semibold disabled:opacity-40 disabled:cursor-not-allowed hover:bg-red-700 active:scale-[0.99] transition-all duration-200"
+                >
+                  {deleting ? "Raderar..." : "Radera permanent"}
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

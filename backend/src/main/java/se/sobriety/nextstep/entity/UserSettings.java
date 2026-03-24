@@ -25,6 +25,18 @@ public class UserSettings extends BaseUserData {
     // Onboarding-relaterade fält
     private Boolean onboardingCompleted = false;
 
+    /** Vilket spår användaren valde vid onboarding — påverkar vilken data som samlas in */
+    @Enumerated(EnumType.STRING)
+    private OnboardingTrack onboardingTrack;
+
+    /** Prenumerationsnivå — FREE (10 msg/dag) eller PREMIUM (obegränsat, 99 kr/mån) */
+    @Enumerated(EnumType.STRING)
+    private SubscriptionTier subscriptionTier = SubscriptionTier.FREE;
+
+    /** Vald coach-personlighet — styr ton och bemötande från AI-coachen */
+    @Enumerated(EnumType.STRING)
+    private CoachPersonality coachPersonality = CoachPersonality.SUPPORTIVE;
+
     @ElementCollection
     @Enumerated(EnumType.STRING)
     private List<UserGoal> userGoals = new ArrayList<>();

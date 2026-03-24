@@ -22,16 +22,19 @@ public class UserChallengeService {
     private final ChallengeRepository challengeRepository;
     private final UserChallengeMapper userChallengeMapper;
     private final UserProgressService userProgressService;
+    private final StreakService streakService;
 
     public UserChallengeService(
             UserChallengeRepository userChallengeRepository,
             ChallengeRepository challengeRepository,
             UserChallengeMapper userChallengeMapper,
-            UserProgressService userProgressService) {
+            UserProgressService userProgressService,
+            StreakService streakService) {
         this.userChallengeRepository = userChallengeRepository;
         this.challengeRepository = challengeRepository;
         this.userChallengeMapper = userChallengeMapper;
         this.userProgressService = userProgressService;
+        this.streakService = streakService;
     }
 
     /**
@@ -106,6 +109,9 @@ public class UserChallengeService {
         // Lägg till poäng i UserProgress
         int points = userChallenge.getPointsEarned();
         userProgressService.addPoints(userId, points);
+
+        // Uppdatera streak — registrera dagens aktivitet
+        streakService.registerActivity(userId);
 
         return userChallengeMapper.toDto(userChallenge);
     }

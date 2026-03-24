@@ -9,6 +9,7 @@ import { CoachMessageSkeleton, ActiveChallengesSkeleton } from "@/components/ske
 import { useAuth } from "@/context/AuthContext";
 import { API_ENDPOINTS } from "@/config/api";
 import { useTranslation } from "react-i18next";
+import { getMotivation } from "@/services/coachService";
 import { getDailyCoachTip } from "@/services/coachService";
 import { userChallengeApi } from "@/services/challengeService";
 import { formatMarkdown } from "@/components/AIChat";

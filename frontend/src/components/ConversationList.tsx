@@ -1,0 +1,115 @@
+import { motion, AnimatePresence } from "framer-motion";
+import { Button } from "@/components/ui/button";
+import { X, Plus, MessageSquare, Loader2 } from "lucide-react";
+import { SessionSummary } from "@/services/coachService";
+
+interface ConversationListProps {
+  sessions: SessionSummary[];
+  activeSessionId: string | null;
+  onSelectSession: (sessionId: string) => void;
+  onNewConversation: () => void;
+  loading: boolean;
+  open: boolean;
+  onClose: () => void;
+}
+
+const ConversationList = ({
+  sessions,
+  activeSessionId,
+  onSelectSession,
+  onNewConversation,
+  loading,
+  open,
+  onClose,
+}: ConversationListProps) => {
+  return (
+    <AnimatePresence>
+      {open && (
+        <>
+          {/* Bakgrundsöverdrag */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/40 z-40"
+            onClick={onClose}
+          />
+
+          {/* Sidopanel */}
+          <motion.div
+            initial={{ x: "100%" }}
+            animate={{ x: 0 }}
+            exit={{ x: "100%" }}
+            transition={{ type: "spring", damping: 25, stiffness: 300 }}
+            className="fixed right-0 top-0 h-full w-80 bg-card border-l border-border z-50 flex flex-col shadow-xl"
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between p-4 border-b border-border">
+              <h2 className="font-semibold text-sm">Tidigare konversationer</h2>
+              <button
+                onClick={onClose}
+                className="p-1 rounded-lg hover:bg-muted transition-colors"
+                aria-label="Stäng"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Ny konversation */}
+            <div className="p-3 border-b border-border">
+              <Button
+                onClick={() => { onNewConversation(); onClose(); }}
+                className="w-full gap-2"
+                size="sm"
+              >
+                <Plus className="w-4 h-4" />
+                Ny konversation
+              </Button>
+            </div>
+
+            {/* Lista */}
+            <div className="flex-1 overflow-y-auto p-2">
+              {loading ? (
+                <div className="flex justify-center py-8">
+                  <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
+                </div>
+              ) : sessions.length === 0 ? (
+                <p className="text-xs text-muted-foreground text-center py-8">
+                  Inga tidigare konversationer
+                </p>
+              ) : (
+                sessions.map((session) => (
+                  <button
+                    key={session.sessionId}
+                    onClick={() => { onSelectSession(session.sessionId); onClose(); }}
+                    className={`w-full text-left p-3 rounded-xl mb-1 transition-all ${
+                      session.sessionId === activeSessionId
+                        ? "bg-primary/10 border border-primary/20"
+                        : "hover:bg-muted"
+                    }`}
+                  >
+                    <div className="flex items-start gap-2">
+                      <MessageSquare className="w-3.5 h-3.5 mt-0.5 text-muted-foreground shrink-0" />
+                      <div className="overflow-hidden">
+                        <p className="text-xs font-medium truncate">
+                          {session.preview || "Konversation"}
+                        </p>
+                        <p className="text-[10px] text-muted-foreground mt-0.5">
+                          {new Date(session.lastMessageAt).toLocaleDateString("sv-SE")}
+                          {" · "}
+                          {session.messageCount} meddelanden
+                        </p>
+                      </div>
+                    </div>
+                  </button>
+                ))
+              )}
+            </div>
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
+  );
+};
+
+export default ConversationList;

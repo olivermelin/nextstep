@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Trophy, Target, Zap, Star, Award, Crown, Brain, Activity, Focus, Lightbulb, LucideIcon } from "lucide-react";
+import { Trophy, Target, Zap, Star, Award, Crown, Brain, Activity, Focus, Lightbulb, Share2, LucideIcon } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { progressService } from "@/services/progressService";
 import { CategoryProgress, Achievement } from "@/types/progress";
@@ -89,7 +89,7 @@ const Progress = () => {
   };
 
   useEffect(() => {
-    if (user?.id) {
+    if (user?.email || user?.id) {
       fetchUserProgress();
       fetchStreakAndCollection();
     }
@@ -98,7 +98,7 @@ const Progress = () => {
       setShowAchievements(true);
     }, 100);
     return () => clearTimeout(timer);
-  }, [user?.id]);
+  }, [user?.email, user?.id]);
 
   const fetchStreakAndCollection = async () => {
     if (!user?.email && !user?.id) return;
@@ -360,9 +360,30 @@ const Progress = () => {
                       <p className="text-xs text-muted-foreground line-clamp-1">{achievement.description}</p>
                     </div>
                     {achievement.unlocked && (
-                      <Badge className="bg-accent text-accent-foreground text-xs flex-shrink-0">
-                        {t('progress.unlocked')}
-                      </Badge>
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        <Badge className="bg-accent text-accent-foreground text-xs">
+                          {t('progress.unlocked')}
+                        </Badge>
+                        {typeof navigator.share === "function" && (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              navigator.share({
+                                title: achievement.title,
+                                text: t('progress.shareAchievementText', {
+                                  title: achievement.title,
+                                  defaultValue: `Jag låste upp "${achievement.title}" på NextStep! 🏆`,
+                                }),
+                                url: window.location.origin,
+                              }).catch(() => {});
+                            }}
+                            className="p-1.5 rounded-lg hover:bg-primary/10 text-muted-foreground hover:text-primary transition-colors"
+                            title={t('progress.shareAchievement', { defaultValue: 'Dela' })}
+                          >
+                            <Share2 className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+                      </div>
                     )}
                   </div>
                 </Card>

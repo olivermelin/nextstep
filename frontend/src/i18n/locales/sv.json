@@ -340,12 +340,30 @@
       "growth": "Personlig utveckling"
     },
     "achievementTexts": {
-      "1": { "title": "Första steget", "description": "Slutför första aktiviteten" },
-      "2": { "title": "Dedikerad", "description": "Nå nivå 2" },
-      "3": { "title": "Framstegsmaskin", "description": "Samla 200 poäng" },
-      "4": { "title": "Stjärna", "description": "Nå nivå 5" },
-      "5": { "title": "Mästare", "description": "Samla 500 poäng" },
-      "6": { "title": "Legend", "description": "Nå nivå 10" }
+      "1": {
+        "title": "Första steget",
+        "description": "Slutför första aktiviteten"
+      },
+      "2": {
+        "title": "Dedikerad",
+        "description": "Nå nivå 2"
+      },
+      "3": {
+        "title": "Framstegsmaskin",
+        "description": "Samla 200 poäng"
+      },
+      "4": {
+        "title": "Stjärna",
+        "description": "Nå nivå 5"
+      },
+      "5": {
+        "title": "Mästare",
+        "description": "Samla 500 poäng"
+      },
+      "6": {
+        "title": "Legend",
+        "description": "Nå nivå 10"
+      }
     }
   },
   "navigation": {
@@ -354,7 +372,8 @@
     "progress": "Framsteg",
     "challenges": "Utmaningar",
     "aiCoach": "AI Coach",
-    "settings": "Inställningar"
+    "settings": "Inställningar",
+    "social": "Social"
   },
   "header": {
     "settings": "Inställningar",
@@ -400,5 +419,44 @@
       "great": "Jättebra",
       "amazing": "Fantastiskt"
     }
+  },
+  "social": {
+    "title": "Social",
+    "subtitle": "Vänner, dueller och liga",
+    "friends": "Vänner",
+    "duels": "Dueller",
+    "league": "Liga",
+    "addFriend": "Lägg till vän",
+    "friendEmailPlaceholder": "Vännens e-postadress",
+    "send": "Skicka",
+    "requestSent": "Vänförfrågan skickad!",
+    "requestFailed": "Kunde inte skicka förfrågan",
+    "incomingRequests": "Inkommande förfrågningar",
+    "myFriends": "Mina vänner",
+    "noFriends": "Inga vänner ännu. Lägg till någon!",
+    "removeFriend": "Ta bort vän",
+    "createDuel": "Utmana någon",
+    "duelOpponentEmail": "Motståndarens e-post",
+    "duelChallengeName": "Utmaningens namn",
+    "sendDuel": "Skicka utmaning",
+    "duelSent": "Duell skickad!",
+    "duelFailed": "Kunde inte skicka duell",
+    "noDuels": "Inga dueller ännu. Utmana en vän!",
+    "duelPending": "Väntar",
+    "duelActive": "Pågår",
+    "duelCompleted": "Avslutad",
+    "duelDeclined": "Avvisad",
+    "duelExpired": "Utgången",
+    "accept": "Acceptera",
+    "decline": "Avvisa",
+    "markComplete": "Jag är klar!",
+    "wins": "vinner!",
+    "leagueDesc": "Topplista baserad på totala XP-poäng",
+    "leagueEmpty": "Ligan är tom — samla XP för att visa upp dig!",
+    "you": "(du)",
+    "tierBRONZE": "Brons",
+    "tierSILVER": "Silver",
+    "tierGOLD": "Guld",
+    "tierDIAMOND": "Diamond"
   }
 }
