@@ -1,0 +1,20 @@
+{
+  "name": "nextstep-agents",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "security": "tsx src/security-agent.ts",
+    "design": "tsx src/design-agent.ts",
+    "architect": "tsx src/architect-agent.ts",
+    "review-all": "tsx src/review-all.ts"
+  },
+  "dependencies": {
+    "@anthropic-ai/claude-agent-sdk": "latest"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.2",
+    "typescript": "^5.8.3",
+    "@types/node": "^22.0.0"
+  }
+}

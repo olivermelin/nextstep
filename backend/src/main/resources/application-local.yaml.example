@@ -1,0 +1,15 @@
+# Kopiera den här filen till application-local.yaml och fyll i dina nycklar.
+# application-local.yaml är ignorerad av git och ska ALDRIG committas.
+
+ai:
+  coach:
+    # --- Groq (gratis under utveckling) ---
+    # Skapa ett gratis konto på https://console.groq.com och hämta din API-nyckel.
+    use-groq: true
+    groq-api-key: gsk_DIN_GROQ_NYCKEL_HÄR
+    groq-model: llama-3.1-8b-instant   # eller llama3-70b-8192 för bättre svar
+
+    # --- Claude / Anthropic (används i produktion) ---
+    # use-groq: false
+    # anthropic-api-key: sk-ant-DIN_CLAUDE_NYCKEL_HÄR
+    # claude-model: claude-haiku-4-5
