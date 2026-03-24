@@ -65,6 +65,9 @@ public class SecurityConfig {
                                 "/api/user-challenges/**",
                                 "/api/settings/**",
                                 "/api/progress/**",
+                                "/api/checkins/**",
+                                "/api/streaks/**",
+                                "/api/rewards/**",
                                 "/oauth2/**",
                                 "/login/**"
                         )
