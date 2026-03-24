@@ -60,6 +60,7 @@ public class SecurityConfig {
                                 "/api/auth/signup",
                                 "/api/auth/forgot-password",
                                 "/api/auth/reset-password",
+                                "/api/auth/account",
                                 "/api/coach/**",
                                 "/api/onboarding/**",
                                 "/api/user-challenges/**",

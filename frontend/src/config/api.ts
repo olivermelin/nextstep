@@ -15,6 +15,7 @@ export const API_ENDPOINTS = {
     FORGOT_PASSWORD: `${API_BASE_URL}/auth/forgot-password`,
     RESET_PASSWORD: `${API_BASE_URL}/auth/reset-password`,
     OAUTH_GOOGLE: `${API_BASE_URL.replace('/api', '')}/oauth2/authorization/google`,
+    DELETE_ACCOUNT: `${API_BASE_URL}/auth/account`,
   },
   
   // Progress endpoints
