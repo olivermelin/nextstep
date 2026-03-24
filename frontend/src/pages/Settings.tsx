@@ -236,7 +236,7 @@ const Settings = () => {
   }
 
   return (
-    <div className="min-h-full bg-gradient-to-br from-background via-background to-primary/5 relative overflow-hidden">
+    <div className="min-h-full bg-gradient-to-br from-background via-background to-primary/5 relative">
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div
