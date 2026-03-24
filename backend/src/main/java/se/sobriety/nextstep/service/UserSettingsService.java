@@ -41,7 +41,9 @@ public class UserSettingsService {
 
         applyUpdates(entity, dto);
 
-        // ingen save() behövs – JPA dirty checking
+        // Explicit save för garanterad persistering (dirty checking fungerar inte alltid
+        // om entiteten skapades i ett separat anrop via createAndSaveDefault)
+        userSettingsRepository.save(entity);
         return userSettingsMapper.toDto(entity);
     }
 

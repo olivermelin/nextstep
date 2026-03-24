@@ -89,7 +89,7 @@ const Progress = () => {
   };
 
   useEffect(() => {
-    if (user?.id) {
+    if (user?.email || user?.id) {
       fetchUserProgress();
       fetchStreakAndCollection();
     }
@@ -98,7 +98,7 @@ const Progress = () => {
       setShowAchievements(true);
     }, 100);
     return () => clearTimeout(timer);
-  }, [user?.id]);
+  }, [user?.email, user?.id]);
 
   const fetchStreakAndCollection = async () => {
     if (!user?.email && !user?.id) return;

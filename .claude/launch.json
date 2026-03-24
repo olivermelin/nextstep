@@ -10,7 +10,7 @@
     {
       "name": "frontend",
       "runtimeExecutable": "cmd",
-      "runtimeArgs": ["/c", "cd frontend && npx vite --host localhost"],
+      "runtimeArgs": ["/c", "cd frontend && npx vite --host 0.0.0.0"],
       "port": 8082,
       "autoPort": true
     }

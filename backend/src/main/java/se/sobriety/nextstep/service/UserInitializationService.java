@@ -33,10 +33,17 @@ public class UserInitializationService {
         // Hämta eller skapa UserSettings
         UserSettings settings = userSettingsService.getOrCreateSettings(userId);
 
-        if (name != null && !name.equals(settings.getName())) {
+        // Sätt namn och e-post enbart om de fortfarande har defaultvärden.
+        // Vi skriver ALDRIG över ett namn/e-post som användaren aktivt har ändrat i inställningarna.
+        boolean nameIsDefault = settings.getName() == null
+                || settings.getName().isBlank()
+                || settings.getName().equals("Default Name");
+        if (nameIsDefault && name != null && !name.isBlank()) {
             settings.setName(name);
         }
-        if (email != null && !email.equals(settings.getEmail())) {
+
+        boolean emailIsDefault = settings.getEmail() == null || settings.getEmail().isBlank();
+        if (emailIsDefault && email != null && !email.isBlank()) {
             settings.setEmail(email);
         }
     }
