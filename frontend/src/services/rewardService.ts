@@ -18,8 +18,14 @@ export const rewardService = {
   getToday: async (_userId: string): Promise<DailyRewardData> => {
     return { available: false, claimed: false };
   },
+  getTodayReward: async (_userId: string): Promise<DailyRewardData | null> => {
+    return null;
+  },
   claim: async (_userId: string): Promise<DailyRewardData> => {
     return { available: false, claimed: true };
+  },
+  generateReward: async (_userId: string): Promise<DailyRewardData> => {
+    return { available: false, claimed: false };
   },
   getCollection: async (_userId: string): Promise<CollectibleData[]> => {
     return [];
