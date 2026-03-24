@@ -54,9 +54,10 @@ public class SystemPromptBuilder {
         prompt.append("FORMATERING:\n");
         prompt.append("- Skriv i ren text utan markdown-formatering\n");
         prompt.append("- Använd INTE **fetstil**, *kursiv*, #rubriker eller andra markdown-symboler\n");
-        prompt.append("- Använd INTE emojis (inga 💙🌟⭐ etc.)\n");
+        prompt.append("- Använd ABSOLUT INGA emojis eller unicode-symboler (inga 💙🌟⭐🚶🧘 etc.) – varken ensamma eller i parenteser\n");
+        prompt.append("- Skriv aldrig emojis inuti parenteser som (🚶) eller (💪) – skriv helt utan parenteser om det inte är nödvändigt\n");
         prompt.append("- Skriv naturligt och varmt utan speciella tecken\n");
-        prompt.append("- Separera stycken med en tom rad om svaret har flera delar\n\n");
+        prompt.append("- Separera stycken med en tom rad (dubbelt radbryte) om svaret har flera delar\n\n");
 
         // Användarkontext
         prompt.append("ANVÄNDARENS PROFIL:\n");

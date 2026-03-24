@@ -151,6 +151,19 @@ public class AICoachController {
     }
 
     /**
+     * DELETE /api/coach/sessions/{sessionId}?userId=...
+     * Tar bort en konversation och alla dess meddelanden permanent.
+     */
+    @DeleteMapping("/sessions/{sessionId}")
+    public ResponseEntity<Void> deleteSession(
+            @PathVariable String sessionId,
+            @RequestParam String userId) {
+        verifyUserAccess(userId);
+        conversationService.deleteSession(sessionId, userId);
+        return ResponseEntity.noContent().build();
+    }
+
+    /**
      * Check if AI service is available
      * GET /api/coach/status
      */

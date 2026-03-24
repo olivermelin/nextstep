@@ -182,10 +182,10 @@ const Onboarding = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5 flex items-center justify-center p-4">
-      <Card className="w-full max-w-2xl p-6 md:p-8 shadow-[var(--shadow-elevated)] animate-fade-in-up">
+    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5 flex items-start justify-center px-4 py-6 md:py-10">
+      <Card className="w-full max-w-2xl p-5 md:p-8 shadow-[var(--shadow-elevated)] animate-fade-in-up">
         {/* Progress Bar */}
-        <div className="mb-6">
+        <div className="mb-4">
           <div className="flex justify-between items-center mb-2">
             <span className="text-sm text-muted-foreground">
               {t('onboarding.stepOf', { current: currentStep, total: totalSteps })}
@@ -197,7 +197,7 @@ const Onboarding = () => {
 
         {/* Info Alert */}
         {currentStep > 1 && (
-          <Alert className="mb-6 bg-blue-500/10 border-blue-500/30">
+          <Alert className="mb-4 bg-blue-500/10 border-blue-500/30">
             <Info className="h-4 w-4 text-blue-500" />
             <AlertDescription className="text-sm">
               {t('onboarding.infoAlert')}
@@ -207,7 +207,7 @@ const Onboarding = () => {
 
         {/* Error Alert */}
         {error && (
-          <Alert variant="destructive" className="mb-6">
+          <Alert variant="destructive" className="mb-4">
             <AlertDescription>{error}</AlertDescription>
           </Alert>
         )}
@@ -224,7 +224,7 @@ const Onboarding = () => {
             animate="animate"
             exit="exit"
             transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
-            className="space-y-6"
+            className="space-y-4"
           >
             <div>
               <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
@@ -286,7 +286,7 @@ const Onboarding = () => {
             animate="animate"
             exit="exit"
             transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
-            className="space-y-6"
+            className="space-y-4"
           >
             <div>
               <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
@@ -387,7 +387,7 @@ const Onboarding = () => {
             animate="animate"
             exit="exit"
             transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
-            className="space-y-6"
+            className="space-y-4"
           >
             <div>
               <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
@@ -434,7 +434,7 @@ const Onboarding = () => {
         </AnimatePresence>
 
         {/* Navigation Buttons */}
-        <div className="flex gap-3 mt-8">
+        <div className="flex gap-3 mt-5">
           {currentStep > 1 && (
             <Button onClick={handleBack} variant="outline" className="gap-2">
               <ArrowLeft className="w-4 h-4" />

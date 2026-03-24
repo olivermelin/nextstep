@@ -79,7 +79,7 @@ const TimePicker: React.FC<TimePickerProps> = ({ challenge, onConfirm, loading }
   const xp = calculateXP(challenge.difficulty, effectiveMinutes, defaultMinutes);
 
   return (
-    <Card className="p-5 bg-green-500/5 border-green-500/30 animate-in fade-in slide-in-from-bottom-2 duration-300">
+    <Card className="p-5 bg-green-100 border-green-300 dark:bg-green-500/15 dark:border-green-500/40 animate-in fade-in slide-in-from-bottom-2 duration-300">
       <div className="flex items-center gap-2 mb-4">
         <Clock className="w-4 h-4 text-green-600" />
         <h3 className="font-semibold text-sm">
@@ -280,7 +280,7 @@ const ChallengeActivityView = ({
               <BookOpen className="w-5 h-5 text-blue-500" />
               <h3 className="font-semibold">{t('challenges.instructions')}</h3>
             </div>
-            <Card className="p-4 bg-blue-500/5 border-blue-500/20">
+            <Card className="p-4 bg-blue-100 border-blue-300 dark:bg-blue-500/15 dark:border-blue-500/40">
               <p className="text-sm text-foreground whitespace-pre-wrap text-left">
                 {challenge.instructions}
               </p>
@@ -300,7 +300,7 @@ const ChallengeActivityView = ({
           <div className="space-y-4">
             {/* Duration Picker – visas bara om aktiviteten INTE har en video eller rityta */}
             {!hasVideo && !isDrawing && (
-              <Card className="p-5 bg-primary/5 border-primary/20">
+              <Card className="p-5 bg-primary/10 border-primary/35">
                 <div className="flex items-center gap-2 mb-4">
                   <Timer className="w-5 h-5 text-primary" />
                   <h3 className="font-semibold">
@@ -391,7 +391,7 @@ const ChallengeActivityView = ({
             {/* Activity Timer */}
             {showTimer && (
               <div className="mb-6">
-                <Card className={`p-5 text-center border ${timer.isComplete ? 'bg-green-500/5 border-green-500/30' : 'bg-primary/5 border-primary/20'} transition-colors duration-500`}>
+                <Card className={`p-5 text-center border ${timer.isComplete ? 'bg-green-100 border-green-300 dark:bg-green-500/15 dark:border-green-500/40' : 'bg-primary/10 border-primary/35'} transition-colors duration-500`}>
                   <p className="text-xs text-muted-foreground uppercase tracking-wide mb-2">
                     {timer.isComplete
                       ? (t('challenges.timerComplete', { fallbackLng: 'sv', defaultValue: 'Aktivitetstid klar!' }))

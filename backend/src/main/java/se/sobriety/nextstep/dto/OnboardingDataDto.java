@@ -21,6 +21,5 @@ public record OnboardingDataDto(
         @Valid
         BackgroundInfoDto backgroundInfo,
 
-        @NotNull(message = "Recovery stage is required")
         RecoveryStage recoveryStage
 ) {}

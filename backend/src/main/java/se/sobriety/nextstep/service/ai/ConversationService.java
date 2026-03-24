@@ -212,6 +212,22 @@ public class ConversationService {
     }
 
     /**
+     * Tar bort en session och alla dess meddelanden permanent.
+     * Verifierar att sessionen tillhör userId.
+     */
+    public void deleteSession(String sessionId, String userId) {
+        CoachSession session = sessionRepository.findBySessionId(sessionId)
+                .orElseThrow(() -> new IllegalArgumentException("Session not found: " + sessionId));
+
+        if (!session.getUserId().equals(userId)) {
+            throw new SecurityException("Access denied to session " + sessionId);
+        }
+
+        sessionRepository.delete(session);
+        log.info("Deleted session {} for user {}", sessionId, userId);
+    }
+
+    /**
      * Skapa en ny session. Stänger ev. aktiv session först.
      */
     public CoachSession createNewSession(String userId) {

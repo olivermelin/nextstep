@@ -83,12 +83,14 @@ export const API_ENDPOINTS = {
   COACH: {
     // Ny Claude AI Coach-endpoint (primär)
     MESSAGE: (userId: string) => `${API_BASE_URL}/coach/message?userId=${encodeURIComponent(userId)}`,
+    PERSONALIZED: (userId: string) => `${API_BASE_URL}/coach/personalized/${encodeURIComponent(userId)}`,
     STATUS: `${API_BASE_URL}/coach/status`,
     // Multi-konversation
     SESSIONS: (userId: string) => `${API_BASE_URL}/coach/sessions?userId=${encodeURIComponent(userId)}`,
     SESSION_MESSAGES: (userId: string, sessionId: string) =>
       `${API_BASE_URL}/coach/sessions/${sessionId}/messages?userId=${encodeURIComponent(userId)}`,
     NEW_SESSION: (userId: string) => `${API_BASE_URL}/coach/sessions/new?userId=${encodeURIComponent(userId)}`,
+    DELETE_SESSION: (sessionId: string, userId: string) => `${API_BASE_URL}/coach/sessions/${encodeURIComponent(sessionId)}?userId=${encodeURIComponent(userId)}`,
     // Bakåtkompatibla endpoints (kan fasas ut)
     MOTIVATE: (message: string) => `${API_BASE_URL}/coach/motivate?message=${encodeURIComponent(message)}`,
   },
@@ -143,6 +145,14 @@ export const fetchWithCredentials = async (url: string, options?: RequestInit) =
     throw new ApiError(message || `HTTP error! status: ${response.status}`, response.status);
   }
 
+  // 204 No Content eller tom body — returnera null istället för att försöka parsa JSON
+  if (response.status === 204 || response.headers.get("Content-Length") === "0") {
+    return null;
+  }
+  const contentType = response.headers.get("Content-Type");
+  if (!contentType || !contentType.includes("application/json")) {
+    return null;
+  }
   return response.json();
 };
 

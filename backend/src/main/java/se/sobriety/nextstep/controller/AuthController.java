@@ -23,6 +23,7 @@ import se.sobriety.nextstep.dto.SignUpRequestDto;
 import se.sobriety.nextstep.dto.SignUpResponseDto;
 import se.sobriety.nextstep.entity.User;
 import se.sobriety.nextstep.repository.UserRepository;
+import se.sobriety.nextstep.service.MailNotificationService;
 import se.sobriety.nextstep.service.OnboardingService;
 import se.sobriety.nextstep.service.PasswordResetService;
 import se.sobriety.nextstep.service.SignUpService;
@@ -42,6 +43,7 @@ public class AuthController {
     private final PasswordResetService passwordResetService;
     private final UserRepository userRepository;
     private final AuthenticationManager authenticationManager;
+    private final MailNotificationService mailNotificationService;
 
     public AuthController(UserProgressService progressService,
                          UserInitializationService initializationService,
@@ -49,7 +51,8 @@ public class AuthController {
                          SignUpService signUpService,
                          PasswordResetService passwordResetService,
                          UserRepository userRepository,
-                         AuthenticationManager authenticationManager) {
+                         AuthenticationManager authenticationManager,
+                         MailNotificationService mailNotificationService) {
         this.initializationService = initializationService;
         this.progressService = progressService;
         this.onboardingService = onboardingService;
@@ -57,6 +60,7 @@ public class AuthController {
         this.passwordResetService = passwordResetService;
         this.userRepository = userRepository;
         this.authenticationManager = authenticationManager;
+        this.mailNotificationService = mailNotificationService;
     }
 
     /**
@@ -72,7 +76,15 @@ public class AuthController {
             String email = (String) oauthToken.getPrincipal().getAttribute("email");
             String name = (String) oauthToken.getPrincipal().getAttribute("name");
 
-            initializationService.ensureUserExistsAndUpdateFromAuth(email, name, email);
+            boolean isNewUser = initializationService.ensureUserExistsAndUpdateFromAuth(email, name, email);
+            if (isNewUser) {
+                try {
+                    String firstName = name != null && name.contains(" ") ? name.split(" ")[0] : name;
+                    mailNotificationService.sendWelcomeEmail(email, firstName != null ? firstName : "");
+                } catch (Exception e) {
+                    // Mailfel ska inte stoppa inloggningen
+                }
+            }
             boolean onboardingCompleted = onboardingService.isOnboardingCompleted(email);
 
             return ResponseEntity.ok(Map.of(
@@ -173,7 +185,7 @@ public class AuthController {
     public ResponseEntity<String> logout(
             HttpServletRequest request,
             HttpServletResponse response,
-            OAuth2AuthenticationToken authentication) {
+            Authentication authentication) {
 
         if (authentication != null) {
             new SecurityContextLogoutHandler().logout(request, response, authentication);

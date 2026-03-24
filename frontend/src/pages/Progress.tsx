@@ -47,10 +47,10 @@ const Progress = () => {
   // Mappning av kategori-ID till ikoner och färger
   const getCategoryStyle = (categoryId: string) => {
     const styles: Record<string, { icon: LucideIcon; color: string; borderColor: string; bgColor: string }> = {
-      mental: { icon: Brain, color: "text-blue-500", borderColor: "border-blue-500/30", bgColor: "from-blue-500/10 to-blue-500/5" },
-      physical: { icon: Activity, color: "text-red-500", borderColor: "border-red-500/30", bgColor: "from-red-500/10 to-red-500/5" },
-      focus: { icon: Focus, color: "text-purple-500", borderColor: "border-purple-500/30", bgColor: "from-purple-500/10 to-purple-500/5" },
-      growth: { icon: Lightbulb, color: "text-amber-500", borderColor: "border-amber-500/30", bgColor: "from-amber-500/10 to-amber-500/5" },
+      mental: { icon: Brain, color: "text-blue-700 dark:text-blue-400", borderColor: "border-blue-300 dark:border-blue-500/50", bgColor: "from-blue-100 to-blue-50 dark:from-blue-500/15 dark:to-blue-500/5" },
+      physical: { icon: Activity, color: "text-red-700 dark:text-red-400", borderColor: "border-red-300 dark:border-red-500/50", bgColor: "from-red-100 to-red-50 dark:from-red-500/15 dark:to-red-500/5" },
+      focus: { icon: Focus, color: "text-purple-700 dark:text-purple-400", borderColor: "border-purple-300 dark:border-purple-500/50", bgColor: "from-purple-100 to-purple-50 dark:from-purple-500/15 dark:to-purple-500/5" },
+      growth: { icon: Lightbulb, color: "text-amber-700 dark:text-amber-400", borderColor: "border-amber-300 dark:border-amber-500/50", bgColor: "from-amber-100 to-amber-50 dark:from-amber-500/15 dark:to-amber-500/5" },
     };
     return styles[categoryId] || styles.mental;
   };
@@ -257,11 +257,11 @@ const Progress = () => {
 
           {/* Totalt framsteg */}
           {categoryProgress.length > 0 && (
-            <Card className="p-5 bg-gradient-to-br from-green-500/10 to-green-500/5 border border-green-500/30 card-hover">
+            <Card className="p-5 bg-gradient-to-br from-green-100 to-green-50 dark:from-green-500/15 dark:to-green-500/5 border border-green-300 dark:border-green-500/50 card-hover">
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <h3 className="font-semibold text-foreground">{t('progress.totalProgress')}</h3>
-                  <span className="text-lg font-bold text-green-600">
+                  <span className="text-lg font-bold text-green-700 dark:text-green-400">
                     {categoryProgress.length > 0 
                       ? Math.round((categoryProgress.reduce((sum, cat) => sum + (cat.completedDays || 0), 0) / (categoryProgress.length * 7)) * 100)
                       : 0}%

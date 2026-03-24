@@ -11,6 +11,7 @@ import {
   getCoachSessions,
   getSessionMessages,
   createNewSession,
+  deleteCoachSession,
   type CrisisLevel,
   type CoachStatusResponse,
   type SuggestedChallenge,
@@ -69,29 +70,51 @@ function crisisBubbleClasses(crisisLevel?: CrisisLevel): string {
 
 // --- Markdown-formatering ---
 
-export function formatMarkdown(text: string): React.ReactNode[] {
-  const lines = text.split(/\n/);
-  const result: React.ReactNode[] = [];
+function stripEmojis(text: string): string {
+  return text
+    .replace(/[\u{1F000}-\u{1FFFF}]|[\u{2600}-\u{27BF}]|[\u{FE00}-\u{FE0F}]|\u{200D}|\u{20E3}/gu, "")
+    .replace(/\(\s*\)/g, "") // Ta bort tomma parenteser som lämnas kvar av borttagna emojis
+    .replace(/[ \t]{2,}/g, " ") // Normalisera extra mellanslag (inte radbrytningar)
+    .trim();
+}
 
-  lines.forEach((line, lineIndex) => {
-    if (lineIndex > 0) {
-      result.push(<br key={`br-${lineIndex}`} />);
-    }
-
-    const strippedLine = line.replace(/^#{1,6}\s+/, "");
-    const parts = strippedLine.split(/(\*\*[^*]+\*\*|\*[^*]+\*)/g);
-    parts.forEach((part, i) => {
-      if (part.startsWith("**") && part.endsWith("**")) {
-        result.push(<strong key={`${lineIndex}-${i}`}>{part.slice(2, -2)}</strong>);
-      } else if (part.startsWith("*") && part.endsWith("*")) {
-        result.push(<em key={`${lineIndex}-${i}`}>{part.slice(1, -1)}</em>);
-      } else if (part) {
-        result.push(<span key={`${lineIndex}-${i}`}>{part}</span>);
-      }
+function renderInlineMarkdown(line: string, keyPrefix: string): React.ReactNode[] {
+  const stripped = line.replace(/^#{1,6}\s+/, "");
+  const parts = stripped.split(/(\*\*[^*]+\*\*|\*[^*]+\*)/g);
+  return parts
+    .filter((part) => part.length > 0)
+    .map((part, i) => {
+      if (part.startsWith("**") && part.endsWith("**"))
+        return <strong key={`${keyPrefix}-${i}`}>{part.slice(2, -2)}</strong>;
+      if (part.startsWith("*") && part.endsWith("*"))
+        return <em key={`${keyPrefix}-${i}`}>{part.slice(1, -1)}</em>;
+      return <span key={`${keyPrefix}-${i}`}>{part}</span>;
     });
-  });
+}
 
-  return result;
+export function formatMarkdown(text: string): React.ReactNode {
+  const cleaned = stripEmojis(text);
+
+  // Dela upp i stycken vid dubbla radbrytningar
+  const paragraphs = cleaned.split(/\n{2,}/);
+
+  return (
+    <>
+      {paragraphs.map((paragraph, pIndex) => {
+        const lines = paragraph.trim().split("\n");
+        return (
+          <p key={pIndex} className={pIndex > 0 ? "mt-3" : ""}>
+            {lines.map((line, lineIndex) => (
+              <React.Fragment key={lineIndex}>
+                {lineIndex > 0 && <br />}
+                {renderInlineMarkdown(line, `${pIndex}-${lineIndex}`)}
+              </React.Fragment>
+            ))}
+          </p>
+        );
+      })}
+    </>
+  );
 }
 
 // --- Challenge-rekommendationer ---
@@ -286,6 +309,24 @@ export const AIChat: React.FC<AIChatProps> = ({ quickPrompt, onQuickPromptConsum
       setShowCrisisBanner(false);
     }
   }, [userId]);
+
+  const handleDeleteSession = useCallback(async (targetSessionId: string) => {
+    try {
+      await deleteCoachSession(userId, targetSessionId);
+      // Om den aktiva sessionen raderades, rensa vyn
+      if (targetSessionId === sessionId) {
+        setSessionId(null);
+        setMessages([]);
+        setError(null);
+        setShowCrisisBanner(false);
+      }
+      // Uppdatera listan
+      const sessionList = await getCoachSessions(userId);
+      setSessions(sessionList);
+    } catch {
+      // Ignore
+    }
+  }, [userId, sessionId]);
 
   const handleSendMessage = async () => {
     if (!input.trim() || !user) return;
@@ -482,7 +523,7 @@ export const AIChat: React.FC<AIChatProps> = ({ quickPrompt, onQuickPromptConsum
                         <span className="text-xs font-medium">{t('aiCoach.crisisSupport')}</span>
                       </div>
                     )}
-                    <p className="text-sm leading-relaxed whitespace-pre-wrap text-left">{formatMarkdown(msg.text)}</p>
+                    <div className="text-sm leading-relaxed text-left">{formatMarkdown(msg.text)}</div>
                     {msg.suggestedChallenges && msg.suggestedChallenges.length > 0 && (
                       <ChallengeCards challenges={msg.suggestedChallenges} />
                     )}
@@ -557,6 +598,7 @@ export const AIChat: React.FC<AIChatProps> = ({ quickPrompt, onQuickPromptConsum
         activeSessionId={sessionId}
         onSelectSession={handleSelectSession}
         onNewConversation={handleNewConversation}
+        onDeleteSession={handleDeleteSession}
         loading={sessionsLoading}
         open={showConversationList}
         onClose={() => setShowConversationList(false)}
