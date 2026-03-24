@@ -12,5 +12,7 @@ public interface CategoryProgressRepository extends JpaRepository<CategoryProgre
     List<CategoryProgress> findByUserId(String userId);
 
     Optional<CategoryProgress> findByUserIdAndCategory(String userId, ChallengeCategory category);
+
+    void deleteByUserId(String userId);
 }
 

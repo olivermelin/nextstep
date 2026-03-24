@@ -25,6 +25,10 @@ public class UserSettings extends BaseUserData {
     // Onboarding-relaterade fält
     private Boolean onboardingCompleted = false;
 
+    /** Vilket spår användaren valde vid onboarding — påverkar vilken data som samlas in */
+    @Enumerated(EnumType.STRING)
+    private OnboardingTrack onboardingTrack;
+
     @ElementCollection
     @Enumerated(EnumType.STRING)
     private List<UserGoal> userGoals = new ArrayList<>();

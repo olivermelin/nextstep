@@ -26,6 +26,7 @@ import {
   CurrentSituation,
   SubstanceType,
   RecoveryStage,
+  OnboardingTrack,
   OnboardingData,
 } from "@/types/onboarding";
 
@@ -38,26 +39,31 @@ const Onboarding = () => {
   const [error, setError] = useState<string | null>(null);
   const directionRef = useRef(1); // 1 = forward, -1 = backward
 
+  // Steg 1 - Spårval
+  const [selectedTrack, setSelectedTrack] = useState<OnboardingTrack | undefined>(undefined);
+
   const stepVariants = {
     initial: (direction: number) => ({ opacity: 0, x: direction > 0 ? 60 : -60 }),
     animate: { opacity: 1, x: 0 },
     exit: (direction: number) => ({ opacity: 0, x: direction > 0 ? -60 : 60 }),
   };
 
-  // Steg 1 - Mål
+  // Steg 2 - Mål
   const [selectedGoals, setSelectedGoals] = useState<UserGoal[]>([]);
   const [otherGoalText, setOtherGoalText] = useState("");
 
-  // Steg 2 - Bakgrund
+  // Steg 3 - Bakgrund (bara vid RECOVERY-spår)
   const [age, setAge] = useState<number | undefined>(undefined);
   const [gender, setGender] = useState<Gender | undefined>(undefined);
   const [currentSituation, setCurrentSituation] = useState<CurrentSituation | undefined>(undefined);
   const [substanceHistory, setSubstanceHistory] = useState<SubstanceType[]>([]);
 
-  // Steg 3 - Recovery Stage
+  // Steg 4 - Recovery Stage (bara vid RECOVERY-spår)
   const [recoveryStage, setRecoveryStage] = useState<RecoveryStage | undefined>(undefined);
 
-  const totalSteps = 3;
+  // Antal steg beror på vilket spår användaren väljer
+  const isRecoveryTrack = selectedTrack === OnboardingTrack.RECOVERY;
+  const totalSteps = isRecoveryTrack ? 4 : 2;
   const progress = (currentStep / totalSteps) * 100;
 
   const goalOptions = [
@@ -122,10 +128,15 @@ const Onboarding = () => {
     );
   };
 
-  const canProceedFromStep1 = selectedGoals.length > 0;
+  const canProceedFromStep1 = selectedTrack !== undefined;
+  const canProceedFromStep2 = selectedGoals.length > 0;
 
   const handleNext = () => {
     if (currentStep === 1 && !canProceedFromStep1) {
+      setError("Välj ett alternativ för att fortsätta");
+      return;
+    }
+    if (currentStep === 2 && !canProceedFromStep2) {
       setError(t('onboarding.selectGoalError'));
       return;
     }
@@ -160,15 +171,17 @@ const Onboarding = () => {
 
     try {
       const onboardingData: OnboardingData = {
+        onboardingTrack: selectedTrack ?? OnboardingTrack.CONSUMER,
         userGoals: selectedGoals,
         otherGoal: selectedGoals.includes(UserGoal.OTHER) ? otherGoalText : undefined,
-        backgroundInfo: {
+        // Bakgrundsinformation skickas bara vid RECOVERY-spåret
+        backgroundInfo: isRecoveryTrack ? {
           age,
           gender,
           currentSituation,
           substanceHistory: substanceHistory.length > 0 ? substanceHistory : undefined,
-        },
-        recoveryStage,
+        } : undefined,
+        recoveryStage: isRecoveryTrack ? recoveryStage : undefined,
       };
 
       await onboardingApi.completeOnboarding(user.email || user.id, onboardingData);
@@ -214,8 +227,72 @@ const Onboarding = () => {
 
         {/* Step Content */}
         <AnimatePresence mode="wait" custom={directionRef.current}>
-        {/* STEG 1 - Mål */}
+
+        {/* STEG 1 - Spårval */}
         {currentStep === 1 && (
+          <motion.div
+            key="step0"
+            custom={directionRef.current}
+            variants={stepVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
+            className="space-y-6"
+          >
+            <div>
+              <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
+                Vad tar dig hit?
+              </h1>
+              <p className="text-muted-foreground">
+                Välj det alternativ som stämmer bäst — det anpassar din upplevelse.
+              </p>
+            </div>
+
+            <div className="space-y-4">
+              <Card
+                onClick={() => setSelectedTrack(OnboardingTrack.CONSUMER)}
+                className={`p-5 cursor-pointer transition-all ${
+                  selectedTrack === OnboardingTrack.CONSUMER
+                    ? "bg-primary/10 border-primary"
+                    : "hover:bg-muted/50"
+                }`}
+              >
+                <div className="flex items-start gap-4">
+                  <span className="text-3xl">🌱</span>
+                  <div>
+                    <p className="font-semibold text-base">Jag vill bygga bättre vanor och må bättre</p>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Fokus på välmående, rutiner och personlig utveckling
+                    </p>
+                  </div>
+                </div>
+              </Card>
+
+              <Card
+                onClick={() => setSelectedTrack(OnboardingTrack.RECOVERY)}
+                className={`p-5 cursor-pointer transition-all ${
+                  selectedTrack === OnboardingTrack.RECOVERY
+                    ? "bg-primary/10 border-primary"
+                    : "hover:bg-muted/50"
+                }`}
+              >
+                <div className="flex items-start gap-4">
+                  <span className="text-3xl">💪</span>
+                  <div>
+                    <p className="font-semibold text-base">Jag är i återhämtning och vill ha stöd</p>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Stöd vid beroende, nykterhet och återhämtningsresan
+                    </p>
+                  </div>
+                </div>
+              </Card>
+            </div>
+          </motion.div>
+        )}
+
+        {/* STEG 2 - Mål */}
+        {currentStep === 2 && (
           <motion.div
             key="step1"
             custom={directionRef.current}
@@ -276,8 +353,8 @@ const Onboarding = () => {
           </motion.div>
         )}
 
-        {/* STEG 2 - Bakgrund */}
-        {currentStep === 2 && (
+        {/* STEG 3 - Bakgrund (bara RECOVERY-spåret) */}
+        {currentStep === 3 && isRecoveryTrack && (
           <motion.div
             key="step2"
             custom={directionRef.current}
@@ -377,8 +454,8 @@ const Onboarding = () => {
           </motion.div>
         )}
 
-        {/* STEG 3 - Recovery Stage */}
-        {currentStep === 3 && (
+        {/* STEG 4 - Recovery Stage (bara RECOVERY-spåret) */}
+        {currentStep === 4 && isRecoveryTrack && (
           <motion.div
             key="step3"
             custom={directionRef.current}
@@ -452,7 +529,10 @@ const Onboarding = () => {
             <Button
               onClick={handleNext}
               className={`gap-2 ${currentStep === 1 ? "ml-auto" : ""}`}
-              disabled={currentStep === 1 && !canProceedFromStep1}
+              disabled={
+                (currentStep === 1 && !canProceedFromStep1) ||
+                (currentStep === 2 && !canProceedFromStep2)
+              }
             >
               {t('common.next')}
               <ArrowRight className="w-4 h-4" />

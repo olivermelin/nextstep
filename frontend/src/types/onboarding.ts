@@ -53,7 +53,13 @@ export interface BackgroundInfo {
   substanceHistory?: SubstanceType[];
 }
 
+export enum OnboardingTrack {
+  CONSUMER = "CONSUMER",
+  RECOVERY = "RECOVERY"
+}
+
 export interface OnboardingData {
+  onboardingTrack: OnboardingTrack;
   userGoals: UserGoal[];
   otherGoal?: string;
   backgroundInfo?: BackgroundInfo;

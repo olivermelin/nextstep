@@ -79,6 +79,14 @@ export const API_ENDPOINTS = {
       `${API_BASE_URL}/rewards/${encodeURIComponent(userId)}/collection`,
   },
 
+  // Check-in endpoints
+  CHECKINS: {
+    CHECK_IN: (userId: string) => `${API_BASE_URL}/checkins/${encodeURIComponent(userId)}`,
+    GET_TODAY: (userId: string) => `${API_BASE_URL}/checkins/${encodeURIComponent(userId)}/today`,
+    GET_HISTORY: (userId: string, days?: number) =>
+      `${API_BASE_URL}/checkins/${encodeURIComponent(userId)}/history${days ? `?days=${days}` : ''}`,
+  },
+
   // AI Coach endpoints
   COACH: {
     // Ny Claude AI Coach-endpoint (primär)

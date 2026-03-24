@@ -14,5 +14,7 @@ public interface CoachSessionRepository extends JpaRepository<CoachSession, Long
     Optional<CoachSession> findByUserIdAndStatus(String userId, SessionStatus status);
 
     List<CoachSession> findByUserIdOrderByCreatedAtDesc(String userId);
+
+    void deleteByUserId(String userId);
 }
 

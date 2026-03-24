@@ -43,10 +43,17 @@ public class OnboardingService {
         log.info("UserSettings found/created with id={}, userId='{}', onboardingCompleted={}",
                 userSettings.getId(), userSettings.getUserId(), userSettings.getOnboardingCompleted());
 
+        // Spara onboarding-spår (konsument eller återhämtning)
+        userSettings.setOnboardingTrack(data.onboardingTrack());
+
         // Sätt användarens mål
         userSettings.setUserGoals(data.userGoals());
         userSettings.setOtherGoal(data.otherGoal());
-        userSettings.setRecoveryStage(data.recoveryStage());
+
+        // Recovery stage och substanshistorik sparas bara vid RECOVERY-spåret
+        if (data.recoveryStage() != null) {
+            userSettings.setRecoveryStage(data.recoveryStage());
+        }
 
         // Konvertera och sätt bakgrundsinformation
         if (data.backgroundInfo() != null) {

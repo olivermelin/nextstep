@@ -26,6 +26,7 @@ import se.sobriety.nextstep.repository.UserRepository;
 import se.sobriety.nextstep.service.OnboardingService;
 import se.sobriety.nextstep.service.PasswordResetService;
 import se.sobriety.nextstep.service.SignUpService;
+import se.sobriety.nextstep.service.UserDataDeletionService;
 import se.sobriety.nextstep.service.UserInitializationService;
 import se.sobriety.nextstep.service.UserProgressService;
 
@@ -42,6 +43,7 @@ public class AuthController {
     private final PasswordResetService passwordResetService;
     private final UserRepository userRepository;
     private final AuthenticationManager authenticationManager;
+    private final UserDataDeletionService userDataDeletionService;
 
     public AuthController(UserProgressService progressService,
                          UserInitializationService initializationService,
@@ -49,7 +51,8 @@ public class AuthController {
                          SignUpService signUpService,
                          PasswordResetService passwordResetService,
                          UserRepository userRepository,
-                         AuthenticationManager authenticationManager) {
+                         AuthenticationManager authenticationManager,
+                         UserDataDeletionService userDataDeletionService) {
         this.initializationService = initializationService;
         this.progressService = progressService;
         this.onboardingService = onboardingService;
@@ -57,6 +60,7 @@ public class AuthController {
         this.passwordResetService = passwordResetService;
         this.userRepository = userRepository;
         this.authenticationManager = authenticationManager;
+        this.userDataDeletionService = userDataDeletionService;
     }
 
     /**
@@ -221,6 +225,50 @@ public class AuthController {
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
+    }
+
+    /**
+     * DELETE /api/auth/account
+     * GDPR artikel 17 — Rätt till radering.
+     * Raderar ALLA personuppgifter för inloggad användare och loggar ut.
+     */
+    @DeleteMapping("/account")
+    public ResponseEntity<Map<String, String>> deleteAccount(
+            HttpServletRequest request,
+            HttpServletResponse response) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+        String userId = null;
+        if (auth instanceof OAuth2AuthenticationToken oauthToken) {
+            userId = (String) oauthToken.getPrincipal().getAttribute("email");
+        } else if (auth instanceof UsernamePasswordAuthenticationToken && auth.isAuthenticated()) {
+            userId = auth.getName();
+        }
+
+        if (userId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error", "Inte inloggad"));
+        }
+
+        // Radera all data
+        userDataDeletionService.deleteAllUserData(userId);
+
+        // Logga ut sessionen
+        SecurityContextHolder.clearContext();
+        if (request.getSession(false) != null) {
+            request.getSession().invalidate();
+        }
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                cookie.setValue("");
+                cookie.setPath("/");
+                cookie.setMaxAge(0);
+                response.addCookie(cookie);
+            }
+        }
+
+        return ResponseEntity.ok(Map.of("message", "Kontot och all tillhörande data har raderats"));
     }
 
     @GetMapping("/success")

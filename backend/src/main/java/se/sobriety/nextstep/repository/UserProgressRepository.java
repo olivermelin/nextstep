@@ -7,5 +7,7 @@ import java.util.Optional;
 
 public interface UserProgressRepository extends JpaRepository<UserProgress, Long> {
     Optional<UserProgress> findByUserId(String userId);
+
+    void deleteByUserId(String userId);
 }
 
