@@ -5,6 +5,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import se.sobriety.nextstep.repository.*;
 import se.sobriety.nextstep.service.QuotaService;
+import se.sobriety.nextstep.service.FriendshipService;
+import se.sobriety.nextstep.service.DuelService;
 
 /**
  * GDPR — Rätt till radering (artikel 17 GDPR).
@@ -27,6 +29,8 @@ public class UserDataDeletionService {
     private final DailyCheckInRepository dailyCheckInRepository;
     private final UserRepository userRepository;
     private final QuotaService quotaService;
+    private final FriendshipService friendshipService;
+    private final DuelService duelService;
 
     public UserDataDeletionService(
             UserProgressRepository progressRepository,
@@ -38,7 +42,9 @@ public class UserDataDeletionService {
             UserStreakRepository userStreakRepository,
             DailyCheckInRepository dailyCheckInRepository,
             UserRepository userRepository,
-            QuotaService quotaService) {
+            QuotaService quotaService,
+            FriendshipService friendshipService,
+            DuelService duelService) {
         this.progressRepository = progressRepository;
         this.settingsRepository = settingsRepository;
         this.categoryProgressRepository = categoryProgressRepository;
@@ -49,6 +55,8 @@ public class UserDataDeletionService {
         this.dailyCheckInRepository = dailyCheckInRepository;
         this.userRepository = userRepository;
         this.quotaService = quotaService;
+        this.friendshipService = friendshipService;
+        this.duelService = duelService;
     }
 
     /**
@@ -71,6 +79,10 @@ public class UserDataDeletionService {
 
         // Meddelandekvoter
         quotaService.deleteAllForUser(userId);
+
+        // Vänrelationer och dueller (Sprint 3)
+        friendshipService.deleteAllForUser(userId);
+        duelService.deleteAllForUser(userId);
 
         // Streak-data
         userStreakRepository.deleteByUserId(userId);

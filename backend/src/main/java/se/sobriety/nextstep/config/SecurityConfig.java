@@ -69,6 +69,7 @@ public class SecurityConfig {
                                 "/api/checkins/**",
                                 "/api/streaks/**",
                                 "/api/rewards/**",
+                                "/api/social/**",
                                 "/oauth2/**",
                                 "/login/**"
                         )

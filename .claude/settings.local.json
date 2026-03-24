@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(./mvnw test:*)",
+      "Bash(find /c/Projekt/nextstep/frontend/src -name *Router* -o -name *App.tsx)",
+      "Bash(./mvnw compile:*)",
+      "Bash(grep -r \"step\\\\|Step\\\\|STEP\" /c/Projekt/nextstep --include=\"*.md\" --include=\"*.txt\" ! -path \"*/node_modules/*\" ! -path \"*/.git/*\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:8080/api/auth/me)",
+      "Bash(taskkill //F //FI \"WINDOWTITLE eq *spring*\")",
+      "Bash(taskkill //F //FI \"IMAGENAME eq java.exe\")",
+      "Bash(./mvnw spring-boot:run -q)",
+      "Bash(npx tsc:*)",
+      "Bash(cmd /c \"cd /d C:\\\\Projekt\\\\nextstep\\\\frontend && npx tsc --noEmit 2>&1\")",
+      "mcp__Claude_Preview__preview_start",
+      "WebSearch",
+      "Bash(curl -s http://localhost:56309)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:5173)",
+      "Bash(curl -s http://localhost:5173)",
+      "Bash(npx vite:*)",
+      "Bash(grep -E \"\\\\.java$\")"
+    ]
+  }
+}

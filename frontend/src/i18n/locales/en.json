@@ -336,12 +336,30 @@
       "growth": "Personal development"
     },
     "achievementTexts": {
-      "1": { "title": "First step", "description": "Complete your first activity" },
-      "2": { "title": "Dedicated", "description": "Reach level 2" },
-      "3": { "title": "Progress machine", "description": "Collect 200 points" },
-      "4": { "title": "Star", "description": "Reach level 5" },
-      "5": { "title": "Master", "description": "Collect 500 points" },
-      "6": { "title": "Legend", "description": "Reach level 10" }
+      "1": {
+        "title": "First step",
+        "description": "Complete your first activity"
+      },
+      "2": {
+        "title": "Dedicated",
+        "description": "Reach level 2"
+      },
+      "3": {
+        "title": "Progress machine",
+        "description": "Collect 200 points"
+      },
+      "4": {
+        "title": "Star",
+        "description": "Reach level 5"
+      },
+      "5": {
+        "title": "Master",
+        "description": "Collect 500 points"
+      },
+      "6": {
+        "title": "Legend",
+        "description": "Reach level 10"
+      }
     }
   },
   "navigation": {
@@ -350,7 +368,8 @@
     "progress": "Progress",
     "challenges": "Challenges",
     "aiCoach": "AI Coach",
-    "settings": "Settings"
+    "settings": "Settings",
+    "social": "Social"
   },
   "header": {
     "settings": "Settings",
@@ -396,5 +415,44 @@
       "great": "Great",
       "amazing": "Amazing"
     }
+  },
+  "social": {
+    "title": "Social",
+    "subtitle": "Friends, duels and league",
+    "friends": "Friends",
+    "duels": "Duels",
+    "league": "League",
+    "addFriend": "Add friend",
+    "friendEmailPlaceholder": "Friend's email address",
+    "send": "Send",
+    "requestSent": "Friend request sent!",
+    "requestFailed": "Could not send request",
+    "incomingRequests": "Incoming requests",
+    "myFriends": "My friends",
+    "noFriends": "No friends yet. Add someone!",
+    "removeFriend": "Remove friend",
+    "createDuel": "Challenge someone",
+    "duelOpponentEmail": "Opponent's email",
+    "duelChallengeName": "Challenge name",
+    "sendDuel": "Send challenge",
+    "duelSent": "Duel sent!",
+    "duelFailed": "Could not send duel",
+    "noDuels": "No duels yet. Challenge a friend!",
+    "duelPending": "Pending",
+    "duelActive": "Active",
+    "duelCompleted": "Completed",
+    "duelDeclined": "Declined",
+    "duelExpired": "Expired",
+    "accept": "Accept",
+    "decline": "Decline",
+    "markComplete": "I am done!",
+    "wins": "wins!",
+    "leagueDesc": "Leaderboard based on total XP points",
+    "leagueEmpty": "League is empty — earn XP to show up!",
+    "you": "(you)",
+    "tierBRONZE": "Bronze",
+    "tierSILVER": "Silver",
+    "tierGOLD": "Gold",
+    "tierDIAMOND": "Diamond"
   }
 }

@@ -1,4 +1,4 @@
-import { Home, TrendingUp, Zap, MessageCircle } from "lucide-react";
+import { Home, TrendingUp, Zap, MessageCircle, Users } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { motion } from "framer-motion";
@@ -12,6 +12,7 @@ const Navigation = () => {
     { path: "/dashboard", icon: Home, label: t('navigation.home') },
     { path: "/progress", icon: TrendingUp, label: t('navigation.progress') },
     { path: "/challenges", icon: Zap, label: t('navigation.challenges') },
+    { path: "/social", icon: Users, label: t('navigation.social') },
     { path: "/ai-coach", icon: MessageCircle, label: t('navigation.aiCoach') },
   ];
 
