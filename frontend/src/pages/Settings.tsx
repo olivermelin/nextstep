@@ -4,11 +4,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/components/ui/use-toast";
-import { Bell, User, Palette, LogOut, Settings as SettingsIcon } from "lucide-react";
+import { Bell, User, Palette, LogOut, Settings as SettingsIcon, Bot } from "lucide-react";
 import { SettingsPageSkeleton } from "@/components/skeletons/SettingsSkeleton";
 import { useAuth } from "@/context/AuthContext";
 import { API_ENDPOINTS } from "@/config/api";
 import { useTranslation } from "react-i18next";
+import CoachPersonaSelector, { type CoachPersonality } from "@/components/CoachPersonaSelector";
 
 interface UserSettings {
   name: string;
@@ -18,6 +19,7 @@ interface UserSettings {
   aiNotificationsEnabled: boolean;
   darkModeEnabled: boolean;
   language: "sv" | "en";
+  coachPersonality: CoachPersonality;
 }
 
 const Settings = () => {
@@ -77,6 +79,7 @@ const Settings = () => {
             aiNotificationsEnabled: data.aiNotificationsEnabled ?? false,
             darkModeEnabled: darkMode,
             language: lang,
+            coachPersonality: data.coachPersonality ?? "SUPPORTIVE",
           });
           applyTheme(darkMode);
           // Synka i18n-språk med backend-värdet (single source of truth)
@@ -95,6 +98,7 @@ const Settings = () => {
             aiNotificationsEnabled: false,
             darkModeEnabled: isDark,
             language: "sv" as const,
+            coachPersonality: "SUPPORTIVE",
           });
         }
       } catch {
@@ -133,6 +137,7 @@ const Settings = () => {
           aiNotificationsEnabled: settings.aiNotificationsEnabled,
           darkModeEnabled: settings.darkModeEnabled,
           language: settings.language,
+          coachPersonality: settings.coachPersonality,
         }),
       });
 
@@ -369,6 +374,23 @@ const Settings = () => {
               </select>
             </div>
           </div>
+        </div>
+
+        {/* Coach-personlighet */}
+        <div className="bg-card/80 backdrop-blur-xl border border-border/50 rounded-2xl shadow-lg p-6 space-y-4 text-left">
+          <div className="flex items-center gap-3 mb-1">
+            <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+              <Bot className="w-4.5 h-4.5 text-primary" />
+            </div>
+            <div>
+              <h2 className="text-lg font-semibold text-foreground">Din coach</h2>
+              <p className="text-xs text-muted-foreground">Välj vilken coachstil du trivs bäst med</p>
+            </div>
+          </div>
+          <CoachPersonaSelector
+            value={settings.coachPersonality}
+            onChange={(p) => setSettings({ ...settings, coachPersonality: p })}
+          />
         </div>
 
         {/* Sparaknapp & Logout */}

@@ -7,7 +7,9 @@ import org.springframework.web.client.RestClient;
 import se.sobriety.nextstep.config.AICoachProperties;
 import se.sobriety.nextstep.dto.CoachMessageResponse;
 import se.sobriety.nextstep.entity.*;
+import se.sobriety.nextstep.exception.QuotaExceededException;
 import se.sobriety.nextstep.repository.UserChallengeRepository;
+import se.sobriety.nextstep.service.QuotaService;
 import se.sobriety.nextstep.service.UserProgressService;
 import se.sobriety.nextstep.service.UserSettingsService;
 
@@ -36,6 +38,7 @@ public class ClaudeApiService {
     private final UserProgressService userProgressService;
     private final UserChallengeRepository userChallengeRepository;
     private final ChallengeRecommendationParser challengeRecommendationParser;
+    private final QuotaService quotaService;
     private final RestClient restClient;
 
     public ClaudeApiService(AICoachProperties properties,
@@ -45,7 +48,8 @@ public class ClaudeApiService {
                             UserSettingsService userSettingsService,
                             UserProgressService userProgressService,
                             UserChallengeRepository userChallengeRepository,
-                            ChallengeRecommendationParser challengeRecommendationParser) {
+                            ChallengeRecommendationParser challengeRecommendationParser,
+                            QuotaService quotaService) {
         this.properties = properties;
         this.conversationService = conversationService;
         this.crisisDetectionService = crisisDetectionService;
@@ -54,6 +58,7 @@ public class ClaudeApiService {
         this.userProgressService = userProgressService;
         this.userChallengeRepository = userChallengeRepository;
         this.challengeRecommendationParser = challengeRecommendationParser;
+        this.quotaService = quotaService;
         this.restClient = RestClient.builder()
                 .baseUrl(ANTHROPIC_API_URL)
                 .build();
@@ -80,6 +85,9 @@ public class ClaudeApiService {
     public CoachMessageResponse sendMessage(String userId, String userMessage, String sessionId) {
         // 1. Hämta eller skapa/återaktivera session
         CoachSession session = conversationService.getOrReactivateSession(userId, sessionId);
+
+        // 1b. Kvotkontroll – kastas QuotaExceededException för FREE-användare som nått gränsen
+        quotaService.checkAndIncrement(userId);
 
         // 2. Krisdetektering
         CrisisLevel crisisLevel = crisisDetectionService.analyze(userMessage);
@@ -160,8 +168,10 @@ public class ClaudeApiService {
                     .stream()
                     .count();
 
-            // Använd CoachPersonality – default SUPPORTIVE (kan utökas med UserSettings-fält)
-            CoachPersonality personality = CoachPersonality.SUPPORTIVE;
+            // Använd CoachPersonality från användarens inställningar (default SUPPORTIVE)
+            CoachPersonality personality = settings.getCoachPersonality() != null
+                    ? settings.getCoachPersonality()
+                    : CoachPersonality.SUPPORTIVE;
 
             return systemPromptBuilder.build(settings, progress, completedChallenges, personality, crisisLevel);
         } catch (Exception e) {

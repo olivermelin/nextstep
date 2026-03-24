@@ -69,6 +69,9 @@ public class UserSettingsService {
         entity.setAiNotificationsEnabled(dto.aiNotificationsEnabled());
         entity.setDarkModeEnabled(dto.darkModeEnabled());
         entity.setLanguage(dto.language());
+        if (dto.coachPersonality() != null) {
+            entity.setCoachPersonality(dto.coachPersonality());
+        }
     }
 
     private UserSettings createAndSaveDefault(String userId) {

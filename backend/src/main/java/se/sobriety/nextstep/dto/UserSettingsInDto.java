@@ -2,6 +2,7 @@ package se.sobriety.nextstep.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;
+import se.sobriety.nextstep.entity.CoachPersonality;
 
 public record UserSettingsInDto(
         String userId,
@@ -21,6 +22,8 @@ public record UserSettingsInDto(
         boolean darkModeEnabled,
 
         @Size(max = 10, message = "Language code must be at most 10 characters")
-        String language
+        String language,
+
+        CoachPersonality coachPersonality
 ) {
 }

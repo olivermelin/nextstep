@@ -92,6 +92,8 @@ export const API_ENDPOINTS = {
     // Ny Claude AI Coach-endpoint (primär)
     MESSAGE: (userId: string) => `${API_BASE_URL}/coach/message?userId=${encodeURIComponent(userId)}`,
     STATUS: `${API_BASE_URL}/coach/status`,
+    // Kvotstatus
+    QUOTA: (userId: string) => `${API_BASE_URL}/coach/quota/${encodeURIComponent(userId)}`,
     // Multi-konversation
     SESSIONS: (userId: string) => `${API_BASE_URL}/coach/sessions?userId=${encodeURIComponent(userId)}`,
     SESSION_MESSAGES: (userId: string, sessionId: string) =>

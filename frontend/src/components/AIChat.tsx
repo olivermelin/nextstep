@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { Button } from "./ui/button";
-import { Loader2, Send, AlertCircle, RotateCcw, Phone, ShieldAlert, Bot, User, Target, ArrowRight, Clock, History } from "lucide-react";
+import { Loader2, Send, AlertCircle, RotateCcw, Phone, ShieldAlert, Bot, User, Target, ArrowRight, Clock, History, Zap } from "lucide-react";
 import { motion } from "framer-motion";
 import { useAuth } from "@/context/AuthContext";
 import {
@@ -11,8 +11,10 @@ import {
   getCoachSessions,
   getSessionMessages,
   createNewSession,
+  getQuota,
   type CrisisLevel,
   type CoachStatusResponse,
+  type QuotaInfo,
   type SuggestedChallenge,
   type SessionSummary,
 } from "@/services/coachService";
@@ -178,6 +180,7 @@ export const AIChat: React.FC<AIChatProps> = ({ quickPrompt, onQuickPromptConsum
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [showCrisisBanner, setShowCrisisBanner] = useState(false);
   const [coachStatus, setCoachStatus] = useState<CoachStatusResponse | null>(null);
+  const [quota, setQuota] = useState<QuotaInfo | null>(null);
 
   // Multi-konversation state
   const [sessions, setSessions] = useState<SessionSummary[]>([]);
@@ -225,6 +228,16 @@ export const AIChat: React.FC<AIChatProps> = ({ quickPrompt, onQuickPromptConsum
       .then(setCoachStatus)
       .catch(() => {});
   }, []);
+
+  // Hämta kvotstatus
+  const refreshQuota = useCallback(() => {
+    if (userId === "anonymous") return;
+    getQuota(userId).then(setQuota).catch(() => {});
+  }, [userId]);
+
+  useEffect(() => {
+    refreshQuota();
+  }, [refreshQuota]);
 
   // Hantera snabbåtgärd från sidopanelen
   useEffect(() => {
@@ -326,13 +339,17 @@ export const AIChat: React.FC<AIChatProps> = ({ quickPrompt, onQuickPromptConsum
 
       setMessages((prev) => [...prev, aiMessage]);
 
-      // Uppdatera sessions-listan i bakgrunden
+      // Uppdatera sessions-listan och kvot i bakgrunden
       getCoachSessions(userId).then(setSessions).catch(() => {});
+      refreshQuota();
     } catch (err) {
       let errorText = t('aiCoach.couldNotConnect');
 
       if (err instanceof Error) {
-        if (err.message === "insufficient_quota") {
+        if (err.message === "quota_exceeded") {
+          errorText = `Du har nått din dagliga gräns på ${quota?.dailyLimit ?? 10} AI-meddelanden. Uppgradera till Premium för obegränsad access.`;
+          refreshQuota();
+        } else if (err.message === "insufficient_quota") {
           errorText = t('aiCoach.aiUnavailable');
         } else if (err.message === "server_error") {
           errorText = t('aiCoach.serverError');
@@ -399,6 +416,37 @@ export const AIChat: React.FC<AIChatProps> = ({ quickPrompt, onQuickPromptConsum
           </button>
         </div>
       </div>
+
+      {/* Kvotstatus för FREE-användare */}
+      {quota && !quota.isPremium && (
+        <div className="px-5 py-2 border-b border-border/20 bg-background/30">
+          <div className="flex items-center justify-between text-xs mb-1">
+            <span className="text-muted-foreground">
+              {quota.remaining === 0
+                ? "Daglig gräns uppnådd"
+                : `${quota.remaining} av ${quota.dailyLimit} meddelanden kvar idag`}
+            </span>
+            {quota.remaining === 0 && (
+              <span className="flex items-center gap-1 text-amber-600 dark:text-amber-400 font-medium">
+                <Zap className="w-3 h-3" />
+                Uppgradera till Premium
+              </span>
+            )}
+          </div>
+          <div className="h-1 bg-muted rounded-full overflow-hidden">
+            <div
+              className={`h-full rounded-full transition-all duration-500 ${
+                quota.remaining === 0
+                  ? "bg-red-500"
+                  : quota.remaining <= 3
+                  ? "bg-amber-500"
+                  : "bg-primary"
+              }`}
+              style={{ width: `${Math.round((quota.used / quota.dailyLimit) * 100)}%` }}
+            />
+          </div>
+        </div>
+      )}
 
       {/* Persistent kris-banner vid CRITICAL */}
       {showCrisisBanner && <CrisisBanner />}
@@ -531,14 +579,14 @@ export const AIChat: React.FC<AIChatProps> = ({ quickPrompt, onQuickPromptConsum
             <input
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && !loading && handleSendMessage()}
-              placeholder={t('aiCoach.inputPlaceholder')}
-              disabled={loading}
+              onKeyDown={(e) => e.key === "Enter" && !loading && quota?.remaining !== 0 && handleSendMessage()}
+              placeholder={quota?.remaining === 0 ? "Daglig gräns uppnådd — uppgradera till Premium" : t('aiCoach.inputPlaceholder')}
+              disabled={loading || quota?.remaining === 0}
               className="flex-1 px-4 py-3.5 bg-background/50 border border-border/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all text-foreground placeholder:text-muted-foreground disabled:opacity-50"
             />
             <button
               onClick={handleSendMessage}
-              disabled={loading || !input.trim()}
+              disabled={loading || !input.trim() || quota?.remaining === 0}
               className="flex items-center justify-center w-12 h-12 bg-gradient-to-r from-primary to-primary/80 text-primary-foreground rounded-xl hover:shadow-lg transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:shadow-none"
             >
               {loading ? (

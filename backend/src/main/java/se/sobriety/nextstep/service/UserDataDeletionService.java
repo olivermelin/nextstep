@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import se.sobriety.nextstep.repository.*;
+import se.sobriety.nextstep.service.QuotaService;
 
 /**
  * GDPR — Rätt till radering (artikel 17 GDPR).
@@ -25,6 +26,7 @@ public class UserDataDeletionService {
     private final UserStreakRepository userStreakRepository;
     private final DailyCheckInRepository dailyCheckInRepository;
     private final UserRepository userRepository;
+    private final QuotaService quotaService;
 
     public UserDataDeletionService(
             UserProgressRepository progressRepository,
@@ -35,7 +37,8 @@ public class UserDataDeletionService {
             UserAchievementRepository userAchievementRepository,
             UserStreakRepository userStreakRepository,
             DailyCheckInRepository dailyCheckInRepository,
-            UserRepository userRepository) {
+            UserRepository userRepository,
+            QuotaService quotaService) {
         this.progressRepository = progressRepository;
         this.settingsRepository = settingsRepository;
         this.categoryProgressRepository = categoryProgressRepository;
@@ -45,6 +48,7 @@ public class UserDataDeletionService {
         this.userStreakRepository = userStreakRepository;
         this.dailyCheckInRepository = dailyCheckInRepository;
         this.userRepository = userRepository;
+        this.quotaService = quotaService;
     }
 
     /**
@@ -64,6 +68,9 @@ public class UserDataDeletionService {
 
         // Dagliga incheckningar
         dailyCheckInRepository.deleteByUserId(userId);
+
+        // Meddelandekvoter
+        quotaService.deleteAllForUser(userId);
 
         // Streak-data
         userStreakRepository.deleteByUserId(userId);

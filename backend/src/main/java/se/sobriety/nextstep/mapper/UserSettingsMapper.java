@@ -36,7 +36,9 @@ public class UserSettingsMapper {
                 entity.getOtherGoal(),
                 entity.getRecoveryStage(),
                 backgroundInfoDto,
-                entity.getLastUpdated()
+                entity.getLastUpdated(),
+                entity.getSubscriptionTier(),
+                entity.getCoachPersonality()
         );
     }
 }

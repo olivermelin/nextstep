@@ -2,12 +2,15 @@ package se.sobriety.nextstep.controller;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Size;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import se.sobriety.nextstep.dto.*;
 import se.sobriety.nextstep.entity.CoachSession;
+import se.sobriety.nextstep.exception.QuotaExceededException;
 import se.sobriety.nextstep.service.AICoachService;
+import se.sobriety.nextstep.service.QuotaService;
 import se.sobriety.nextstep.service.ai.ClaudeApiService;
 import se.sobriety.nextstep.service.ai.ConversationService;
 
@@ -24,13 +27,16 @@ public class AICoachController {
     private final AICoachService aiCoachService;
     private final ClaudeApiService claudeApiService;
     private final ConversationService conversationService;
+    private final QuotaService quotaService;
 
     public AICoachController(AICoachService aiCoachService,
                              ClaudeApiService claudeApiService,
-                             ConversationService conversationService) {
+                             ConversationService conversationService,
+                             QuotaService quotaService) {
         this.aiCoachService = aiCoachService;
         this.claudeApiService = claudeApiService;
         this.conversationService = conversationService;
+        this.quotaService = quotaService;
     }
 
     /**
@@ -106,6 +112,29 @@ public class AICoachController {
     ) {
         verifyUserAccess(userId);
         return claudeApiService.sendMessage(userId, request.message(), request.sessionId());
+    }
+
+    /**
+     * Hanterar kvot-undantag — returnerar 429 med kvotstatus
+     */
+    @ExceptionHandler(QuotaExceededException.class)
+    public ResponseEntity<Map<String, Object>> handleQuotaExceeded(QuotaExceededException ex) {
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body(Map.of(
+                "error", "quota_exceeded",
+                "message", "Du har nått din dagliga gräns på " + ex.getLimit() + " AI-meddelanden. Uppgradera till Premium för obegränsad access.",
+                "used", ex.getUsed(),
+                "limit", ex.getLimit()
+        ));
+    }
+
+    /**
+     * GET /api/coach/quota/{userId}
+     * Hämtar kvotstatus för användaren (använda/kvar/gräns)
+     */
+    @GetMapping("/quota/{userId}")
+    public QuotaResponseDto getQuota(@PathVariable String userId) {
+        verifyUserAccess(userId);
+        return quotaService.getQuota(userId);
     }
 
     // ── Multi-konversation endpoints ──────────────────────────────────

@@ -55,7 +55,7 @@ export async function sendCoachMessage(
     });
   } catch (error) {
     if (error instanceof ApiError && error.status === 429) {
-      throw new Error("insufficient_quota");
+      throw new Error("quota_exceeded");
     }
     throw error;
   }
@@ -66,6 +66,23 @@ export async function sendCoachMessage(
  */
 export async function getCoachStatus(): Promise<CoachStatusResponse> {
   return fetchWithCredentials(API_ENDPOINTS.COACH.STATUS);
+}
+
+// --- Kvot ---
+
+export interface QuotaInfo {
+  used: number;
+  remaining: number;
+  dailyLimit: number;
+  isPremium: boolean;
+  resetAt: string;
+}
+
+/**
+ * Hämta kvotstatus för användaren (använda/kvar/gräns).
+ */
+export async function getQuota(userId: string): Promise<QuotaInfo> {
+  return fetchWithCredentials(API_ENDPOINTS.COACH.QUOTA(userId));
 }
 
 // --- Multi-konversation ---
