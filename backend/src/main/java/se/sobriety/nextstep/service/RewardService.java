@@ -75,7 +75,7 @@ public class RewardService {
             return toDto(existing.get());
         }
 
-        var streakData = streakService.getStreakData(userId, 1);
+        var streakData = streakService.getStreak(userId);
         int consecutiveDays = streakData.currentStreak();
         boolean isRare = random.nextDouble() < RARE_CHANCE;
 

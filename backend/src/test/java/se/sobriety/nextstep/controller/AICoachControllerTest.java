@@ -17,6 +17,7 @@ import se.sobriety.nextstep.dto.CoachMessageResponse;
 import se.sobriety.nextstep.entity.CrisisLevel;
 import se.sobriety.nextstep.exception.GlobalExceptionHandler;
 import se.sobriety.nextstep.service.AICoachService;
+import se.sobriety.nextstep.service.QuotaService;
 import se.sobriety.nextstep.service.ai.ClaudeApiService;
 import se.sobriety.nextstep.service.ai.ConversationService;
 
@@ -43,10 +44,13 @@ class AICoachControllerTest {
     @Mock
     private ConversationService conversationService;
 
+    @Mock
+    private QuotaService quotaService;
+
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        AICoachController controller = new AICoachController(aiCoachService, claudeApiService, conversationService);
+        AICoachController controller = new AICoachController(aiCoachService, claudeApiService, conversationService, quotaService);
         mockMvc = MockMvcBuilders.standaloneSetup(controller)
                 .setControllerAdvice(new GlobalExceptionHandler())
                 .build();

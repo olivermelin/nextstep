@@ -54,7 +54,7 @@ public class AuthController {
                          PasswordResetService passwordResetService,
                          UserRepository userRepository,
                          AuthenticationManager authenticationManager,
-                         UserDataDeletionService userDataDeletionService) {
+                         UserDataDeletionService userDataDeletionService,
                          MailNotificationService mailNotificationService) {
         this.initializationService = initializationService;
         this.progressService = progressService;

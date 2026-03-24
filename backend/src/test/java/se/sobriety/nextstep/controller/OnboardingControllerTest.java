@@ -12,6 +12,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import se.sobriety.nextstep.dto.OnboardingDataDto;
+import se.sobriety.nextstep.entity.OnboardingTrack;
 import se.sobriety.nextstep.entity.RecoveryStage;
 import se.sobriety.nextstep.entity.UserGoal;
 import se.sobriety.nextstep.exception.GlobalExceptionHandler;
@@ -60,6 +61,7 @@ class OnboardingControllerTest {
     @Test
     void completeOnboarding_validData_returns200() throws Exception {
         OnboardingDataDto data = new OnboardingDataDto(
+                OnboardingTrack.CONSUMER,
                 List.of(UserGoal.DAILY_STABILITY, UserGoal.MENTAL_HEALTH),
                 null,
                 null,
@@ -83,6 +85,7 @@ class OnboardingControllerTest {
                 null,
                 null,
                 null,
+                null,
                 RecoveryStage.ACTIVE_USE
         );
 
@@ -96,6 +99,7 @@ class OnboardingControllerTest {
     void completeOnboarding_missingRecoveryStage_returns200() throws Exception {
         // recoveryStage is optional — user can skip step 3
         OnboardingDataDto data = new OnboardingDataDto(
+                OnboardingTrack.CONSUMER,
                 List.of(UserGoal.REDUCE_SUBSTANCES),
                 null,
                 null,

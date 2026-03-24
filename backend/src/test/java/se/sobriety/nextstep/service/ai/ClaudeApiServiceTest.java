@@ -9,6 +9,7 @@ import se.sobriety.nextstep.dto.CoachMessageResponse;
 import se.sobriety.nextstep.dto.SuggestedChallengeDto;
 import se.sobriety.nextstep.entity.*;
 import se.sobriety.nextstep.repository.UserChallengeRepository;
+import se.sobriety.nextstep.service.QuotaService;
 import se.sobriety.nextstep.service.UserProgressService;
 import se.sobriety.nextstep.service.UserSettingsService;
 
@@ -38,6 +39,9 @@ class ClaudeApiServiceTest {
     @Mock
     private ChallengeRecommendationParser challengeRecommendationParser;
 
+    @Mock
+    private QuotaService quotaService;
+
     private ClaudeApiService claudeApiService;
 
     @BeforeEach
@@ -51,7 +55,8 @@ class ClaudeApiServiceTest {
                 userSettingsService,
                 userProgressService,
                 userChallengeRepository,
-                challengeRecommendationParser
+                challengeRecommendationParser,
+                quotaService
         );
     }
 

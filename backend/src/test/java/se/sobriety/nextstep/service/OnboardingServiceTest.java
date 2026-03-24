@@ -38,6 +38,7 @@ class OnboardingServiceTest {
     void completeOnboarding_validData_savesSuccessfully() {
         String userId = "user-123";
         OnboardingDataDto data = new OnboardingDataDto(
+                OnboardingTrack.RECOVERY,
                 List.of(UserGoal.DAILY_STABILITY),
                 null,
                 null,
@@ -63,6 +64,7 @@ class OnboardingServiceTest {
                 25, Gender.MALE, CurrentSituation.IN_TREATMENT, List.of(SubstanceType.ALCOHOL)
         );
         OnboardingDataDto data = new OnboardingDataDto(
+                OnboardingTrack.RECOVERY,
                 List.of(UserGoal.REDUCE_SUBSTANCES, UserGoal.MENTAL_HEALTH),
                 "My custom goal",
                 bgDto,
@@ -87,6 +89,7 @@ class OnboardingServiceTest {
     @Test
     void completeOnboarding_nullUserId_throwsException() {
         OnboardingDataDto data = new OnboardingDataDto(
+                OnboardingTrack.CONSUMER,
                 List.of(UserGoal.DAILY_STABILITY), null, null, RecoveryStage.ACTIVE_USE
         );
 
@@ -98,6 +101,7 @@ class OnboardingServiceTest {
     @Test
     void completeOnboarding_blankUserId_throwsException() {
         OnboardingDataDto data = new OnboardingDataDto(
+                OnboardingTrack.CONSUMER,
                 List.of(UserGoal.DAILY_STABILITY), null, null, RecoveryStage.ACTIVE_USE
         );
 
@@ -116,6 +120,7 @@ class OnboardingServiceTest {
     @Test
     void completeOnboarding_nullUserGoals_throwsException() {
         OnboardingDataDto data = new OnboardingDataDto(
+                OnboardingTrack.CONSUMER,
                 null, null, null, RecoveryStage.ACTIVE_USE
         );
 
@@ -126,6 +131,7 @@ class OnboardingServiceTest {
     @Test
     void completeOnboarding_emptyUserGoals_throwsException() {
         OnboardingDataDto data = new OnboardingDataDto(
+                OnboardingTrack.CONSUMER,
                 Collections.emptyList(), null, null, RecoveryStage.ACTIVE_USE
         );
 
@@ -136,6 +142,7 @@ class OnboardingServiceTest {
     @Test
     void completeOnboarding_nullRecoveryStage_succeeds() {
         OnboardingDataDto data = new OnboardingDataDto(
+                OnboardingTrack.CONSUMER,
                 List.of(UserGoal.DAILY_STABILITY), null, null, null
         );
 
@@ -152,6 +159,7 @@ class OnboardingServiceTest {
     void completeOnboarding_otherGoalTooLong_throwsException() {
         String tooLong = "x".repeat(1001);
         OnboardingDataDto data = new OnboardingDataDto(
+                OnboardingTrack.CONSUMER,
                 List.of(UserGoal.OTHER), tooLong, null, RecoveryStage.ACTIVE_USE
         );
 
@@ -163,6 +171,7 @@ class OnboardingServiceTest {
     void completeOnboarding_otherGoalAtLimit_succeeds() {
         String atLimit = "x".repeat(1000);
         OnboardingDataDto data = new OnboardingDataDto(
+                OnboardingTrack.CONSUMER,
                 List.of(UserGoal.OTHER), atLimit, null, RecoveryStage.ACTIVE_USE
         );
 

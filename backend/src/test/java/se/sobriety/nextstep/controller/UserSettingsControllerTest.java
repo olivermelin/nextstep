@@ -13,6 +13,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import se.sobriety.nextstep.dto.UserSettingsInDto;
 import se.sobriety.nextstep.dto.UserSettingsOutDto;
+import se.sobriety.nextstep.entity.CoachPersonality;
+import se.sobriety.nextstep.entity.SubscriptionTier;
 import se.sobriety.nextstep.exception.GlobalExceptionHandler;
 import se.sobriety.nextstep.service.UserSettingsService;
 
@@ -60,7 +62,8 @@ class UserSettingsControllerTest {
                 USER_ID, "Test User", "test@example.com", "1234567890",
                 true, false, false, "en",
                 true, List.of(), null, null, null,
-                LocalDateTime.of(2025, 1, 1, 12, 0));
+                LocalDateTime.of(2025, 1, 1, 12, 0),
+                SubscriptionTier.FREE, CoachPersonality.SUPPORTIVE);
 
         when(userSettingsService.getUserSettings(USER_ID)).thenReturn(out);
 
@@ -77,13 +80,14 @@ class UserSettingsControllerTest {
     void updateUserSettings_validData_returns200() throws Exception {
         UserSettingsInDto inDto = new UserSettingsInDto(
                 USER_ID, "Updated Name", "test@example.com", "0987654321",
-                true, true, true, "sv");
+                true, true, true, "sv", null);
 
         UserSettingsOutDto out = new UserSettingsOutDto(
                 USER_ID, "Updated Name", "test@example.com", "0987654321",
                 true, true, true, "sv",
                 true, List.of(), null, null, null,
-                LocalDateTime.of(2025, 1, 1, 12, 0));
+                LocalDateTime.of(2025, 1, 1, 12, 0),
+                SubscriptionTier.FREE, CoachPersonality.SUPPORTIVE);
 
         when(userSettingsService.updateUserSettings(eq(USER_ID), any(UserSettingsInDto.class)))
                 .thenReturn(out);
@@ -103,7 +107,7 @@ class UserSettingsControllerTest {
     void updateUserSettings_invalidEmail_returns400() throws Exception {
         UserSettingsInDto inDto = new UserSettingsInDto(
                 USER_ID, "Test User", "not-an-email", "1234567890",
-                true, false, false, "en");
+                true, false, false, "en", null);
 
         mockMvc.perform(post("/api/settings/{userId}", USER_ID)
                         .contentType(MediaType.APPLICATION_JSON)

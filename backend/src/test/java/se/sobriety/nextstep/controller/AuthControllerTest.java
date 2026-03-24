@@ -23,6 +23,7 @@ import se.sobriety.nextstep.service.MailNotificationService;
 import se.sobriety.nextstep.service.OnboardingService;
 import se.sobriety.nextstep.service.PasswordResetService;
 import se.sobriety.nextstep.service.SignUpService;
+import se.sobriety.nextstep.service.UserDataDeletionService;
 import se.sobriety.nextstep.service.UserInitializationService;
 import se.sobriety.nextstep.service.UserProgressService;
 
@@ -63,6 +64,9 @@ class AuthControllerTest {
     private AuthenticationManager authenticationManager;
 
     @Mock
+    private UserDataDeletionService userDataDeletionService;
+
+    @Mock
     private MailNotificationService mailNotificationService;
 
     @BeforeEach
@@ -76,6 +80,7 @@ class AuthControllerTest {
                 passwordResetService,
                 userRepository,
                 authenticationManager,
+                userDataDeletionService,
                 mailNotificationService
         );
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();

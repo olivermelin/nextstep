@@ -17,15 +17,12 @@ public class UserInitializationService {
     public UserInitializationService(
             UserProgressService userProgressService,
             UserSettingsService userSettingsService,
-            StreakService streakService
-    ) {
-        this.userProgressService = userProgressService;
-        this.userSettingsService = userSettingsService;
-        this.streakService = streakService;
+            StreakService streakService,
             UserSettingsRepository userSettingsRepository
     ) {
         this.userProgressService = userProgressService;
         this.userSettingsService = userSettingsService;
+        this.streakService = streakService;
         this.userSettingsRepository = userSettingsRepository;
     }
 
@@ -65,4 +62,3 @@ public class UserInitializationService {
     }
 
 }
-

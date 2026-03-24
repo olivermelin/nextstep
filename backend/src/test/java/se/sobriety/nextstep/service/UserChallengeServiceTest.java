@@ -31,6 +31,8 @@ class UserChallengeServiceTest {
     private UserChallengeMapper userChallengeMapper;
     @Mock
     private UserProgressService userProgressService;
+    @Mock
+    private StreakService streakService;
 
     private UserChallengeService service;
 
@@ -43,7 +45,7 @@ class UserChallengeServiceTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        service = new UserChallengeService(userChallengeRepository, challengeRepository, userChallengeMapper, userProgressService);
+        service = new UserChallengeService(userChallengeRepository, challengeRepository, userChallengeMapper, userProgressService, streakService);
 
         testChallenge = new Challenge("Test Challenge", "Description", 15,
                 ChallengeDifficulty.EASY, ChallengeCategory.MENTAL_HEALTH);
