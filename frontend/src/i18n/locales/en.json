@@ -151,7 +151,19 @@
     "saveFailed": "Failed",
     "saveFailedDesc": "Your settings could not be saved",
     "loadError": "Could not load your settings",
-    "loadErrorGeneric": "Something went wrong while loading settings"
+    "loadErrorGeneric": "Something went wrong while loading settings",
+    "coachTitle": "Your coach",
+    "coachSubtitle": "Choose the coaching style that suits you best",
+    "deleteAccount": "Delete account",
+    "deleteAccountDesc": "Permanently deletes all your data — conversations, progress, check-ins and settings. Cannot be undone.",
+    "deleteAccountButton": "Delete my account",
+    "deleteConfirmPrompt": "Type <strong>delete</strong> to confirm that you want to permanently remove your account.",
+    "deleteConfirmPlaceholder": "delete",
+    "deleteCancelButton": "Cancel",
+    "deleteConfirmButton": "Delete permanently",
+    "deleting": "Deleting...",
+    "deleteError": "Something went wrong",
+    "deleteErrorDesc": "Could not delete the account. Please try again."
   },
   "onboarding": {
     "stepOf": "Step {{current}} of {{total}}",

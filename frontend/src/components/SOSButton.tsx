@@ -4,7 +4,7 @@ import { Phone } from "lucide-react";
 const SOSButton = () => (
   <Button
     variant="destructive"
-    className="w-full gap-2 font-bold"
+    className="fixed bottom-20 right-4 z-50 gap-2 font-bold rounded-full shadow-lg px-4 py-3"
     onClick={() => window.open("tel:90101")}
     aria-label="SOS — Ring Mind Självmordslinjen 90101"
   >

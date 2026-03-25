@@ -76,7 +76,7 @@ function AppContent() {
       </header>
 
       {/* Huvudinnehål */}
-      <main className="flex-1 overflow-y-auto bg-background pb-16">
+      <main className="flex-1 overflow-y-auto bg-background pb-24">
         <AnimatePresence mode="wait">
         {user ? (
           // Redirecta till onboarding om inte slutförd

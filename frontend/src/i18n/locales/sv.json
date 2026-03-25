@@ -155,7 +155,19 @@
     "saveFailed": "Misslyckades",
     "saveFailedDesc": "Dina inställningar kunde inte sparas",
     "loadError": "Kunde inte ladda dina inställningar",
-    "loadErrorGeneric": "Något gick fel vid inladdning av inställningar"
+    "loadErrorGeneric": "Något gick fel vid inladdning av inställningar",
+    "coachTitle": "Din coach",
+    "coachSubtitle": "Välj vilken coachstil du trivs bäst med",
+    "deleteAccount": "Radera konto",
+    "deleteAccountDesc": "Raderar all din data permanent — konversationer, framsteg, incheckningar och inställningar. Kan inte ångras.",
+    "deleteAccountButton": "Radera mitt konto",
+    "deleteConfirmPrompt": "Skriv <strong>radera</strong> för att bekräfta att du vill ta bort kontot permanent.",
+    "deleteConfirmPlaceholder": "radera",
+    "deleteCancelButton": "Avbryt",
+    "deleteConfirmButton": "Radera permanent",
+    "deleting": "Raderar...",
+    "deleteError": "Något gick fel",
+    "deleteErrorDesc": "Det gick inte att radera kontot. Försök igen."
   },
   "onboarding": {
     "stepOf": "Steg {{current}} av {{total}}",

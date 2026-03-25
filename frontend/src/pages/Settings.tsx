@@ -213,8 +213,8 @@ const Settings = () => {
       }
     } catch {
       toast({
-        title: "Något gick fel",
-        description: "Det gick inte att radera kontot. Försök igen.",
+        title: t('settings.deleteError'),
+        description: t('settings.deleteErrorDesc'),
         variant: "destructive",
       });
     } finally {
@@ -412,8 +412,8 @@ const Settings = () => {
               <Bot className="w-4.5 h-4.5 text-primary" />
             </div>
             <div>
-              <h2 className="text-lg font-semibold text-foreground">Din coach</h2>
-              <p className="text-xs text-muted-foreground">Välj vilken coachstil du trivs bäst med</p>
+              <h2 className="text-lg font-semibold text-foreground">{t('settings.coachTitle')}</h2>
+              <p className="text-xs text-muted-foreground">{t('settings.coachSubtitle')}</p>
             </div>
           </div>
           <CoachPersonaSelector
@@ -446,9 +446,9 @@ const Settings = () => {
               <Trash2 className="w-4 h-4 text-red-600 dark:text-red-400" />
             </div>
             <div>
-              <h2 className="text-base font-semibold text-red-700 dark:text-red-400">Radera konto</h2>
+              <h2 className="text-base font-semibold text-red-700 dark:text-red-400">{t('settings.deleteAccount')}</h2>
               <p className="text-xs text-red-600/70 dark:text-red-400/70 mt-0.5">
-                Raderar all din data permanent — konversationer, framsteg, incheckningar och inställningar. Kan inte ångras.
+                {t('settings.deleteAccountDesc')}
               </p>
             </div>
           </div>
@@ -458,19 +458,19 @@ const Settings = () => {
               onClick={() => setShowDeleteConfirm(true)}
               className="w-full py-3 rounded-xl border border-red-300/60 dark:border-red-700/40 text-red-600 dark:text-red-400 text-sm font-medium hover:bg-red-100/60 dark:hover:bg-red-900/30 transition-all duration-200"
             >
-              Radera mitt konto
+              {t('settings.deleteAccountButton')}
             </button>
           ) : (
             <div className="space-y-3 animate-in fade-in duration-200">
               <div className="flex items-center gap-2 text-xs text-red-700 dark:text-red-400 bg-red-100/60 dark:bg-red-900/30 rounded-xl p-3">
                 <AlertTriangle className="w-4 h-4 flex-shrink-0" />
-                <span>Skriv <strong>radera</strong> för att bekräfta att du vill ta bort kontot permanent.</span>
+                <span dangerouslySetInnerHTML={{ __html: t('settings.deleteConfirmPrompt') }} />
               </div>
               <input
                 type="text"
                 value={deleteConfirmText}
                 onChange={(e) => setDeleteConfirmText(e.target.value)}
-                placeholder="radera"
+                placeholder={t('settings.deleteConfirmPlaceholder')}
                 className="w-full px-4 py-2.5 rounded-xl border border-red-300/60 dark:border-red-700/40 bg-background/50 text-sm focus:outline-none focus:ring-2 focus:ring-red-400/40 text-foreground placeholder:text-muted-foreground"
               />
               <div className="flex gap-2">
@@ -478,14 +478,14 @@ const Settings = () => {
                   onClick={() => { setShowDeleteConfirm(false); setDeleteConfirmText(""); }}
                   className="flex-1 py-2.5 rounded-xl border border-border/50 text-sm font-medium hover:bg-muted transition-colors"
                 >
-                  Avbryt
+                  {t('settings.deleteCancelButton')}
                 </button>
                 <button
                   onClick={handleDeleteAccount}
-                  disabled={deleteConfirmText.toLowerCase() !== "radera" || deleting}
+                  disabled={deleteConfirmText.toLowerCase() !== t('settings.deleteConfirmPlaceholder').toLowerCase() || deleting}
                   className="flex-1 py-2.5 rounded-xl bg-red-600 text-white text-sm font-semibold disabled:opacity-40 disabled:cursor-not-allowed hover:bg-red-700 active:scale-[0.99] transition-all duration-200"
                 >
-                  {deleting ? "Raderar..." : "Radera permanent"}
+                  {deleting ? t('settings.deleting') : t('settings.deleteConfirmButton')}
                 </button>
               </div>
             </div>
