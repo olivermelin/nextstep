@@ -12,14 +12,6 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
-  ai:
-    openai:
-      api-key: ${OPENAI_API_KEY:sk-placeholder-not-configured}
-      chat:
-        options:
-          model: ${AI_COACH_MODEL:gpt-4o-mini}
-          max-tokens: ${AI_COACH_MAX_TOKENS:500}
-          temperature: ${AI_COACH_TEMPERATURE:0.7}
   mail:
     host: ${MAIL_HOST:localhost}
     port: ${MAIL_PORT:1025}
@@ -34,18 +26,13 @@ spring:
             required: ${MAIL_SMTP_STARTTLS:false}
           ssl:
             enable: ${MAIL_SMTP_SSL:false}
-
-mail:
-  sender:
-    email: ${MAIL_SENDER_EMAIL:noreply@nextstep.se}
-    name: ${MAIL_SENDER_NAME:NextStep}
   security:
     oauth2:
       client:
         registration:
           google:
-            client-id: ${SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_ID}
-            client-secret: ${SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_SECRET}
+            client-id: ${SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_ID:}
+            client-secret: ${SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_SECRET:}
             scope:
               - openid
               - profile
@@ -57,19 +44,18 @@ mail:
             user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
             user-name-attribute: sub
 
+mail:
+  sender:
+    email: ${MAIL_SENDER_EMAIL:noreply@nextstep.se}
+    name: ${MAIL_SENDER_NAME:NextStep}
+
 server:
   port: 8080
 
-logging:
-  level:
-    org.springframework.ai: DEBUG
-
-# AI Coach Configuration
+# AI Coach Configuration (Anthropic Claude / Groq)
 ai:
   coach:
     enabled: ${AI_COACH_ENABLED:false}
-    api-key: ${OPENAI_API_KEY:}
-    model: ${AI_COACH_MODEL:gpt-4o-mini}
     max-tokens: ${AI_COACH_MAX_TOKENS:500}
     temperature: ${AI_COACH_TEMPERATURE:0.7}
     # Anthropic Claude

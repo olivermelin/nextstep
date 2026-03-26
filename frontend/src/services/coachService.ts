@@ -68,15 +68,6 @@ export async function getCoachStatus(): Promise<CoachStatusResponse> {
   return fetchWithCredentials(API_ENDPOINTS.COACH.STATUS);
 }
 
-/**
- * Hämta ett enkelt motivationsmeddelande utan att spara till session.
- * Används av Dashboard — påverkar INTE konversationshistoriken.
- */
-export async function getMotivation(message: string): Promise<string> {
-  const data = await fetchWithCredentials(API_ENDPOINTS.COACH.MOTIVATE(message));
-  return typeof data === "string" ? data : data?.response ?? "";
-}
-
 // --- Kvot ---
 
 export interface QuotaInfo {

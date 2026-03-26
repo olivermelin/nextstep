@@ -112,7 +112,3 @@ export async function completeDuel(userId: string, duelId: number): Promise<Duel
 export async function getLeaderboard(userId: string): Promise<LeagueEntryDto[]> {
   return fetchWithCredentials(API_ENDPOINTS.SOCIAL.LEAGUE(userId));
 }
-
-export async function getMyLeagueEntry(userId: string): Promise<LeagueEntryDto> {
-  return fetchWithCredentials(API_ENDPOINTS.SOCIAL.LEAGUE_ME(userId));
-}

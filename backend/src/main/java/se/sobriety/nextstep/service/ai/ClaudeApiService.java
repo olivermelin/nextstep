@@ -39,7 +39,8 @@ public class ClaudeApiService {
     private final UserChallengeRepository userChallengeRepository;
     private final ChallengeRecommendationParser challengeRecommendationParser;
     private final QuotaService quotaService;
-    private final RestClient restClient;
+    private final RestClient claudeClient;
+    private final RestClient groqClient;
 
     public ClaudeApiService(AICoachProperties properties,
                             ConversationService conversationService,
@@ -59,8 +60,11 @@ public class ClaudeApiService {
         this.userChallengeRepository = userChallengeRepository;
         this.challengeRecommendationParser = challengeRecommendationParser;
         this.quotaService = quotaService;
-        this.restClient = RestClient.builder()
+        this.claudeClient = RestClient.builder()
                 .baseUrl(ANTHROPIC_API_URL)
+                .build();
+        this.groqClient = RestClient.builder()
+                .baseUrl("https://api.groq.com/openai/v1/chat/completions")
                 .build();
     }
 
@@ -164,9 +168,7 @@ public class ClaudeApiService {
             UserProgress progress = userProgressService.getOrCreateUser(userId);
 
             int completedChallenges = (int) userChallengeRepository
-                    .findByUserIdAndCompleted(userId, true)
-                    .stream()
-                    .count();
+                    .countByUserIdAndCompleted(userId, true);
 
             // Använd CoachPersonality från användarens inställningar (default SUPPORTIVE)
             CoachPersonality personality = settings.getCoachPersonality() != null
@@ -214,10 +216,6 @@ public class ClaudeApiService {
                 "messages", allMessages
         );
 
-        RestClient groqClient = RestClient.builder()
-                .baseUrl("https://api.groq.com/openai/v1/chat/completions")
-                .build();
-
         Map<String, Object> response = groqClient.post()
                 .header("Authorization", "Bearer " + apiKey)
                 .header("content-type", "application/json")
@@ -259,7 +257,7 @@ public class ClaudeApiService {
                 "messages", messages
         );
 
-        Map<String, Object> response = restClient.post()
+        Map<String, Object> response = claudeClient.post()
                 .header("x-api-key", apiKey)
                 .header("anthropic-version", ANTHROPIC_VERSION)
                 .header("content-type", "application/json")

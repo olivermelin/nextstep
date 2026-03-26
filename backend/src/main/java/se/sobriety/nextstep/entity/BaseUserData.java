@@ -27,6 +27,7 @@ public abstract class BaseUserData {
 
     protected BaseUserData(String userId) {
         this.userId = userId;
+        this.lastUpdated = LocalDateTime.now();
     }
 
     @PrePersist

@@ -119,8 +119,6 @@ export const API_ENDPOINTS = {
       `${API_BASE_URL}/coach/sessions/${sessionId}/messages?userId=${encodeURIComponent(userId)}`,
     NEW_SESSION: (userId: string) => `${API_BASE_URL}/coach/sessions/new?userId=${encodeURIComponent(userId)}`,
     DELETE_SESSION: (sessionId: string, userId: string) => `${API_BASE_URL}/coach/sessions/${encodeURIComponent(sessionId)}?userId=${encodeURIComponent(userId)}`,
-    // Bakåtkompatibla endpoints (kan fasas ut)
-    MOTIVATE: (message: string) => `${API_BASE_URL}/coach/motivate?message=${encodeURIComponent(message)}`,
   },
 };
 

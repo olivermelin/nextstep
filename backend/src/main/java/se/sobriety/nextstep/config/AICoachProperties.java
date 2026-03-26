@@ -13,12 +13,9 @@ import org.springframework.context.annotation.Configuration;
 @Setter
 public class AICoachProperties {
 
-    // Legacy OpenAI settings
-    private String apiKey;
-    private String model = "gpt-4";
+    private boolean enabled = true;
     private int maxTokens = 500;
     private double temperature = 0.7;
-    private boolean enabled = true;
 
     // Anthropic Claude settings
     private String anthropicApiKey;
@@ -29,4 +26,3 @@ public class AICoachProperties {
     private String groqApiKey;
     private String groqModel = "llama-3.1-8b-instant";
 }
-

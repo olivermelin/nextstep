@@ -282,9 +282,4 @@ public class AuthController {
 
         return ResponseEntity.ok(Map.of("message", "Kontot och all tillhörande data har raderats"));
     }
-
-    @GetMapping("/success")
-    public String success() {
-        return "Login OK!";
-    }
 }

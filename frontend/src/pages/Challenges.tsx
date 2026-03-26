@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { challengeApi, userChallengeApi } from "@/services/challengeService";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { clearChallengeTimer } from "@/hooks/useActivityTimer";
 import {
   ChallengeOutDto,

@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useAuth } from '@/context/AuthContext';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { Loader2, ArrowRight, Sparkles, AlertCircle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 

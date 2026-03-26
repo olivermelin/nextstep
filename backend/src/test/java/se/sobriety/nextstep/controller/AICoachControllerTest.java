@@ -10,13 +10,10 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import se.sobriety.nextstep.dto.AICoachRequestDto;
-import se.sobriety.nextstep.dto.AICoachResponseDto;
 import se.sobriety.nextstep.dto.CoachMessageRequest;
 import se.sobriety.nextstep.dto.CoachMessageResponse;
 import se.sobriety.nextstep.entity.CrisisLevel;
 import se.sobriety.nextstep.exception.GlobalExceptionHandler;
-import se.sobriety.nextstep.service.AICoachService;
 import se.sobriety.nextstep.service.QuotaService;
 import se.sobriety.nextstep.service.ai.ClaudeApiService;
 import se.sobriety.nextstep.service.ai.ConversationService;
@@ -36,9 +33,6 @@ class AICoachControllerTest {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Mock
-    private AICoachService aiCoachService;
-
-    @Mock
     private ClaudeApiService claudeApiService;
 
     @Mock
@@ -50,7 +44,7 @@ class AICoachControllerTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        AICoachController controller = new AICoachController(aiCoachService, claudeApiService, conversationService, quotaService);
+        AICoachController controller = new AICoachController(claudeApiService, conversationService, quotaService);
         mockMvc = MockMvcBuilders.standaloneSetup(controller)
                 .setControllerAdvice(new GlobalExceptionHandler())
                 .build();
@@ -60,53 +54,6 @@ class AICoachControllerTest {
     private void setUpSecurityContext() {
         var auth = new UsernamePasswordAuthenticationToken("test@example.com", null, List.of());
         SecurityContextHolder.getContext().setAuthentication(auth);
-    }
-
-    // ---- GET /api/coach/motivate ----
-
-    @Test
-    void motivate_returnsString() throws Exception {
-        when(aiCoachService.getMotivation("Hello")).thenReturn("Stay strong!");
-
-        mockMvc.perform(get("/api/coach/motivate").param("message", "Hello"))
-                .andExpect(status().isOk())
-                .andExpect(content().string("Stay strong!"));
-    }
-
-    // ---- POST /api/coach/chat/{userId} ----
-
-    @Test
-    void chat_validRequest_returnsResponse() throws Exception {
-        setUpSecurityContext();
-        AICoachResponseDto response = new AICoachResponseDto("You got this!", "test@example.com", true, 150L);
-        when(aiCoachService.chat(any(AICoachRequestDto.class))).thenReturn(response);
-
-        AICoachRequestDto request = new AICoachRequestDto("I need support", "test@example.com", true);
-
-        mockMvc.perform(post("/api/coach/chat/test@example.com")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("You got this!"))
-                .andExpect(jsonPath("$.userId").value("test@example.com"))
-                .andExpect(jsonPath("$.contextUsed").value(true));
-    }
-
-    // ---- POST /api/coach/personalized/{userId} ----
-
-    @Test
-    void personalizedCoaching_validRequest_returnsResponse() throws Exception {
-        setUpSecurityContext();
-        AICoachResponseDto response = new AICoachResponseDto("Personalized advice", "test@example.com", true, 200L);
-        when(aiCoachService.getPersonalizedCoaching(eq("test@example.com"), eq("How to handle stress?")))
-                .thenReturn(response);
-
-        mockMvc.perform(post("/api/coach/personalized/test@example.com")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"message\": \"How to handle stress?\"}"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("Personalized advice"))
-                .andExpect(jsonPath("$.userId").value("test@example.com"));
     }
 
     // ---- POST /api/coach/message ----
@@ -133,8 +80,7 @@ class AICoachControllerTest {
     // ---- GET /api/coach/status ----
 
     @Test
-    void getStatus_bothAvailable_returnsOnline() throws Exception {
-        when(aiCoachService.isAIAvailable()).thenReturn(true);
+    void getStatus_available_returnsOnline() throws Exception {
         when(claudeApiService.isAvailable()).thenReturn(true);
 
         mockMvc.perform(get("/api/coach/status"))
@@ -146,7 +92,6 @@ class AICoachControllerTest {
 
     @Test
     void getStatus_noneAvailable_returnsFallback() throws Exception {
-        when(aiCoachService.isAIAvailable()).thenReturn(false);
         when(claudeApiService.isAvailable()).thenReturn(false);
 
         mockMvc.perform(get("/api/coach/status"))
@@ -154,18 +99,5 @@ class AICoachControllerTest {
                 .andExpect(jsonPath("$.aiAvailable").value(false))
                 .andExpect(jsonPath("$.activeProvider").value("none"))
                 .andExpect(jsonPath("$.status").value("fallback mode"));
-    }
-
-    // ---- Validation ----
-
-    @Test
-    void chat_emptyMessage_returns400() throws Exception {
-        setUpSecurityContext();
-        AICoachRequestDto request = new AICoachRequestDto("", "test@example.com", true);
-
-        mockMvc.perform(post("/api/coach/chat/test@example.com")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isBadRequest());
     }
 }
