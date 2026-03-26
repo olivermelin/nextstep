@@ -107,3 +107,38 @@
   transform: translateY(-2px);
   box-shadow: 0 8px 30px -8px hsl(var(--primary) / 0.15);
 }
+
+/* Button micro-interactions */
+.btn-press {
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.btn-press:active {
+  transform: scale(0.97);
+}
+
+/* Respect prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-in-up,
+  .animate-fade-in,
+  .animate-scale-in,
+  .animate-celebrate,
+  .achievement-card,
+  .progress-fill {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  .card-hover:hover {
+    transform: none;
+  }
+
+  .stagger-1,
+  .stagger-2,
+  .stagger-3,
+  .stagger-4,
+  .stagger-5,
+  .stagger-6 {
+    animation-delay: 0s !important;
+  }
+}

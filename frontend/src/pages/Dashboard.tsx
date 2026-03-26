@@ -194,7 +194,7 @@ const Dashboard = () => {
 
   return (
     <div className={`min-h-full bg-gradient-to-br ${getTimeGradient()} p-4 pt-4`}>
-      <div className="max-w-4xl mx-auto space-y-6">
+      <div className="max-w-5xl mx-auto space-y-5">
         {/* Debug info */}
         {!userId && (
           <Card className="p-4 bg-red-50 border-red-200">
@@ -204,111 +204,110 @@ const Dashboard = () => {
 
         {/* Header with time-aware greeting */}
         <div className="pt-2">
-          <h1 className="text-3xl font-bold text-foreground mb-2">
+          <h1 className="text-3xl font-bold text-foreground mb-1">
             {getTimeGreeting()}{user.name ? `, ${user.name.split(' ')[0]}` : ''} {'\u{1F44B}'}
           </h1>
           <p className="text-muted-foreground">{t('dashboard.subtitle')}</p>
         </div>
 
-        {/* Daily Check-In */}
-        {userId && <DailyCheckIn userId={userId} onCheckIn={handleCheckIn} />}
+        {/* Two-column layout on desktop */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+          {/* Left column — main content */}
+          <div className="lg:col-span-2 space-y-5">
+            {/* Daily Check-In */}
+            {userId && <DailyCheckIn userId={userId} onCheckInComplete={handleCheckIn} />}
 
-        {/* Daily Reward (Mystery Box) — visas efter check-in */}
-        {userId && dailyReward && !dailyReward.claimed && (
-          <DailyRewardBox
-            userId={userId}
-            reward={dailyReward}
-            onClaimed={() => {
-              setDailyReward((prev) => prev ? { ...prev, claimed: true } : null);
-              fetchUserProgress(); // Uppdatera XP
-            }}
-          />
-        )}
-
-        {/* Sobriety Counter */}
-        {userId && <SobrietyCounter userId={userId} onMilestone={handleMilestone} />}
-
-        {/* Level & Points Card */}
-        <Card className="p-6 bg-gradient-to-br from-card to-muted/20 shadow-[var(--shadow-card)] animate-fade-in-up stagger-1 card-hover">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <p className="text-sm text-muted-foreground">{t('dashboard.level')}</p>
-              <p className="text-4xl font-bold text-primary">{userProgress.level}</p>
-            </div>
-            <Badge className="bg-accent text-accent-foreground text-lg px-4 py-2">
-              {userProgress.points} {t('common.points')}
-            </Badge>
-          </div>
-          <div className="space-y-2">
-            <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">{t('dashboard.progressToNext')}</span>
-              <span className="text-foreground font-medium">{progressToNextLevel}/100</span>
-            </div>
-            <div className="relative">
-              <Progress value={progressToNextLevel} className="h-3" />
-            </div>
-          </div>
-        </Card>
-
-        {/* Daily Coach Message */}
-        {coachLoading ? (
-          <CoachMessageSkeleton />
-        ) : (
-          <Card className="p-6 bg-gradient-to-br from-primary/10 to-secondary/10 border-primary/20 shadow-[var(--shadow-glow)] animate-fade-in-up stagger-2 card-hover">
-            <div className="flex items-start gap-4">
-              <div className="w-12 h-12 rounded-2xl bg-primary/20 flex items-center justify-center flex-shrink-0">
-                <Sparkles className="w-6 h-6 text-primary" />
-              </div>
-              <div className="flex-1">
-                <h3 className="font-semibold text-lg mb-2 text-foreground">{t('dashboard.aiCoachSays')}</h3>
-                <p className="text-foreground/90">{formatMarkdown(dailyCoachMessage)}</p>
-              </div>
-            </div>
-          </Card>
-        )}
-
-        {/* Today's Active Challenges */}
-        <div className="space-y-4">
-          <h2 className="text-xl font-semibold text-foreground">{t('dashboard.todayActivities')}</h2>
-          <div className="grid gap-4">
-            {challengesLoading ? (
-              <ActiveChallengesSkeleton />
-            ) : activeChallenges.length === 0 ? (
-              <Card className="p-6 text-center">
-                <Target className="w-10 h-10 mx-auto mb-3 text-muted-foreground" />
-                <p className="text-muted-foreground mb-4">{t('dashboard.noActiveChallenges')}</p>
-                <Button onClick={() => navigate("/challenges")} className="gap-2">
-                  {t('dashboard.browseChallenges')}
-                  <ArrowRight className="w-4 h-4" />
-                </Button>
-              </Card>
+            {/* Daily Coach Message */}
+            {coachLoading ? (
+              <CoachMessageSkeleton />
             ) : (
-              activeChallenges.map((challenge) => (
-                <Card key={challenge.id} className="p-4 hover:shadow-lg transition-all">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                        <Target className="w-5 h-5 text-primary" />
-                      </div>
-                      <div>
-                        <p className="font-medium text-foreground">{challenge.challengeName}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {t(`challenges.categories.${getCategoryKey(challenge.category)}`)}{challenge.difficulty && ` · ${t(`challenges.difficulty.${challenge.difficulty.toLowerCase()}`)}`}{challenge.durationMinutes ? ` · ${challenge.durationMinutes} min` : ""}
-                        </p>
-                      </div>
-                    </div>
-                    <Button
-                      onClick={() => navigate(`/challenges/${getCategorySlug(challenge.category)}/${challenge.challengeId}`)}
-                      variant="outline"
-                      className="gap-2"
-                    >
-                      {t('dashboard.goToChallenge')}
+              <Card className="p-5 bg-gradient-to-br from-primary/10 to-secondary/10 border-primary/20 shadow-[var(--shadow-glow)] animate-fade-in-up stagger-2 card-hover">
+                <div className="flex items-start gap-4">
+                  <div className="w-11 h-11 rounded-2xl bg-primary/20 flex items-center justify-center flex-shrink-0">
+                    <Sparkles className="w-5 h-5 text-primary" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-base mb-1.5 text-foreground">{t('dashboard.aiCoachSays')}</h3>
+                    <p className="text-foreground/90 text-sm leading-relaxed">{formatMarkdown(dailyCoachMessage)}</p>
+                  </div>
+                </div>
+              </Card>
+            )}
+
+            {/* Today's Active Challenges */}
+            <div className="space-y-3">
+              <h2 className="text-lg font-semibold text-foreground">{t('dashboard.todayActivities')}</h2>
+              <div className="grid gap-3">
+                {challengesLoading ? (
+                  <ActiveChallengesSkeleton />
+                ) : activeChallenges.length === 0 ? (
+                  <Card className="p-5 text-center">
+                    <Target className="w-9 h-9 mx-auto mb-2 text-muted-foreground" />
+                    <p className="text-muted-foreground text-sm mb-3">{t('dashboard.noActiveChallenges')}</p>
+                    <Button onClick={() => navigate("/challenges")} className="gap-2" size="sm">
+                      {t('dashboard.browseChallenges')}
                       <ArrowRight className="w-4 h-4" />
                     </Button>
-                  </div>
-                </Card>
-              ))
-            )}
+                  </Card>
+                ) : (
+                  activeChallenges.map((challenge) => (
+                    <Card key={challenge.id} className="p-4 card-hover">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center">
+                            <Target className="w-4.5 h-4.5 text-primary" />
+                          </div>
+                          <div>
+                            <p className="font-medium text-sm text-foreground">{challenge.challengeName}</p>
+                            <p className="text-xs text-muted-foreground">
+                              {t(`challenges.categories.${getCategoryKey(challenge.category)}`)}{challenge.difficulty && ` · ${t(`challenges.difficulty.${challenge.difficulty.toLowerCase()}`)}`}{challenge.durationMinutes ? ` · ${challenge.durationMinutes} min` : ""}
+                            </p>
+                          </div>
+                        </div>
+                        <Button
+                          onClick={() => navigate(`/challenges/${getCategorySlug(challenge.category)}/${challenge.challengeId}`)}
+                          variant="outline"
+                          size="sm"
+                          className="gap-1.5"
+                        >
+                          {t('dashboard.goToChallenge')}
+                          <ArrowRight className="w-3.5 h-3.5" />
+                        </Button>
+                      </div>
+                    </Card>
+                  ))
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Right column — sidebar widgets */}
+          <div className="space-y-5">
+            {/* Level & Points Card */}
+            <Card className="p-5 bg-gradient-to-br from-card to-muted/20 shadow-[var(--shadow-card)] animate-fade-in-up stagger-1 card-hover">
+              <div className="flex items-center justify-between mb-3">
+                <div>
+                  <p className="text-xs text-muted-foreground">{t('dashboard.level')}</p>
+                  <p className="text-3xl font-bold text-primary">{userProgress.level}</p>
+                </div>
+                <Badge className="bg-accent text-accent-foreground text-sm px-3 py-1.5">
+                  {userProgress.points} {t('common.points')}
+                </Badge>
+              </div>
+              <div className="space-y-1.5">
+                <div className="flex justify-between text-xs">
+                  <span className="text-muted-foreground">{t('dashboard.progressToNext')}</span>
+                  <span className="text-foreground font-medium">{progressToNextLevel}/100</span>
+                </div>
+                <Progress value={progressToNextLevel} className="h-2.5" />
+              </div>
+            </Card>
+
+            {/* Daily Reward (Mystery Box) */}
+            {userId && <DailyRewardBox userId={userId} />}
+
+            {/* Sobriety Counter */}
+            {userId && <SobrietyCounter userId={userId} onMilestone={handleMilestone} />}
           </div>
         </div>
       </div>
@@ -318,7 +317,7 @@ const Dashboard = () => {
 
       {/* Milestone Celebration */}
       <MilestoneCelebration
-        days={milestoneDays}
+        milestone={milestoneDays}
         onClose={() => setMilestoneDays(null)}
       />
     </div>

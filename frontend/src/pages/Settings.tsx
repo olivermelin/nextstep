@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { Bell, User, Palette, LogOut, Settings as SettingsIcon, Bot, Trash2, AlertTriangle } from "lucide-react";
 import { SettingsPageSkeleton } from "@/components/skeletons/SettingsSkeleton";
 import { useAuth } from "@/context/AuthContext";
@@ -249,27 +249,29 @@ const Settings = () => {
         />
       </div>
 
-      <div className="relative z-10 max-w-2xl mx-auto p-4 pt-6 space-y-5 animate-in fade-in slide-in-from-bottom-4 duration-700">
-        {/* Page Header */}
-        <div className="text-center space-y-2 pb-2">
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-primary/60 shadow-lg mb-1">
-            <SettingsIcon className="w-7 h-7 text-primary-foreground" />
+      <div className="relative z-10 max-w-2xl mx-auto p-4 pt-4 space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-700">
+        {/* Page Header — compact */}
+        <div className="flex items-center gap-3 pb-1">
+          <div className="inline-flex items-center justify-center w-11 h-11 rounded-xl bg-gradient-to-br from-primary to-primary/60 shadow-lg">
+            <SettingsIcon className="w-5 h-5 text-primary-foreground" />
           </div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
-            {t('settings.title')}
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            {t('settings.subtitle')}
-          </p>
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">
+              {t('settings.title')}
+            </h1>
+            <p className="text-xs text-muted-foreground">
+              {t('settings.subtitle')}
+            </p>
+          </div>
         </div>
 
         {/* Profilinställningar */}
-        <div className="bg-card/80 backdrop-blur-xl border border-border/50 rounded-2xl shadow-lg p-6 space-y-5 text-left">
-          <div className="flex items-center gap-3 mb-1">
-            <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
-              <User className="w-4.5 h-4.5 text-primary" />
+        <div className="bg-card/80 backdrop-blur-xl border border-border/50 rounded-2xl shadow-lg p-5 space-y-4 text-left">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+              <User className="w-4 h-4 text-primary" />
             </div>
-            <h2 className="text-lg font-semibold text-foreground">{t('settings.profile')}</h2>
+            <h2 className="text-base font-semibold text-foreground">{t('settings.profile')}</h2>
           </div>
 
           <div className="space-y-4">
@@ -316,12 +318,12 @@ const Settings = () => {
         </div>
 
         {/* Notifieringar */}
-        <div className="bg-card/80 backdrop-blur-xl border border-border/50 rounded-2xl shadow-lg p-6 space-y-5 text-left">
-          <div className="flex items-center gap-3 mb-1">
-            <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
-              <Bell className="w-4.5 h-4.5 text-primary" />
+        <div className="bg-card/80 backdrop-blur-xl border border-border/50 rounded-2xl shadow-lg p-5 space-y-4 text-left">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+              <Bell className="w-4 h-4 text-primary" />
             </div>
-            <h2 className="text-lg font-semibold text-foreground">{t('settings.notifications')}</h2>
+            <h2 className="text-base font-semibold text-foreground">{t('settings.notifications')}</h2>
           </div>
 
           <div className="space-y-1">
@@ -360,12 +362,12 @@ const Settings = () => {
         </div>
 
         {/* Utseende */}
-        <div className="bg-card/80 backdrop-blur-xl border border-border/50 rounded-2xl shadow-lg p-6 space-y-5 text-left">
-          <div className="flex items-center gap-3 mb-1">
-            <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
-              <Palette className="w-4.5 h-4.5 text-primary" />
+        <div className="bg-card/80 backdrop-blur-xl border border-border/50 rounded-2xl shadow-lg p-5 space-y-4 text-left">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+              <Palette className="w-4 h-4 text-primary" />
             </div>
-            <h2 className="text-lg font-semibold text-foreground">{t('settings.appearance')}</h2>
+            <h2 className="text-base font-semibold text-foreground">{t('settings.appearance')}</h2>
           </div>
 
           <div className="space-y-1">
@@ -406,13 +408,13 @@ const Settings = () => {
         </div>
 
         {/* Coach-personlighet */}
-        <div className="bg-card/80 backdrop-blur-xl border border-border/50 rounded-2xl shadow-lg p-6 space-y-4 text-left">
-          <div className="flex items-center gap-3 mb-1">
-            <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
-              <Bot className="w-4.5 h-4.5 text-primary" />
+        <div className="bg-card/80 backdrop-blur-xl border border-border/50 rounded-2xl shadow-lg p-5 space-y-3 text-left">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+              <Bot className="w-4 h-4 text-primary" />
             </div>
             <div>
-              <h2 className="text-lg font-semibold text-foreground">{t('settings.coachTitle')}</h2>
+              <h2 className="text-base font-semibold text-foreground">{t('settings.coachTitle')}</h2>
               <p className="text-xs text-muted-foreground">{t('settings.coachSubtitle')}</p>
             </div>
           </div>
