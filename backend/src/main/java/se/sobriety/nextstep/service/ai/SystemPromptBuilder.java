@@ -149,7 +149,7 @@ public class SystemPromptBuilder {
         catalog.append("Taggen är osynlig för användaren – den ersätts med en klickbar knapp i appen.\n\n");
 
         for (Challenge c : challenges) {
-            catalog.append("[").append(c.getId()).append("] ")
+            catalog.append("ID=").append(c.getId()).append(": ")
                     .append(c.getTitle())
                     .append(" (").append(c.getCategory().getDisplayName())
                     .append(", ").append(translateDifficulty(c.getDifficulty()))
