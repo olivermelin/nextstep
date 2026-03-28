@@ -101,8 +101,27 @@ All colors MUST be HSL.
     @apply border-border;
   }
 
+  /* Bakgrundsbilden sitter på html-elementet — fast, täcker alltid hela skärmen */
+  html {
+    background-image: url('/background.jpg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+  }
+
+  /* Body är ett halvtransparent overlay ovanpå bilden.
+     Ljust läge: hög opacitet → bilden syns subtilt.
+     CSS-variabeln --background är definierad som "H S% L%" vilket
+     tillåter /alpha-syntax direkt. */
   body {
-    @apply bg-background text-foreground;
+    @apply text-foreground;
+    background-color: hsl(var(--background) / 0.82);
+  }
+
+  /* Mörkt läge: lägre opacitet → bilden syns tydligt */
+  .dark body {
+    background-color: hsl(var(--background) / 0.55);
   }
 }
 
