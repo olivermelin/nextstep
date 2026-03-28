@@ -77,7 +77,7 @@ function AppContent() {
       </header>
 
       {/* Huvudinnehål */}
-      <main className={`flex-1 overflow-y-auto ${user ? "pb-24" : ""}`}>
+      <main className="flex-1 min-h-0">
         <AnimatePresence mode="wait">
         {user ? (
           // Redirecta till onboarding om inte slutförd
