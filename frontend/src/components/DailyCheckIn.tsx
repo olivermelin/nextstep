@@ -6,20 +6,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { CheckCircle2, Loader2 } from "lucide-react";
 import { checkInService, CheckInData } from "@/services/checkInService";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "react-i18next";
 
 interface DailyCheckInProps {
   userId: string;
   existingCheckIn?: CheckInData | null;
   onCheckInComplete?: (checkIn: CheckInData) => void;
 }
-
-const MOOD_OPTIONS = [
-  { score: 1, emoji: "😔", label: "Mycket dåligt" },
-  { score: 2, emoji: "😕", label: "Dåligt" },
-  { score: 3, emoji: "😐", label: "Okej" },
-  { score: 4, emoji: "🙂", label: "Bra" },
-  { score: 5, emoji: "😄", label: "Mycket bra" },
-];
 
 /**
  * Daglig incheckningskomponent.
@@ -28,12 +21,21 @@ const MOOD_OPTIONS = [
  */
 const DailyCheckIn = ({ userId, existingCheckIn, onCheckInComplete }: DailyCheckInProps) => {
   const { toast } = useToast();
+  const { t } = useTranslation();
   const [selectedMood, setSelectedMood] = useState<number | null>(
     existingCheckIn?.moodScore ?? null
   );
   const [note, setNote] = useState(existingCheckIn?.note ?? "");
   const [loading, setLoading] = useState(false);
   const [completed, setCompleted] = useState(!!existingCheckIn);
+
+  const MOOD_OPTIONS = [
+    { score: 1, emoji: "😔", label: t("checkin.moods.veryBad") },
+    { score: 2, emoji: "😕", label: t("checkin.moods.bad") },
+    { score: 3, emoji: "😐", label: t("checkin.moods.okay") },
+    { score: 4, emoji: "🙂", label: t("checkin.moods.good") },
+    { score: 5, emoji: "😄", label: t("checkin.moods.veryGood") },
+  ];
 
   const alreadyDone = !!existingCheckIn && !completed;
   const canSubmit = selectedMood !== null;
@@ -49,13 +51,13 @@ const DailyCheckIn = ({ userId, existingCheckIn, onCheckInComplete }: DailyCheck
       setCompleted(true);
       onCheckInComplete?.(result);
       toast({
-        title: "Incheckning klar! ✓",
-        description: `Du har registrerat ditt mående för idag.`,
+        title: t("checkin.complete"),
+        description: t("checkin.completeDesc"),
       });
     } catch {
       toast({
-        title: "Något gick fel",
-        description: "Kunde inte spara incheckning. Försök igen.",
+        title: t("common.error"),
+        description: t("checkin.saveError"),
         variant: "destructive",
       });
     } finally {
@@ -71,7 +73,7 @@ const DailyCheckIn = ({ userId, existingCheckIn, onCheckInComplete }: DailyCheck
         <div className="flex items-center gap-3">
           <CheckCircle2 className="w-5 h-5 text-green-500 shrink-0" />
           <div>
-            <p className="text-sm font-medium">Incheckning klar idag</p>
+            <p className="text-sm font-medium">{t("checkin.doneToday")}</p>
             <p className="text-sm text-muted-foreground">
               {mood?.emoji} {mood?.label}
               {existingCheckIn.note && ` — "${existingCheckIn.note}"`}
@@ -85,8 +87,8 @@ const DailyCheckIn = ({ userId, existingCheckIn, onCheckInComplete }: DailyCheck
   return (
     <Card className="p-5 space-y-4">
       <div>
-        <h3 className="font-semibold text-base">Hur mår du idag?</h3>
-        <p className="text-sm text-muted-foreground">En snabb check-in håller din streak vid liv</p>
+        <h3 className="font-semibold text-base">{t("checkin.howAreYou")}</h3>
+        <p className="text-sm text-muted-foreground">{t("checkin.streakReminder")}</p>
       </div>
 
       {/* Humörval */}
@@ -122,7 +124,7 @@ const DailyCheckIn = ({ userId, existingCheckIn, onCheckInComplete }: DailyCheck
             transition={{ duration: 0.2 }}
           >
             <Textarea
-              placeholder="Valfri anteckning om hur du mår... (max 500 tecken)"
+              placeholder={t("checkin.notePlaceholder")}
               value={note}
               onChange={(e) => setNote(e.target.value)}
               maxLength={500}
@@ -141,10 +143,10 @@ const DailyCheckIn = ({ userId, existingCheckIn, onCheckInComplete }: DailyCheck
         {loading ? (
           <>
             <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-            Sparar...
+            {t("common.saving")}
           </>
         ) : (
-          "Checka in"
+          t("checkin.checkIn")
         )}
       </Button>
     </Card>

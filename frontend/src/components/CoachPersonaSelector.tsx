@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { CheckCircle2 } from "lucide-react";
 
 export type CoachPersonality = "SUPPORTIVE" | "MOTIVATIONAL" | "REFLECTIVE" | "DIRECT";
@@ -6,8 +7,8 @@ interface Persona {
   id: CoachPersonality;
   name: string;
   emoji: string;
-  tagline: string;
-  description: string;
+  taglineKey: string;
+  descriptionKey: string;
   color: string;
 }
 
@@ -16,32 +17,32 @@ const PERSONAS: Persona[] = [
     id: "SUPPORTIVE",
     name: "Maja",
     emoji: "🤗",
-    tagline: "Varm & stödjande",
-    description: "Lyssnar, validerar och ger omtänksamt stöd utan att döma.",
+    taglineKey: "coach.personas.supportive.tagline",
+    descriptionKey: "coach.personas.supportive.description",
     color: "border-rose-200 hover:border-rose-400 dark:border-rose-800 dark:hover:border-rose-500",
   },
   {
     id: "MOTIVATIONAL",
     name: "Erik",
     emoji: "⚡",
-    tagline: "Energisk & peppande",
-    description: "Fokuserar på dina styrkor och peppar dig att ta nästa steg.",
+    taglineKey: "coach.personas.motivational.tagline",
+    descriptionKey: "coach.personas.motivational.description",
     color: "border-amber-200 hover:border-amber-400 dark:border-amber-800 dark:hover:border-amber-500",
   },
   {
     id: "REFLECTIVE",
     name: "Lena",
     emoji: "🌿",
-    tagline: "Lugn & reflekterande",
-    description: "Hjälper dig att förstå dig själv på djupet med tankeväckande frågor.",
+    taglineKey: "coach.personas.reflective.tagline",
+    descriptionKey: "coach.personas.reflective.description",
     color: "border-emerald-200 hover:border-emerald-400 dark:border-emerald-800 dark:hover:border-emerald-500",
   },
   {
     id: "DIRECT",
     name: "Alex",
     emoji: "🎯",
-    tagline: "Rakt på sak",
-    description: "Ärlig, konkret och fokuserad på lösningar — ingen omväg.",
+    taglineKey: "coach.personas.direct.tagline",
+    descriptionKey: "coach.personas.direct.description",
     color: "border-blue-200 hover:border-blue-400 dark:border-blue-800 dark:hover:border-blue-500",
   },
 ];
@@ -52,6 +53,8 @@ interface CoachPersonaSelectorProps {
 }
 
 const CoachPersonaSelector = ({ value, onChange }: CoachPersonaSelectorProps) => {
+  const { t } = useTranslation();
+
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
       {PERSONAS.map((persona) => {
@@ -72,8 +75,8 @@ const CoachPersonaSelector = ({ value, onChange }: CoachPersonaSelectorProps) =>
             )}
             <span className="text-2xl block mb-2">{persona.emoji}</span>
             <p className="font-semibold text-sm text-foreground">{persona.name}</p>
-            <p className="text-xs font-medium text-primary/80 mb-1">{persona.tagline}</p>
-            <p className="text-xs text-muted-foreground leading-relaxed">{persona.description}</p>
+            <p className="text-xs font-medium text-primary/80 mb-1">{t(persona.taglineKey)}</p>
+            <p className="text-xs text-muted-foreground leading-relaxed">{t(persona.descriptionKey)}</p>
           </button>
         );
       })}

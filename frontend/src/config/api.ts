@@ -135,16 +135,36 @@ export class ApiError extends Error {
 }
 
 /**
- * Standard fetch-konfiguration med credentials.
+ * Läser CSRF-token från XSRF-TOKEN-cookien som Spring sätter.
+ * Cookien är httpOnly: false så att JavaScript kan läsa den.
+ */
+function getCsrfToken(): string | null {
+  const match = document.cookie.match(/XSRF-TOKEN=([^;]+)/);
+  return match ? decodeURIComponent(match[1]) : null;
+}
+
+/**
+ * Standard fetch-konfiguration med credentials och CSRF-token.
  * Hanterar 401/403 automatiskt genom att redirecta till login.
  * Kastar ApiError med statuskod vid övriga fel.
+ * Inkluderar X-XSRF-TOKEN-header automatiskt för alla mutationsanrop (POST, PUT, DELETE).
  */
 export const fetchWithCredentials = async (url: string, options?: RequestInit) => {
+  const csrfHeaders: Record<string, string> = {};
+  const method = (options?.method || 'GET').toUpperCase();
+  if (method !== 'GET' && method !== 'HEAD' && method !== 'OPTIONS') {
+    const token = getCsrfToken();
+    if (token) {
+      csrfHeaders['X-XSRF-TOKEN'] = token;
+    }
+  }
+
   const response = await fetch(url, {
     ...options,
     credentials: "include",
     headers: {
       "Content-Type": "application/json",
+      ...csrfHeaders,
       ...options?.headers,
     },
   });

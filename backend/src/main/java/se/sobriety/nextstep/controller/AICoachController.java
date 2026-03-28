@@ -141,4 +141,14 @@ public class AICoachController {
                 "status", available ? "online" : "fallback mode"
         ));
     }
+
+    /**
+     * GET /api/coach/personalized/{userId}
+     * Hämtar ett personligt meddelande från AI-coachen
+     */
+    @GetMapping("/personalized/{userId}")
+    public CoachMessageResponse getPersonalizedMessage(@PathVariable String userId) {
+        verifyUserAccess(userId);
+        return claudeApiService.sendMessage(userId, "Ge mig personligt stöd och råd för min nykterhetsresa.", null);
+    }
 }

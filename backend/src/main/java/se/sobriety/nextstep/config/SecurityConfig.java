@@ -60,16 +60,6 @@ public class SecurityConfig {
                                 "/api/auth/signup",
                                 "/api/auth/forgot-password",
                                 "/api/auth/reset-password",
-                                "/api/auth/account",
-                                "/api/coach/**",
-                                "/api/onboarding/**",
-                                "/api/user-challenges/**",
-                                "/api/settings/**",
-                                "/api/progress/**",
-                                "/api/checkins/**",
-                                "/api/streaks/**",
-                                "/api/rewards/**",
-                                "/api/social/**",
                                 "/oauth2/**",
                                 "/login/**"
                         )
@@ -120,7 +110,7 @@ public class SecurityConfig {
 
         config.setAllowedOrigins(List.of(frontendBaseUrl));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        config.setAllowedHeaders(List.of("Content-Type", "Authorization", "Accept", "X-Requested-With"));
+        config.setAllowedHeaders(List.of("Content-Type", "Authorization", "Accept", "X-Requested-With", "X-XSRF-TOKEN"));
         config.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source =

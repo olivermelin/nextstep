@@ -4,10 +4,12 @@
     "loading": "Laddar...",
     "error": "Fel",
     "save": "Spara ändringar",
+    "saving": "Sparar...",
     "back": "Tillbaka",
     "next": "Nästa",
     "skip": "Hoppa över",
     "cancel": "Avbryt",
+    "close": "Stäng",
     "done": "Klar",
     "or": "eller",
     "points": "poäng",
@@ -178,6 +180,13 @@
     "step2Subtitle": "Denna information hjälper oss ge dig bättre stöd och rekommendationer.",
     "step3Title": "Var befinner du dig just nu?",
     "step3Subtitle": "Detta hjälper oss anpassa stödet till där du är i din resa.",
+    "selectTrackError": "Välj ett alternativ för att fortsätta",
+    "trackTitle": "Vad tar dig hit?",
+    "trackSubtitle": "Välj det alternativ som stämmer bäst — det anpassar din upplevelse.",
+    "trackConsumerTitle": "Jag vill bygga bättre vanor och må bättre",
+    "trackConsumerDesc": "Fokus på välmående, rutiner och personlig utveckling",
+    "trackRecoveryTitle": "Jag är i återhämtning och vill ha stöd",
+    "trackRecoveryDesc": "Stöd vid beroende, nykterhet och återhämtningsresan",
     "selectGoalError": "Vänligen välj minst ett mål för att fortsätta",
     "noUserError": "Ingen användare inloggad",
     "completeError": "Kunde inte slutföra onboarding. Försök igen.",
@@ -240,7 +249,7 @@
     "quickStart": "Snabbstart",
     "aboutCoach": "Om din coach",
     "aboutDesc1": "Din AI Coach ger personligt stöd baserat på dina mål och framsteg.",
-    "aboutDesc2": "Konversationer sparas i sessioner med upp till 20 meddelanden för sammanhang.",
+    "aboutDesc2": "Konversationer sparas i sessioner med upp till 10 meddelanden för sammanhang.",
     "aboutDesc3": "Klicka \"Ny konversation\" för att starta en ny session.",
     "quickPrompts": {
       "howAmI": "Hur mår jag?",
@@ -252,6 +261,10 @@
       "dailyTip": "Tips för dagen",
       "dailyTipPrompt": "Ge mig ett bra tips för att förbättra min dag"
     },
+    "conversationHistory": "Tidigare konversationer",
+    "noConversations": "Inga tidigare konversationer",
+    "conversation": "Konversation",
+    "messages": "meddelanden",
     "connecting": "Ansluter...",
     "newConversation": "Ny konversation",
     "resumePreviousChat": "Återuppta tidigare konversation",
@@ -396,8 +409,22 @@
     "message": "Sidan hittades inte",
     "returnHome": "Tillbaka till startsidan"
   },
+  "errors": {
+    "title": "Något gick fel",
+    "unexpected": "Ett oväntat fel uppstod. Försök ladda om sidan.",
+    "reload": "Ladda om"
+  },
+  "coach": {
+    "personas": {
+      "supportive": { "tagline": "Varm & stödjande", "description": "Lyssnar, validerar och ger omtänksamt stöd utan att döma." },
+      "motivational": { "tagline": "Energisk & peppande", "description": "Fokuserar på dina styrkor och peppar dig att ta nästa steg." },
+      "reflective": { "tagline": "Lugn & reflekterande", "description": "Hjälper dig att förstå dig själv på djupet med tankeväckande frågor." },
+      "direct": { "tagline": "Rakt på sak", "description": "Ärlig, konkret och fokuserad på lösningar — ingen omväg." }
+    }
+  },
   "sos": {
     "buttonLabel": "Krisstöd - ring för hjälp",
+    "callNow": "SOS — Ring hjälp nu (90101)",
     "title": "Behöver du prata med någon?",
     "description": "Du är inte ensam. Ring något av dessa nummer för att prata med någon som förstår.",
     "mindSelfmordslinje": "Mind Självmordslinjen",
@@ -424,11 +451,21 @@
     "howAreYou": "Hur mår du idag?",
     "thankYou": "Tack för din incheckning!",
     "todayMood": "Dagens incheckning",
+    "complete": "Incheckning klar! ✓",
+    "completeDesc": "Du har registrerat ditt mående för idag.",
+    "saveError": "Kunde inte spara incheckning. Försök igen.",
+    "doneToday": "Incheckning klar idag",
+    "streakReminder": "En snabb check-in håller din streak vid liv",
+    "notePlaceholder": "Valfri anteckning om hur du mår... (max 500 tecken)",
+    "checkIn": "Checka in",
     "moods": {
+      "veryBad": "Mycket dåligt",
+      "bad": "Dåligt",
       "struggling": "Kämpar",
       "okay": "Okej",
       "good": "Bra",
       "great": "Jättebra",
+      "veryGood": "Mycket bra",
       "amazing": "Fantastiskt"
     }
   },

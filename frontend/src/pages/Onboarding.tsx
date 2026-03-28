@@ -133,7 +133,7 @@ const Onboarding = () => {
 
   const handleNext = () => {
     if (currentStep === 1 && !canProceedFromStep1) {
-      setError("Välj ett alternativ för att fortsätta");
+      setError(t('onboarding.selectTrackError'));
       return;
     }
     if (currentStep === 2 && !canProceedFromStep2) {
@@ -242,16 +242,19 @@ const Onboarding = () => {
           >
             <div>
               <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
-                Vad tar dig hit?
+                {t('onboarding.trackTitle')}
               </h1>
               <p className="text-muted-foreground">
-                Välj det alternativ som stämmer bäst — det anpassar din upplevelse.
+                {t('onboarding.trackSubtitle')}
               </p>
             </div>
 
             <div className="space-y-4">
               <Card
+                role="button"
+                tabIndex={0}
                 onClick={() => setSelectedTrack(OnboardingTrack.CONSUMER)}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelectedTrack(OnboardingTrack.CONSUMER); } }}
                 className={`p-5 cursor-pointer transition-all ${
                   selectedTrack === OnboardingTrack.CONSUMER
                     ? "bg-primary/10 border-primary"
@@ -261,16 +264,19 @@ const Onboarding = () => {
                 <div className="flex items-start gap-4">
                   <span className="text-3xl">🌱</span>
                   <div>
-                    <p className="font-semibold text-base">Jag vill bygga bättre vanor och må bättre</p>
+                    <p className="font-semibold text-base">{t('onboarding.trackConsumerTitle')}</p>
                     <p className="text-sm text-muted-foreground mt-1">
-                      Fokus på välmående, rutiner och personlig utveckling
+                      {t('onboarding.trackConsumerDesc')}
                     </p>
                   </div>
                 </div>
               </Card>
 
               <Card
+                role="button"
+                tabIndex={0}
                 onClick={() => setSelectedTrack(OnboardingTrack.RECOVERY)}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelectedTrack(OnboardingTrack.RECOVERY); } }}
                 className={`p-5 cursor-pointer transition-all ${
                   selectedTrack === OnboardingTrack.RECOVERY
                     ? "bg-primary/10 border-primary"
@@ -280,9 +286,9 @@ const Onboarding = () => {
                 <div className="flex items-start gap-4">
                   <span className="text-3xl">💪</span>
                   <div>
-                    <p className="font-semibold text-base">Jag är i återhämtning och vill ha stöd</p>
+                    <p className="font-semibold text-base">{t('onboarding.trackRecoveryTitle')}</p>
                     <p className="text-sm text-muted-foreground mt-1">
-                      Stöd vid beroende, nykterhet och återhämtningsresan
+                      {t('onboarding.trackRecoveryDesc')}
                     </p>
                   </div>
                 </div>
@@ -316,7 +322,10 @@ const Onboarding = () => {
               {goalOptions.map((option) => (
                 <Card
                   key={option.value}
+                  role="button"
+                  tabIndex={0}
                   onClick={() => toggleGoal(option.value)}
+                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleGoal(option.value); } }}
                   className={`p-4 cursor-pointer transition-all ${ selectedGoals.includes(option.value)
                       ? "bg-primary/10 border-primary"
                       : "hover:bg-muted/50"
@@ -431,7 +440,10 @@ const Onboarding = () => {
                 {substanceOptions.map((option) => (
                   <Card
                     key={option.value}
+                    role="button"
+                    tabIndex={0}
                     onClick={() => toggleSubstance(option.value)}
+                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleSubstance(option.value); } }}
                     className={`p-3 cursor-pointer transition-all ${
                       substanceHistory.includes(option.value)
                         ? "bg-primary/10 border-primary"
@@ -483,7 +495,10 @@ const Onboarding = () => {
                 {recoveryStageOptions.map((option) => (
                   <Card
                     key={option.value}
+                    role="button"
+                    tabIndex={0}
                     onClick={() => setRecoveryStage(option.value)}
+                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setRecoveryStage(option.value); } }}
                     className={`p-4 cursor-pointer transition-all ${
                       recoveryStage === option.value
                         ? "bg-primary/10 border-primary"

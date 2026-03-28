@@ -4,10 +4,12 @@
     "loading": "Loading...",
     "error": "Error",
     "save": "Save changes",
+    "saving": "Saving...",
     "back": "Back",
     "next": "Next",
     "skip": "Skip",
     "cancel": "Cancel",
+    "close": "Close",
     "done": "Done",
     "or": "or",
     "points": "points",
@@ -174,6 +176,13 @@
     "step2Subtitle": "This information helps us give you better support and recommendations.",
     "step3Title": "Where are you right now?",
     "step3Subtitle": "This helps us adapt the support to where you are in your journey.",
+    "selectTrackError": "Choose an option to continue",
+    "trackTitle": "What brings you here?",
+    "trackSubtitle": "Choose the option that fits best — it customizes your experience.",
+    "trackConsumerTitle": "I want to build better habits and feel better",
+    "trackConsumerDesc": "Focus on wellbeing, routines and personal development",
+    "trackRecoveryTitle": "I'm in recovery and want support",
+    "trackRecoveryDesc": "Support for addiction, sobriety and the recovery journey",
     "selectGoalError": "Please select at least one goal to continue",
     "noUserError": "No user logged in",
     "completeError": "Could not complete onboarding. Please try again.",
@@ -248,6 +257,10 @@
       "dailyTip": "Daily tip",
       "dailyTipPrompt": "Give me a good tip to improve my day"
     },
+    "conversationHistory": "Previous conversations",
+    "noConversations": "No previous conversations",
+    "conversation": "Conversation",
+    "messages": "messages",
     "connecting": "Connecting...",
     "newConversation": "New conversation",
     "resumePreviousChat": "Resume previous conversation",
@@ -392,8 +405,22 @@
     "message": "Page not found",
     "returnHome": "Return to home"
   },
+  "errors": {
+    "title": "Something went wrong",
+    "unexpected": "An unexpected error occurred. Please try reloading the page.",
+    "reload": "Reload"
+  },
+  "coach": {
+    "personas": {
+      "supportive": { "tagline": "Warm & supportive", "description": "Listens, validates and provides caring support without judgement." },
+      "motivational": { "tagline": "Energetic & encouraging", "description": "Focuses on your strengths and encourages you to take the next step." },
+      "reflective": { "tagline": "Calm & reflective", "description": "Helps you understand yourself deeply with thought-provoking questions." },
+      "direct": { "tagline": "Straight to the point", "description": "Honest, concrete and solution-focused — no detours." }
+    }
+  },
   "sos": {
     "buttonLabel": "Crisis support - call for help",
+    "callNow": "SOS — Call for help (90101)",
     "title": "Need to talk to someone?",
     "description": "You are not alone. Call one of these numbers to talk to someone who understands.",
     "mindSelfmordslinje": "Mind Suicide Hotline",
@@ -420,11 +447,21 @@
     "howAreYou": "How are you feeling today?",
     "thankYou": "Thanks for checking in!",
     "todayMood": "Today's check-in",
+    "complete": "Check-in done! ✓",
+    "completeDesc": "You have registered how you're feeling today.",
+    "saveError": "Could not save check-in. Please try again.",
+    "doneToday": "Checked in today",
+    "streakReminder": "A quick check-in keeps your streak alive",
+    "notePlaceholder": "Optional note about how you're feeling... (max 500 characters)",
+    "checkIn": "Check in",
     "moods": {
+      "veryBad": "Very bad",
+      "bad": "Bad",
       "struggling": "Struggling",
       "okay": "Okay",
       "good": "Good",
       "great": "Great",
+      "veryGood": "Very good",
       "amazing": "Amazing"
     }
   },

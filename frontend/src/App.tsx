@@ -20,6 +20,7 @@ import Navigation from "./components/Navigation";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
 import ResetPassword from "./pages/ResetPassword";
+import SOSButton from "./components/SOSButton";
 import "./App.css";
 
 const queryClient = new QueryClient();
@@ -110,6 +111,7 @@ function AppContent() {
       </main>
 
       {user && <Navigation />}
+      {user && <SOSButton />}
     </div>
   );
 }

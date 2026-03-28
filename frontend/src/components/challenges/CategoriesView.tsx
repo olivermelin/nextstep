@@ -72,7 +72,10 @@ const CategoriesView = ({
             return (
               <Card
                 key={category.id}
+                role="button"
+                tabIndex={loading ? -1 : 0}
                 onClick={() => onSelectCategory(category.id)}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onSelectCategory(category.id); } }}
                 className={`p-6 bg-gradient-to-br ${category.bgColor} border ${category.borderColor} hover:border-opacity-100 cursor-pointer transition-all hover:shadow-md ${loading ? "opacity-50 pointer-events-none" : ""}`}
               >
                 <div className="flex items-start justify-between mb-4">
@@ -127,8 +130,11 @@ const CategoriesView = ({
               return (
                 <Card
                   key={uc.id}
+                  role="button"
+                  tabIndex={0}
                   className="p-4 cursor-pointer hover:shadow-md transition-all border-primary/40 bg-primary/10"
                   onClick={() => navigate(`/challenges/${categoryToSlug[uc.category]}/${uc.challengeId}`)}
+                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate(`/challenges/${categoryToSlug[uc.category]}/${uc.challengeId}`); } }}
                 >
                   <div className="flex items-start justify-between mb-2">
                     <div className="flex-1">

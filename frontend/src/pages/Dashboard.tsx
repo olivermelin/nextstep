@@ -15,10 +15,6 @@ import { formatMarkdown } from "@/components/AIChat";
 import { UserChallengeOutDto } from "@/types/challenge";
 import SobrietyCounter from "@/components/SobrietyCounter";
 import DailyCheckIn from "@/components/DailyCheckIn";
-import SOSButton from "@/components/SOSButton";
-import MilestoneCelebration from "@/components/MilestoneCelebration";
-import DailyRewardBox from "@/components/DailyRewardBox";
-import { rewardService, DailyRewardData } from "@/services/rewardService";
 import { useCallback } from "react";
 
 interface UserProgress {
@@ -38,34 +34,12 @@ const Dashboard = () => {
   const [coachLoading, setCoachLoading] = useState(false);
   const [activeChallenges, setActiveChallenges] = useState<UserChallengeOutDto[]>([]);
   const [challengesLoading, setChallengesLoading] = useState(false);
-  const [milestoneDays, setMilestoneDays] = useState<number | null>(null);
-  const [dailyReward, setDailyReward] = useState<DailyRewardData | null>(null);
-
   // Härledd userId från AuthContext (email prioriterat)
   const userId = user?.email || user?.id || null;
 
-  const handleMilestone = useCallback((days: number) => {
-    setMilestoneDays(days);
-  }, []);
-
-  // Generera daily reward efter check-in
   const handleCheckIn = useCallback(async () => {
-    if (!userId) return;
-    try {
-      const reward = await rewardService.generateReward(userId);
-      setDailyReward(reward);
-    } catch {
-      // Reward generation failed silently
-    }
-  }, [userId]);
-
-  // Hämta ev. redan genererad reward
-  useEffect(() => {
-    if (!userId) return;
-    rewardService.getTodayReward(userId).then((reward) => {
-      if (reward) setDailyReward(reward);
-    });
-  }, [userId]);
+    // Check-in callback — kan utökas i framtiden
+  }, []);
 
   // Hämta användarens framsteg
   useEffect(() => {
@@ -303,23 +277,12 @@ const Dashboard = () => {
               </div>
             </Card>
 
-            {/* Daily Reward (Mystery Box) */}
-            {userId && <DailyRewardBox userId={userId} />}
-
             {/* Sobriety Counter */}
-            {userId && <SobrietyCounter userId={userId} onMilestone={handleMilestone} />}
+            {userId && <SobrietyCounter userId={userId} />}
           </div>
         </div>
       </div>
 
-      {/* SOS Button */}
-      <SOSButton />
-
-      {/* Milestone Celebration */}
-      <MilestoneCelebration
-        milestone={milestoneDays}
-        onClose={() => setMilestoneDays(null)}
-      />
     </div>
   );
 };

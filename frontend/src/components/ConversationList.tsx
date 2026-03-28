@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { X, Plus, MessageSquare, Loader2 } from "lucide-react";
@@ -22,6 +23,8 @@ const ConversationList = ({
   open,
   onClose,
 }: ConversationListProps) => {
+  const { t } = useTranslation();
+
   return (
     <AnimatePresence>
       {open && (
@@ -45,11 +48,11 @@ const ConversationList = ({
           >
             {/* Header */}
             <div className="flex items-center justify-between p-4 border-b border-border">
-              <h2 className="font-semibold text-sm">Tidigare konversationer</h2>
+              <h2 className="font-semibold text-sm">{t("aiCoach.conversationHistory")}</h2>
               <button
                 onClick={onClose}
                 className="p-1 rounded-lg hover:bg-muted transition-colors"
-                aria-label="Stäng"
+                aria-label={t("common.close")}
               >
                 <X className="w-4 h-4" />
               </button>
@@ -63,7 +66,7 @@ const ConversationList = ({
                 size="sm"
               >
                 <Plus className="w-4 h-4" />
-                Ny konversation
+                {t("aiCoach.newConversation")}
               </Button>
             </div>
 
@@ -75,7 +78,7 @@ const ConversationList = ({
                 </div>
               ) : sessions.length === 0 ? (
                 <p className="text-xs text-muted-foreground text-center py-8">
-                  Inga tidigare konversationer
+                  {t("aiCoach.noConversations")}
                 </p>
               ) : (
                 sessions.map((session) => (
@@ -92,12 +95,12 @@ const ConversationList = ({
                       <MessageSquare className="w-3.5 h-3.5 mt-0.5 text-muted-foreground shrink-0" />
                       <div className="overflow-hidden">
                         <p className="text-xs font-medium truncate">
-                          {session.preview || "Konversation"}
+                          {session.preview || t("aiCoach.conversation")}
                         </p>
                         <p className="text-[10px] text-muted-foreground mt-0.5">
                           {new Date(session.lastMessageAt).toLocaleDateString("sv-SE")}
                           {" · "}
-                          {session.messageCount} meddelanden
+                          {session.messageCount} {t("aiCoach.messages")}
                         </p>
                       </div>
                     </div>
