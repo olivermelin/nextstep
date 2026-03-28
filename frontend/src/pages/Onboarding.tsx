@@ -199,7 +199,7 @@ const Onboarding = () => {
   };
 
   return (
-    <div className="flex-1 flex items-start justify-center px-4 py-6 md:py-10">
+    <div className="min-h-full flex items-start justify-center px-4 py-6 md:py-10">
       <Card className="w-full max-w-2xl p-5 md:p-8 shadow-[var(--shadow-elevated)] animate-fade-in-up">
         {/* Progress Bar */}
         <div className="mb-4">

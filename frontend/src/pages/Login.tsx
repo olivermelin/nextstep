@@ -197,7 +197,7 @@ const Login = () => {
   const normalInputClass = 'border-border/50 focus:ring-primary/50 focus:border-primary';
 
   return (
-    <div className="flex flex-1 items-center justify-center overflow-hidden relative">
+    <div className="min-h-full flex items-center justify-center overflow-hidden relative">
       {/* Animated background elements - Apple style */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/4 -left-48 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-pulse"
