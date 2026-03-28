@@ -61,6 +61,9 @@ const Onboarding = () => {
   // Steg 4 - Recovery Stage (bara vid RECOVERY-spår)
   const [recoveryStage, setRecoveryStage] = useState<RecoveryStage | undefined>(undefined);
 
+  // Samtycke till AI-beteendeanalys — visas på sista steget
+  const [aiAnalysisConsent, setAiAnalysisConsent] = useState(false);
+
   // Antal steg beror på vilket spår användaren väljer
   const isRecoveryTrack = selectedTrack === OnboardingTrack.RECOVERY;
   const totalSteps = isRecoveryTrack ? 4 : 2;
@@ -182,6 +185,7 @@ const Onboarding = () => {
           substanceHistory: substanceHistory.length > 0 ? substanceHistory : undefined,
         } : undefined,
         recoveryStage: isRecoveryTrack ? recoveryStage : undefined,
+        aiAnalysisConsent,
       };
 
       await onboardingApi.completeOnboarding(user.email || user.id, onboardingData);
@@ -524,6 +528,25 @@ const Onboarding = () => {
           </motion.div>
         )}
         </AnimatePresence>
+
+        {/* Samtycke till AI-analys — visas på sista steget */}
+        {currentStep === totalSteps && (
+          <div className="mt-5 p-4 rounded-xl border border-border bg-muted/40 space-y-3">
+            <p className="text-sm font-semibold text-foreground">{t('onboarding.consentTitle')}</p>
+            <div className="flex items-start gap-3">
+              <Checkbox
+                id="ai-analysis-consent"
+                checked={aiAnalysisConsent}
+                onCheckedChange={(checked) => setAiAnalysisConsent(checked === true)}
+                className="mt-0.5 shrink-0"
+              />
+              <Label htmlFor="ai-analysis-consent" className="text-sm cursor-pointer font-normal leading-relaxed text-muted-foreground">
+                {t('onboarding.consentText')}
+              </Label>
+            </div>
+            <p className="text-xs text-muted-foreground">{t('onboarding.consentRequired')}</p>
+          </div>
+        )}
 
         {/* Navigation Buttons */}
         <div className="flex gap-3 mt-5">

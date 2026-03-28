@@ -49,6 +49,12 @@ public class UserSettings extends BaseUserData {
     @Embedded
     private BackgroundInfo backgroundInfo;
 
+    /** Samtycke till att AI-coachen analyserar beteendemönster (humör + aktivitet) */
+    private boolean aiAnalysisConsent = false;
+
+    /** Tidpunkt när samtycket gavs — null om inte samtyckt */
+    private LocalDateTime aiAnalysisConsentAt;
+
     protected UserSettings() {}
 
     public UserSettings(String userId) {

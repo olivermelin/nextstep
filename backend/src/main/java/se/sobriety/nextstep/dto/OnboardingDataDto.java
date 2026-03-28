@@ -12,6 +12,7 @@ import java.util.List;
  *
  * onboardingTrack är obligatorisk.
  * backgroundInfo och recoveryStage är valfria och används bara vid RECOVERY-spåret.
+ * aiAnalysisConsent är valfritt och styr om AI-coachen får analysera beteendemönster.
  */
 public record OnboardingDataDto(
         @NotNull(message = "Onboarding track is required")
@@ -27,5 +28,8 @@ public record OnboardingDataDto(
         @Valid
         BackgroundInfoDto backgroundInfo,
 
-        RecoveryStage recoveryStage
+        RecoveryStage recoveryStage,
+
+        /** Samtycke till AI-baserad beteendeanalys — användaren väljer aktivt */
+        Boolean aiAnalysisConsent
 ) {}

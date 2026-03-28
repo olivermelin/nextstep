@@ -64,6 +64,8 @@ export interface OnboardingData {
   otherGoal?: string;
   backgroundInfo?: BackgroundInfo;
   recoveryStage?: RecoveryStage;
+  /** Samtycke till att AI-coachen analyserar beteendemönster */
+  aiAnalysisConsent?: boolean;
 }
 
 export interface OnboardingResponse {

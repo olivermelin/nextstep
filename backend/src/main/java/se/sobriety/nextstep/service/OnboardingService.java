@@ -67,6 +67,11 @@ public class OnboardingService {
             userSettings.setBackgroundInfo(backgroundInfo);
         }
 
+        // Spara samtycke till AI-beteendeanalys
+        boolean consent = Boolean.TRUE.equals(data.aiAnalysisConsent());
+        userSettings.setAiAnalysisConsent(consent);
+        userSettings.setAiAnalysisConsentAt(consent ? java.time.LocalDateTime.now() : null);
+
         // Markera onboarding som slutförd
         userSettings.setOnboardingCompleted(true);
 
