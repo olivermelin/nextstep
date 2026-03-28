@@ -125,7 +125,16 @@ All colors MUST be HSL.
   }
 }
 
-/* Snygg scrollbar */
+/* Dölj scrollbar på page-container men behåll scroll-funktionalitet */
+.page-scroll-container {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.page-scroll-container::-webkit-scrollbar {
+  display: none;
+}
+
+/* Snygg scrollbar på övriga element (t.ex. chat) */
 ::-webkit-scrollbar {
   width: 8px;
 }
