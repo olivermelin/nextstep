@@ -28,6 +28,7 @@ const DailyCheckIn = ({ userId, existingCheckIn, onCheckInComplete }: DailyCheck
   const [note, setNote] = useState(existingCheckIn?.note ?? "");
   const [loading, setLoading] = useState(false);
   const [completed, setCompleted] = useState(!!existingCheckIn);
+  const [submittedCheckIn, setSubmittedCheckIn] = useState<CheckInData | null>(null);
 
   const MOOD_OPTIONS = [
     { score: 1, emoji: "😔", label: t("checkin.moods.veryBad") },
@@ -49,6 +50,7 @@ const DailyCheckIn = ({ userId, existingCheckIn, onCheckInComplete }: DailyCheck
         note: note.trim() || undefined,
       });
       setCompleted(true);
+      setSubmittedCheckIn(result);
       onCheckInComplete?.(result);
       toast({
         title: t("checkin.complete"),
@@ -65,9 +67,10 @@ const DailyCheckIn = ({ userId, existingCheckIn, onCheckInComplete }: DailyCheck
     }
   };
 
-  // Redan incheckad och inte redigering
-  if (completed && existingCheckIn) {
-    const mood = MOOD_OPTIONS.find((m) => m.score === existingCheckIn.moodScore);
+  // Redan incheckad (antingen befintlig eller nyss skickad)
+  const doneData = existingCheckIn ?? submittedCheckIn;
+  if (completed && doneData) {
+    const mood = MOOD_OPTIONS.find((m) => m.score === doneData.moodScore);
     return (
       <Card className="p-4">
         <div className="flex items-center gap-3">
@@ -76,7 +79,7 @@ const DailyCheckIn = ({ userId, existingCheckIn, onCheckInComplete }: DailyCheck
             <p className="text-sm font-medium">{t("checkin.doneToday")}</p>
             <p className="text-sm text-muted-foreground">
               {mood?.emoji} {mood?.label}
-              {existingCheckIn.note && ` — "${existingCheckIn.note}"`}
+              {doneData.note && ` — "${doneData.note}"`}
             </p>
           </div>
         </div>

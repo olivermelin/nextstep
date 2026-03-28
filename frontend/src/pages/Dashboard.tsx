@@ -11,6 +11,7 @@ import { API_ENDPOINTS } from "@/config/api";
 import { useTranslation } from "react-i18next";
 import { getDailyCoachTip } from "@/services/coachService";
 import { userChallengeApi } from "@/services/challengeService";
+import { checkInService, CheckInData } from "@/services/checkInService";
 import { formatMarkdown } from "@/components/AIChat";
 import { UserChallengeOutDto } from "@/types/challenge";
 import SobrietyCounter from "@/components/SobrietyCounter";
@@ -34,18 +35,20 @@ const Dashboard = () => {
   const [coachLoading, setCoachLoading] = useState(false);
   const [activeChallenges, setActiveChallenges] = useState<UserChallengeOutDto[]>([]);
   const [challengesLoading, setChallengesLoading] = useState(false);
+  const [todayCheckIn, setTodayCheckIn] = useState<CheckInData | null | undefined>(undefined);
   // Härledd userId från AuthContext (email prioriterat)
   const userId = user?.email || user?.id || null;
 
-  const handleCheckIn = useCallback(async () => {
-    // Check-in callback — kan utökas i framtiden
+  const handleCheckIn = useCallback((checkIn: CheckInData) => {
+    setTodayCheckIn(checkIn);
   }, []);
 
-  // Hämta användarens framsteg
+  // Hämta användarens framsteg och dagens incheckning
   useEffect(() => {
     if (userId) {
       fetchUserProgress();
       fetchActiveChallenges();
+      checkInService.getToday(userId).then(setTodayCheckIn);
     }
   }, [userId]);
 
@@ -188,8 +191,14 @@ const Dashboard = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
           {/* Left column — main content */}
           <div className="lg:col-span-2 space-y-5">
-            {/* Daily Check-In */}
-            {userId && <DailyCheckIn userId={userId} onCheckInComplete={handleCheckIn} />}
+            {/* Daily Check-In — visas bara om hämtning är klar (undefined = laddar) */}
+            {userId && todayCheckIn !== undefined && (
+              <DailyCheckIn
+                userId={userId}
+                existingCheckIn={todayCheckIn}
+                onCheckInComplete={handleCheckIn}
+              />
+            )}
 
             {/* Daily Coach Message */}
             {coachLoading ? (
@@ -277,8 +286,10 @@ const Dashboard = () => {
               </div>
             </Card>
 
-            {/* Sobriety Counter */}
-            {userId && <SobrietyCounter userId={userId} />}
+            {/* Nykterhetstimer — visas bara vid RECOVERY-spår */}
+            {userId && user.onboardingTrack === 'RECOVERY' && (
+              <SobrietyCounter userId={userId} />
+            )}
           </div>
         </div>
       </div>

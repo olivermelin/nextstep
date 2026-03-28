@@ -80,6 +80,27 @@ public class OnboardingService {
     }
 
     /**
+     * Hämta användarens onboarding-spår (CONSUMER eller RECOVERY), eller null om ej satt
+     */
+    @Transactional(readOnly = true)
+    public String getOnboardingTrack(String userId) {
+        if (userId == null || userId.isBlank()) return null;
+
+        var rows = userSettingsRepository.findAllByUserId(userId);
+        var found = rows.stream()
+                .filter(s -> s.getOnboardingTrack() != null)
+                .findFirst();
+        if (found.isPresent()) return found.get().getOnboardingTrack().name();
+
+        var byEmail = userSettingsRepository.findAllByEmail(userId);
+        return byEmail.stream()
+                .filter(s -> s.getOnboardingTrack() != null)
+                .findFirst()
+                .map(s -> s.getOnboardingTrack().name())
+                .orElse(null);
+    }
+
+    /**
      * Kontrollera om användaren har slutfört onboarding
      */
     @Transactional(readOnly = true)

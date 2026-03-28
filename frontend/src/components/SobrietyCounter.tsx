@@ -90,23 +90,15 @@ const SobrietyCounter = ({ userId, onMilestone }: SobrietyCounterProps) => {
                 {timeSince.months} {t("sobriety.months", { count: timeSince.months })}
               </span>
             )}
-            {timeSince && (
-              <span className={`font-bold text-green-700 dark:text-green-300 ${
-                !timeSince.years && !timeSince.months ? "text-3xl" : "text-2xl"
-              }`}>
-                {timeSince.days} {t("common.days", { defaultValue: "dagar" })}
-              </span>
-            )}
+            <span className={`font-bold text-green-700 dark:text-green-300 ${
+              !timeSince?.years && !timeSince?.months ? "text-3xl" : "text-2xl"
+            }`}>
+              {streakData.currentStreak} {t("common.days", { defaultValue: "dagar" })}
+            </span>
           </div>
           <p className="text-xs text-muted-foreground mt-1">
             {t("sobriety.since")} {new Date(streakData.streakStartDate).toLocaleDateString("sv-SE")}
           </p>
-        </div>
-        <div className="text-right">
-          <p className="text-3xl font-bold text-green-600 dark:text-green-400">
-            {streakData.currentStreak}
-          </p>
-          <p className="text-xs text-muted-foreground">{t("common.days", { defaultValue: "dagar" })}</p>
         </div>
       </div>
     </Card>

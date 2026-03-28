@@ -90,15 +90,17 @@ public class AuthController {
                 }
             }
             boolean onboardingCompleted = onboardingService.isOnboardingCompleted(email);
+            String onboardingTrack = onboardingService.getOnboardingTrack(email);
 
-            return ResponseEntity.ok(Map.of(
-                    "authenticated", true,
-                    "id", email,
-                    "name", name != null ? name : "",
-                    "email", email != null ? email : "",
-                    "picture", oauthToken.getPrincipal().getAttribute("picture") != null ? oauthToken.getPrincipal().getAttribute("picture") : "",
-                    "onboardingCompleted", onboardingCompleted
-            ));
+            var response = new java.util.HashMap<String, Object>();
+            response.put("authenticated", true);
+            response.put("id", email);
+            response.put("name", name != null ? name : "");
+            response.put("email", email != null ? email : "");
+            response.put("picture", oauthToken.getPrincipal().getAttribute("picture") != null ? oauthToken.getPrincipal().getAttribute("picture") : "");
+            response.put("onboardingCompleted", onboardingCompleted);
+            if (onboardingTrack != null) response.put("onboardingTrack", onboardingTrack);
+            return ResponseEntity.ok(response);
         }
 
         // Email/password-inloggning
@@ -107,14 +109,16 @@ public class AuthController {
             User user = userRepository.findByEmail(email).orElse(null);
             if (user != null) {
                 boolean onboardingCompleted = onboardingService.isOnboardingCompleted(email);
-                return ResponseEntity.ok(Map.of(
-                        "authenticated", true,
-                        "id", email,
-                        "name", user.getName(),
-                        "email", user.getEmail(),
-                        "picture", "",
-                        "onboardingCompleted", onboardingCompleted
-                ));
+                String onboardingTrack = onboardingService.getOnboardingTrack(email);
+                var resp = new java.util.HashMap<String, Object>();
+                resp.put("authenticated", true);
+                resp.put("id", email);
+                resp.put("name", user.getName());
+                resp.put("email", user.getEmail());
+                resp.put("picture", "");
+                resp.put("onboardingCompleted", onboardingCompleted);
+                if (onboardingTrack != null) resp.put("onboardingTrack", onboardingTrack);
+                return ResponseEntity.ok(resp);
             }
         }
 
