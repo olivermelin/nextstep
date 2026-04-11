@@ -88,9 +88,10 @@ export const userChallengeApi = {
   completeChallenge: async (
     userId: string,
     challengeId: number,
-    actualMinutes: number = 0
+    actualMinutes: number = 0,
+    shareToFeed: boolean = false
   ): Promise<UserChallengeOutDto> => {
-    const url = `${API_ENDPOINTS.USER_CHALLENGES.COMPLETE(userId, challengeId)}?actualMinutes=${actualMinutes}`;
+    const url = `${API_ENDPOINTS.USER_CHALLENGES.COMPLETE(userId, challengeId)}?actualMinutes=${actualMinutes}&shareToFeed=${shareToFeed}`;
     return fetchWithCredentials(url, { method: "POST" });
   },
 };

@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, ArrowRight, Sparkles, AlertCircle } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { useTranslation } from 'react-i18next';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -197,7 +198,7 @@ const Login = () => {
   const normalInputClass = 'border-border/50 focus:ring-primary/50 focus:border-primary';
 
   return (
-    <div className="min-h-full flex items-center justify-center overflow-hidden relative">
+    <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center overflow-hidden relative">
       {/* Animated background elements - Apple style */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/4 -left-48 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-pulse"
@@ -232,18 +233,18 @@ const Login = () => {
             /* Initial login options */
             <div className="space-y-4 animate-in fade-in duration-500">
               {/* Google OAuth Button */}
-              <button
+              <Button
                 onClick={login}
-                className="group w-full flex items-center justify-center gap-3 bg-white dark:bg-card text-foreground px-6 py-4 rounded-2xl border border-border/50 hover:border-primary/50 hover:shadow-lg font-medium transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
+                className="group h-auto w-full flex items-center justify-center gap-3 bg-white dark:bg-card text-foreground px-6 py-4 rounded-2xl border border-border/50 hover:border-primary/50 hover:shadow-lg font-medium transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
               >
-                <svg className="w-5 h-5" viewBox="0 0 24 24">
+                <svg className="w-5 h-5" viewBox="0 0 24 24" aria-hidden="true">
                   <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
                   <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
                   <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
                   <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
                 </svg>
                 <span>{t('auth.loginWithGoogle')}</span>
-              </button>
+              </Button>
 
               {/* Divider */}
               <div className="relative py-2">
@@ -257,27 +258,27 @@ const Login = () => {
 
               {/* Email options */}
               <div className="space-y-3">
-                <button
+                <Button
                   onClick={() => {
                     setShowEmailForm(true);
                     setIsSignup(false);
                   }}
-                  className="w-full flex items-center justify-between bg-primary/5 dark:bg-primary/10 text-foreground px-6 py-4 rounded-2xl border border-primary/20 hover:border-primary/40 hover:bg-primary/10 dark:hover:bg-primary/20 font-medium transition-all duration-300 group"
+                  className="h-auto w-full flex items-center justify-between bg-primary/5 dark:bg-primary/10 text-foreground px-6 py-4 rounded-2xl border border-primary/20 hover:border-primary/40 hover:bg-primary/10 dark:hover:bg-primary/20 font-medium transition-all duration-300 group"
                 >
                   <span>{t('auth.loginWithEmail')}</span>
                   <ArrowRight className="w-5 h-5 text-primary group-hover:translate-x-1 transition-transform" />
-                </button>
+                </Button>
 
-                <button
+                <Button
                   onClick={() => {
                     setShowEmailForm(true);
                     setIsSignup(true);
                   }}
-                  className="w-full flex items-center justify-between bg-accent/5 dark:bg-accent/10 text-foreground px-6 py-4 rounded-2xl border border-accent/20 hover:border-accent/40 hover:bg-accent/10 dark:hover:bg-accent/20 font-medium transition-all duration-300 group"
+                  className="h-auto w-full flex items-center justify-between bg-accent/5 dark:bg-accent/10 text-foreground px-6 py-4 rounded-2xl border border-accent/20 hover:border-accent/40 hover:bg-accent/10 dark:hover:bg-accent/20 font-medium transition-all duration-300 group"
                 >
                   <span>{t('auth.createAccount')}</span>
                   <ArrowRight className="w-5 h-5 text-accent group-hover:translate-x-1 transition-transform" />
-                </button>
+                </Button>
               </div>
 
               <p className="text-xs text-center text-muted-foreground pt-4">
@@ -306,10 +307,10 @@ const Login = () => {
                 {t('forgotPassword.instructions')}
               </p>
 
-              <button
+              <Button
                 type="submit"
                 disabled={loading}
-                className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-primary to-primary/80 text-primary-foreground px-6 py-4 rounded-xl hover:shadow-lg font-semibold transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                className="h-auto w-full flex items-center justify-center gap-2 bg-gradient-to-r from-primary to-primary/80 text-primary-foreground px-6 py-4 rounded-xl hover:shadow-lg font-semibold transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
               >
                 {loading ? (
                   <>
@@ -319,15 +320,16 @@ const Login = () => {
                 ) : (
                   <span>{t('forgotPassword.sendLink')}</span>
                 )}
-              </button>
+              </Button>
 
-              <button
+              <Button
                 type="button"
+                variant="ghost"
                 onClick={resetForm}
-                className="w-full text-sm text-muted-foreground hover:text-foreground transition-colors"
+                className="h-auto w-full text-sm text-muted-foreground hover:text-foreground"
               >
                 {t('auth.backToLogin')}
-              </button>
+              </Button>
             </form>
           ) : (
             /* Email Form */
@@ -350,11 +352,13 @@ const Login = () => {
                     onChange={(e) => setName(e.target.value)}
                     onBlur={() => handleBlur('name')}
                     placeholder={t('auth.namePlaceholder')}
+                    aria-describedby={touched.name && fieldErrors.name ? "name-error" : undefined}
+                    aria-invalid={touched.name && !!fieldErrors.name}
                     className={`${baseInputClass} ${touched.name && fieldErrors.name ? inputErrorClass : normalInputClass}`}
                     disabled={loading}
                   />
                   {touched.name && fieldErrors.name && (
-                    <p className="text-sm text-red-500 dark:text-red-400 animate-in fade-in slide-in-from-top-1 duration-200">
+                    <p id="name-error" role="alert" className="text-sm text-red-500 dark:text-red-400 animate-in fade-in slide-in-from-top-1 duration-200">
                       {fieldErrors.name}
                     </p>
                   )}
@@ -372,11 +376,13 @@ const Login = () => {
                   onChange={(e) => { setEmail(e.target.value); setLoginError(null); }}
                   onBlur={() => handleBlur('email')}
                   placeholder={t('auth.emailPlaceholder')}
+                  aria-describedby={touched.email && fieldErrors.email ? "email-error" : undefined}
+                  aria-invalid={touched.email && !!fieldErrors.email}
                   className={`${baseInputClass} ${touched.email && fieldErrors.email ? inputErrorClass : normalInputClass}`}
                   disabled={loading}
                 />
                 {touched.email && fieldErrors.email && (
-                  <p className="text-sm text-red-500 dark:text-red-400 animate-in fade-in slide-in-from-top-1 duration-200">
+                  <p id="email-error" role="alert" className="text-sm text-red-500 dark:text-red-400 animate-in fade-in slide-in-from-top-1 duration-200">
                     {fieldErrors.email}
                   </p>
                 )}
@@ -393,11 +399,13 @@ const Login = () => {
                   onChange={(e) => { setPassword(e.target.value); setLoginError(null); }}
                   onBlur={() => handleBlur('password')}
                   placeholder={t('auth.passwordPlaceholder')}
+                  aria-describedby={touched.password && fieldErrors.password ? "password-error" : undefined}
+                  aria-invalid={touched.password && !!fieldErrors.password}
                   className={`${baseInputClass} ${touched.password && fieldErrors.password ? inputErrorClass : normalInputClass}`}
                   disabled={loading}
                 />
                 {touched.password && fieldErrors.password && (
-                  <p className="text-sm text-red-500 dark:text-red-400 animate-in fade-in slide-in-from-top-1 duration-200">
+                  <p id="password-error" role="alert" className="text-sm text-red-500 dark:text-red-400 animate-in fade-in slide-in-from-top-1 duration-200">
                     {fieldErrors.password}
                   </p>
                 )}
@@ -422,10 +430,10 @@ const Login = () => {
                 )}
               </div>
 
-              <button
+              <Button
                 type="submit"
                 disabled={loading || !isFormValid}
-                className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-primary to-primary/80 text-primary-foreground px-6 py-4 rounded-xl hover:shadow-lg font-semibold transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                className="h-auto w-full flex items-center justify-center gap-2 bg-gradient-to-r from-primary to-primary/80 text-primary-foreground px-6 py-4 rounded-xl hover:shadow-lg font-semibold transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
               >
                 {loading ? (
                   <>
@@ -435,48 +443,52 @@ const Login = () => {
                 ) : (
                   <span>{isSignup ? t('auth.createAccount') : t('auth.login')}</span>
                 )}
-              </button>
+              </Button>
 
               <div className="flex items-center justify-between pt-2">
-                <button
+                <Button
                   type="button"
+                  variant="ghost"
                   onClick={resetForm}
-                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  className="h-auto text-sm text-muted-foreground hover:text-foreground px-0"
                 >
                   {t('auth.backButton')}
-                 </button>
+                </Button>
 
                 {!isSignup ? (
-                  <button
+                  <Button
                     type="button"
+                    variant="ghost"
                     onClick={() => {
                       setShowEmailForm(false);
                       setShowForgotPassword(true);
                     }}
-                    className="text-sm text-primary hover:text-primary/80 transition-colors font-medium"
+                    className="h-auto text-sm text-primary hover:text-primary/80 font-medium px-0"
                   >
                     {t('auth.forgotPassword')}
-                  </button>
+                  </Button>
                 ) : (
-                  <button
+                  <Button
                     type="button"
+                    variant="ghost"
                     onClick={() => setIsSignup(false)}
-                    className="text-sm text-primary hover:text-primary/80 transition-colors font-medium"
+                    className="h-auto text-sm text-primary hover:text-primary/80 font-medium px-0"
                   >
                     {t('auth.hasAccount')}
-                  </button>
+                  </Button>
                 )}
               </div>
 
               {!isSignup && (
                 <div className="text-center pt-2">
-                  <button
+                  <Button
                     type="button"
+                    variant="ghost"
                     onClick={() => setIsSignup(true)}
-                    className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                    className="h-auto text-sm text-muted-foreground hover:text-foreground px-0"
                   >
                     {t('auth.noAccount')} <span className="text-primary font-medium">{t('auth.createOne')}</span>
-                  </button>
+                  </Button>
                 </div>
               )}
             </form>

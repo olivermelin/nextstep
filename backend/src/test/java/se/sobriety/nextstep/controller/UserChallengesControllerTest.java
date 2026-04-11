@@ -16,6 +16,7 @@ import se.sobriety.nextstep.service.UserChallengeService;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
@@ -110,7 +111,7 @@ class UserChallengesControllerTest {
     @Test
     void completeChallenge_returns200WithCompletedChallenge() throws Exception {
         UserChallengeOutDto completed = sampleChallenge("COMPLETED");
-        when(userChallengeService.completeChallenge(eq(USER_ID), eq(10L), anyInt())).thenReturn(completed);
+        when(userChallengeService.completeChallenge(eq(USER_ID), eq(10L), anyInt(), anyBoolean())).thenReturn(completed);
 
         mockMvc.perform(post("/api/user-challenges/user/{userId}/complete/{challengeId}", USER_ID, 10L))
                 .andExpect(status().isOk())

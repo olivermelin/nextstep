@@ -20,6 +20,7 @@ import {
   type SessionSummary,
 } from "@/services/coachService";
 import ConversationList from "@/components/ConversationList";
+import { useCrisis } from "@/context/CrisisContext";
 
 interface Message {
   id: string;
@@ -33,7 +34,7 @@ interface Message {
 
 // --- Krishantering-komponenter ---
 
-const CrisisBanner: React.FC = () => {
+export const CrisisBanner: React.FC = () => {
   const { t } = useTranslation();
   return (
   <div className="mx-4 mt-3 bg-gradient-to-r from-red-600 to-red-500 text-white p-4 rounded-2xl flex items-center gap-3 animate-in fade-in shadow-lg">
@@ -43,16 +44,16 @@ const CrisisBanner: React.FC = () => {
     </div>
     <div className="flex gap-2 flex-shrink-0">
       <a
+        href="tel:112"
+        className="inline-flex items-center gap-1 bg-white text-red-600 rounded-lg px-3 py-1.5 text-xs font-bold hover:bg-white/90 transition-colors shadow-sm"
+      >
+        <Phone className="w-3 h-3" /> 112
+      </a>
+      <a
         href="tel:90101"
         className="inline-flex items-center gap-1 bg-white/90 text-red-600 rounded-lg px-3 py-1.5 text-xs font-bold hover:bg-white transition-colors shadow-sm"
       >
         <Phone className="w-3 h-3" /> Mind: 90101
-      </a>
-      <a
-        href="tel:112"
-        className="inline-flex items-center gap-1 bg-white/90 text-red-600 rounded-lg px-3 py-1.5 text-xs font-bold hover:bg-white transition-colors shadow-sm"
-      >
-        <Phone className="w-3 h-3" /> SOS: 112
       </a>
     </div>
   </div>
@@ -201,7 +202,7 @@ export const AIChat: React.FC<AIChatProps> = ({ quickPrompt, onQuickPromptConsum
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [sessionId, setSessionId] = useState<string | null>(null);
-  const [showCrisisBanner, setShowCrisisBanner] = useState(false);
+  const { showCrisisBanner, setShowCrisisBanner } = useCrisis();
   const [coachStatus, setCoachStatus] = useState<CoachStatusResponse | null>(null);
   const [quota, setQuota] = useState<QuotaInfo | null>(null);
 
@@ -592,9 +593,9 @@ export const AIChat: React.FC<AIChatProps> = ({ quickPrompt, onQuickPromptConsum
                   </div>
                   <div className="bg-blue-50 border border-blue-200/60 dark:bg-blue-950/40 dark:border-blue-800/50 rounded-2xl rounded-bl-md px-4 py-3 shadow-sm">
                     <div className="flex gap-1.5">
-                      <span className="w-2 h-2 rounded-full bg-muted-foreground/40 animate-bounce" style={{ animationDelay: "0ms" }} />
-                      <span className="w-2 h-2 rounded-full bg-muted-foreground/40 animate-bounce" style={{ animationDelay: "150ms" }} />
-                      <span className="w-2 h-2 rounded-full bg-muted-foreground/40 animate-bounce" style={{ animationDelay: "300ms" }} />
+                      <span className="w-2 h-2 rounded-full bg-muted-foreground/40 animate-bounce animation-delay-0" />
+                      <span className="w-2 h-2 rounded-full bg-muted-foreground/40 animate-bounce animation-delay-150" />
+                      <span className="w-2 h-2 rounded-full bg-muted-foreground/40 animate-bounce animation-delay-300" />
                     </div>
                   </div>
                 </div>

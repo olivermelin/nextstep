@@ -74,6 +74,14 @@ public class UserSettingsService {
         if (dto.coachPersonality() != null) {
             entity.setCoachPersonality(dto.coachPersonality());
         }
+        // Feed-delningsinställningar (opt-in)
+        if (dto.feedSharingEnabled() != null) {
+            entity.setFeedSharingEnabled(dto.feedSharingEnabled());
+        }
+        if (dto.feedSharedTypes() != null) {
+            entity.getFeedSharedTypes().clear();
+            entity.getFeedSharedTypes().addAll(dto.feedSharedTypes());
+        }
     }
 
     private UserSettings createAndSaveDefault(String userId) {

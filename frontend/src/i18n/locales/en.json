@@ -111,10 +111,15 @@
     "loadingUser": "Loading user info...",
     "debugWarning": "⚠️ Could not fetch user ID. Open DevTools (F12) and check Console for error messages.",
     "coachThinking": "Your coach is thinking...",
-    "coachPrompt": "Give me a short, personal daily motivational tip (2-3 sentences max). I am currently level {{level}} with {{points}} points and have {{activeChallenges}} active challenges. Keep it warm and encouraging.",
+    "coachPrompt": "Give me a short, uplifting daily message (2-3 sentences max). I am currently level {{level}} with {{points}} points and have {{activeChallenges}} active challenges. Be encouraging and positive. Do NOT end with a question — this is a supportive statement, not a conversation starter.",
     "noActiveChallenges": "You have no active challenges yet. Start one to see it here!",
     "browseChallenges": "Browse Challenges",
     "goToChallenge": "Go to Challenge",
+    "dailyRitual": "Daily routine",
+    "ritualCheckIn": "Check in",
+    "ritualChallenge": "Challenge",
+    "ritualReward": "Reward",
+    "ritualComplete": "All steps done today! 🌟",
     "coachMessages": [
       "Every day is a new opportunity to grow. You've got this! 💪",
       "Remember: Progress isn't always linear. Every step forward counts. 🌟",
@@ -176,6 +181,8 @@
     "step2Subtitle": "This information helps us give you better support and recommendations.",
     "step3Title": "Where are you right now?",
     "step3Subtitle": "This helps us adapt the support to where you are in your journey.",
+    "coachTitle": "Choose your coach",
+    "coachSubtitle": "Pick the coaching style that suits you best. You can always change it in settings.",
     "consentTitle": "AI behavioral analysis",
     "consentText": "I allow the AI coach to analyze my mood logs and activity patterns to provide personalized and proactive suggestions. You can change this at any time in settings.",
     "consentRequired": "You can skip this — the analysis is optional.",
@@ -317,6 +324,8 @@
     "alreadyActiveDesc": "Complete \"{{name}}\" first before starting a new one.",
     "alreadyActiveErrorDesc": "Complete your current activity before starting a new one.",
     "couldNotComplete": "Could not complete challenge. Please try again.",
+    "challengeComplete": "Challenge complete! 🎉",
+    "xpEarned": "+{{xp}} XP",
     "difficulty": {
       "easy": "Easy",
       "medium": "Medium",
@@ -327,7 +336,10 @@
       "physicalActivity": "Physical activity",
       "focusDiscipline": "Focus & discipline",
       "personalDevelopment": "Personal development",
-      "drawingExercises": "Drawing Exercises"
+      "drawingExercises": "Drawing Exercises",
+      "healthyHabits": "Healthy Habits",
+      "socialSkills": "Social Skills",
+      "emotionalAwareness": "Emotional Awareness"
     },
     "drawing": {
       "title": "Drawing Canvas",
@@ -342,7 +354,9 @@
       "minutesPlaceholder": "Enter minutes",
       "xpPreview": "You earn",
       "confirm": "Complete with {{xp}} XP"
-    }
+    },
+    "shareToFeed": "Share with friends",
+    "shareToFeedHint": "(visible only to your friends)"
   },
   "progress": {
     "title": "Your Progress",
@@ -432,7 +446,11 @@
     "jourhavandeMedmanniskaDesc": "Evenings and nights",
     "beroendelinjen": "Addiction Helpline",
     "beroendelinjenDesc": "Addiction support, every day",
-    "emergencyNote": "In case of immediate danger, always call 112"
+    "emergencyNote": "In case of immediate danger, always call 112",
+    "confirmPrompt": "Which number would you like to call?",
+    "confirmCallMind": "Call Mind now — 90101",
+    "confirmCall112": "Call 112 — Emergency",
+    "confirmCancel": "Cancel"
   },
   "sobriety": {
     "title": "Sobriety Timer",
@@ -457,6 +475,8 @@
     "streakReminder": "A quick check-in keeps your streak alive",
     "notePlaceholder": "Optional note about how you're feeling... (max 500 characters)",
     "checkIn": "Check in",
+    "streakUpdate": "Streak: {{days}} days in a row!",
+    "streakKeepGoing": "Keep going — every day counts.",
     "moods": {
       "veryBad": "Very bad",
       "bad": "Bad",
@@ -486,6 +506,8 @@
     "createDuel": "Challenge someone",
     "duelOpponentEmail": "Opponent's email",
     "duelChallengeName": "Challenge name",
+    "duelSelectChallenge": "Select an active challenge...",
+    "duelNoActiveChallenges": "You have no active challenges to duel with.",
     "sendDuel": "Send challenge",
     "duelSent": "Duel sent!",
     "duelFailed": "Could not send duel",
@@ -506,5 +528,88 @@
     "tierSILVER": "Silver",
     "tierGOLD": "Gold",
     "tierDIAMOND": "Diamond"
+  },
+  "streak": {
+    "title": "Streak Calendar",
+    "currentDays": "Current streak",
+    "longestDays": "Longest streak",
+    "todayDone": "Done today"
+  },
+  "streakWarning": {
+    "title": "Your {{days}}-day streak is at risk!",
+    "subtitle": "Check in or complete a challenge to keep it alive.",
+    "cta": "Do something now"
+  },
+  "milestone": {
+    "label": "{{days}} days in a row!",
+    "congrats": "Congratulations — that's a milestone!",
+    "sevenDays": "A whole week — this is a real turning point!",
+    "twoWeeks": "Two weeks in a row — you're on your way!",
+    "thirtyDays": "A whole month! The new habits are sticking now.",
+    "sixtyDays": "60 days of strength and courage — impressive.",
+    "ninetyDays": "90 days! You have built a whole new life.",
+    "halfYear": "Half a year — this is incredibly strong.",
+    "year": "A whole year! You are an inspiration to everyone around you."
+  },
+  "moodTrend": {
+    "title": "Mood Trend",
+    "improving": "Improving",
+    "declining": "Declining",
+    "stable": "Stable",
+    "daysAgo": "{{days}} days ago",
+    "today": "Today",
+    "average": "Average: {{avg}}/5"
+  },
+  "reward": {
+    "dailyReward": "Daily reward",
+    "rare": "Rare",
+    "bonusXp": "+{{xp}} XP bonus",
+    "quoteCard": "Inspirational quote",
+    "streakFreeze": "Streak freeze (protects your streak for one day)",
+    "avatarFrame": "Avatar frame (+{{xp}} XP)",
+    "claim": "Claim",
+    "claimed": "Claimed",
+    "collection": "Collection",
+    "emptyCollection": "Complete challenges to collect rewards!"
+  },
+  "feed": {
+    "title": "Activity Feed",
+    "empty": "When your friends share activities, you'll see them here",
+    "emptyNoFriends": "Add friends to see their activities here",
+    "enableSharing": "Share my activities with friends",
+    "enableSharingDesc": "Your completed challenges, streak milestones and level-ups appear in friends' feeds",
+    "cheer": "Cheer",
+    "cheered": "Cheering",
+    "cheerCount_one": "{{count}} cheering",
+    "cheerCount_other": "{{count}} cheering",
+    "deleteItem": "Remove from feed",
+    "deleted": "Post removed",
+    "sharingSettings": "Sharing settings",
+    "shareTypes": {
+      "CHALLENGE_COMPLETED": "Completed challenges",
+      "STREAK_MILESTONE": "Streak milestones",
+      "LEVEL_UP": "Level-ups",
+      "DUEL_WON": "Duel wins"
+    },
+    "loadMore": "Load more",
+    "loading": "Loading feed...",
+    "ago": {
+      "justNow": "Just now",
+      "minutesAgo": "{{n}}m ago",
+      "hoursAgo": "{{n}}h ago",
+      "yesterday": "Yesterday",
+      "daysAgo": "{{n}} days ago"
+    }
+  },
+  "welcome": {
+    "title": "Welcome to NextStep! 🎉",
+    "subtitle": "This is your daily space for recovery and personal growth. Choose how you want to start.",
+    "actionCheckIn": "Daily check-in",
+    "actionCheckInDesc": "How are you feeling today?",
+    "actionChallenge": "Explore challenges",
+    "actionChallengeDesc": "Find something to do",
+    "actionCoach": "Talk to the coach",
+    "actionCoachDesc": "Get personal guidance",
+    "dismiss": "I know how it works"
   }
 }

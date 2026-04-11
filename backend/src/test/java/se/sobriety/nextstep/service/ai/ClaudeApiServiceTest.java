@@ -9,7 +9,9 @@ import se.sobriety.nextstep.dto.CoachMessageResponse;
 import se.sobriety.nextstep.dto.SuggestedChallengeDto;
 import se.sobriety.nextstep.entity.*;
 import se.sobriety.nextstep.repository.UserChallengeRepository;
+import se.sobriety.nextstep.service.DailyCheckInService;
 import se.sobriety.nextstep.service.QuotaService;
+import se.sobriety.nextstep.service.StreakService;
 import se.sobriety.nextstep.service.UserProgressService;
 import se.sobriety.nextstep.service.UserSettingsService;
 
@@ -41,6 +43,10 @@ class ClaudeApiServiceTest {
 
     @Mock
     private QuotaService quotaService;
+    @Mock
+    private DailyCheckInService dailyCheckInService;
+    @Mock
+    private StreakService streakService;
 
     private ClaudeApiService claudeApiService;
 
@@ -56,7 +62,9 @@ class ClaudeApiServiceTest {
                 userProgressService,
                 userChallengeRepository,
                 challengeRecommendationParser,
-                quotaService
+                quotaService,
+                dailyCheckInService,
+                streakService
         );
     }
 
@@ -66,7 +74,7 @@ class ClaudeApiServiceTest {
     void sendMessage_criticalCrisis_returnsCrisisResponseWithoutApiCall() {
         String userId = "user-1";
         CoachSession session = new CoachSession(userId);
-        when(conversationService.getOrCreateActiveSession(userId)).thenReturn(session);
+        when(conversationService.getOrReactivateSession(userId, null)).thenReturn(session);
         when(crisisDetectionService.analyze("I want to end it")).thenReturn(CrisisLevel.CRITICAL);
         when(crisisDetectionService.getCrisisResponse()).thenReturn("Ring 112 om du är i fara.");
 
@@ -86,7 +94,7 @@ class ClaudeApiServiceTest {
     void sendMessage_elevatedCrisis_savesWithCrisisFlag() {
         String userId = "user-1";
         CoachSession session = new CoachSession(userId);
-        when(conversationService.getOrCreateActiveSession(userId)).thenReturn(session);
+        when(conversationService.getOrReactivateSession(userId, null)).thenReturn(session);
         when(crisisDetectionService.analyze("I feel really bad")).thenReturn(CrisisLevel.ELEVATED);
 
         // Mock the system prompt build chain
@@ -95,7 +103,7 @@ class ClaudeApiServiceTest {
         when(userSettingsService.getOrCreateSettings(userId)).thenReturn(settings);
         when(userProgressService.getOrCreateUser(userId)).thenReturn(progress);
         when(userChallengeRepository.findByUserIdAndCompleted(userId, true)).thenReturn(List.of());
-        when(systemPromptBuilder.build(any(), any(), anyInt(), any(), any())).thenReturn("system prompt");
+        when(systemPromptBuilder.build(any(), any(), anyInt(), any(), any(), any(), any(), any())).thenReturn("system prompt");
         when(conversationService.buildMessageHistory(session.getSessionId())).thenReturn(List.of());
 
         // The API call will fail (no real API key), but fallback is tested
@@ -116,7 +124,7 @@ class ClaudeApiServiceTest {
     void sendMessage_noCrisis_apiFailure_returnsFallback() {
         String userId = "user-1";
         CoachSession session = new CoachSession(userId);
-        when(conversationService.getOrCreateActiveSession(userId)).thenReturn(session);
+        when(conversationService.getOrReactivateSession(userId, null)).thenReturn(session);
         when(crisisDetectionService.analyze("Hello")).thenReturn(CrisisLevel.NONE);
 
         UserSettings settings = new UserSettings(userId);
@@ -124,7 +132,7 @@ class ClaudeApiServiceTest {
         when(userSettingsService.getOrCreateSettings(userId)).thenReturn(settings);
         when(userProgressService.getOrCreateUser(userId)).thenReturn(progress);
         when(userChallengeRepository.findByUserIdAndCompleted(userId, true)).thenReturn(List.of());
-        when(systemPromptBuilder.build(any(), any(), anyInt(), any(), any())).thenReturn("system prompt");
+        when(systemPromptBuilder.build(any(), any(), anyInt(), any(), any(), any(), any(), any())).thenReturn("system prompt");
         when(conversationService.buildMessageHistory(session.getSessionId())).thenReturn(List.of());
         when(challengeRecommendationParser.parse(anyString()))
                 .thenReturn(new ChallengeRecommendationParser.ParseResult("fallback response", List.of()));

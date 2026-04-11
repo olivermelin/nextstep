@@ -6,13 +6,17 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 import se.sobriety.nextstep.config.AICoachProperties;
 import se.sobriety.nextstep.dto.CoachMessageResponse;
+import se.sobriety.nextstep.dto.StreakResponseDto;
 import se.sobriety.nextstep.entity.*;
 import se.sobriety.nextstep.exception.QuotaExceededException;
 import se.sobriety.nextstep.repository.UserChallengeRepository;
+import se.sobriety.nextstep.service.DailyCheckInService;
 import se.sobriety.nextstep.service.QuotaService;
+import se.sobriety.nextstep.service.StreakService;
 import se.sobriety.nextstep.service.UserProgressService;
 import se.sobriety.nextstep.service.UserSettingsService;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -39,6 +43,8 @@ public class ClaudeApiService {
     private final UserChallengeRepository userChallengeRepository;
     private final ChallengeRecommendationParser challengeRecommendationParser;
     private final QuotaService quotaService;
+    private final DailyCheckInService dailyCheckInService;
+    private final StreakService streakService;
     private final RestClient claudeClient;
     private final RestClient groqClient;
 
@@ -50,7 +56,9 @@ public class ClaudeApiService {
                             UserProgressService userProgressService,
                             UserChallengeRepository userChallengeRepository,
                             ChallengeRecommendationParser challengeRecommendationParser,
-                            QuotaService quotaService) {
+                            QuotaService quotaService,
+                            DailyCheckInService dailyCheckInService,
+                            StreakService streakService) {
         this.properties = properties;
         this.conversationService = conversationService;
         this.crisisDetectionService = crisisDetectionService;
@@ -60,6 +68,8 @@ public class ClaudeApiService {
         this.userChallengeRepository = userChallengeRepository;
         this.challengeRecommendationParser = challengeRecommendationParser;
         this.quotaService = quotaService;
+        this.dailyCheckInService = dailyCheckInService;
+        this.streakService = streakService;
         this.claudeClient = RestClient.builder()
                 .baseUrl(ANTHROPIC_API_URL)
                 .build();
@@ -160,6 +170,48 @@ public class ClaudeApiService {
     }
 
     /**
+     * Stateless engångsanrop – sparas INTE i session, historik eller kvot.
+     * Används t.ex. för dagliga tips på Dashboard.
+     *
+     * 1. Krisdetektering körs alltid
+     * 2. Vid CRITICAL returneras krishanteringssvar direkt
+     * 3. Anropar AI utan att skapa session eller spara meddelanden
+     */
+    public CoachMessageResponse sendStateless(String userId, String userMessage) {
+        // 1. Krisdetektering – alltid obligatorisk
+        CrisisLevel crisisLevel = crisisDetectionService.analyze(userMessage);
+
+        if (crisisLevel == CrisisLevel.CRITICAL) {
+            log.warn("CRITICAL crisis detected in stateless call for user {}.", userId);
+            return new CoachMessageResponse(
+                    crisisDetectionService.getCrisisResponse(),
+                    CrisisLevel.CRITICAL,
+                    null
+            );
+        }
+
+        // 2. Bygg systemprompt med användarkontext
+        String systemPrompt = buildSystemPrompt(userId, crisisLevel);
+
+        // 3. Skicka enbart det aktuella meddelandet – ingen historik
+        List<Map<String, String>> singleMessage = List.of(Map.of("role", "user", "content", userMessage));
+
+        String assistantResponse;
+        if (!isAvailable()) {
+            assistantResponse = buildFallbackResponse(userId);
+        } else {
+            try {
+                assistantResponse = callApi(systemPrompt, singleMessage);
+            } catch (Exception e) {
+                log.error("Failed stateless AI call for user {}: {}", userId, e.getMessage(), e);
+                assistantResponse = buildFallbackResponse(userId);
+            }
+        }
+
+        return new CoachMessageResponse(assistantResponse, crisisLevel, null);
+    }
+
+    /**
      * Bygger systemprompt baserat på användarens kontext.
      */
     private String buildSystemPrompt(String userId, CrisisLevel crisisLevel) {
@@ -175,7 +227,32 @@ public class ClaudeApiService {
                     ? settings.getCoachPersonality()
                     : CoachPersonality.SUPPORTIVE;
 
-            return systemPromptBuilder.build(settings, progress, completedChallenges, personality, crisisLevel);
+            // Hämta dagens kontext för personalisering
+            DailyCheckIn todaysCheckIn = null;
+            try {
+                todaysCheckIn = dailyCheckInService.getTodaysCheckInEntity(userId).orElse(null);
+            } catch (Exception e) {
+                log.debug("Could not fetch today's check-in for prompt: {}", e.getMessage());
+            }
+
+            StreakResponseDto streakData = null;
+            try {
+                streakData = streakService.getStreak(userId);
+            } catch (Exception e) {
+                log.debug("Could not fetch streak for prompt: {}", e.getMessage());
+            }
+
+            List<UserChallenge> recentCompletions = List.of();
+            try {
+                LocalDateTime sevenDaysAgo = LocalDateTime.now().minusDays(7);
+                recentCompletions = userChallengeRepository
+                        .findByUserIdAndCompletedAndCompletedAtAfter(userId, true, sevenDaysAgo);
+            } catch (Exception e) {
+                log.debug("Could not fetch recent completions for prompt: {}", e.getMessage());
+            }
+
+            return systemPromptBuilder.build(settings, progress, completedChallenges, personality, crisisLevel,
+                    todaysCheckIn, streakData, recentCompletions);
         } catch (Exception e) {
             log.warn("Failed to build contextual system prompt for user {}: {}", userId, e.getMessage());
             return buildDefaultSystemPrompt();

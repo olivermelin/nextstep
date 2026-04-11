@@ -38,7 +38,9 @@ public class UserSettingsMapper {
                 backgroundInfoDto,
                 entity.getLastUpdated(),
                 entity.getSubscriptionTier(),
-                entity.getCoachPersonality()
+                entity.getCoachPersonality(),
+                entity.isFeedSharingEnabled(),
+                entity.getFeedSharedTypes()
         );
     }
 }

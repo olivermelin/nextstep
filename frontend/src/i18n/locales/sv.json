@@ -111,7 +111,7 @@
     "loadingUser": "Laddar användarinfo...",
     "debugWarning": "⚠️ Kunde inte hämta användar-ID. Öppna DevTools (F12) och se Console för felmeddelanden.",
     "coachThinking": "Din coach tänker...",
-    "coachPrompt": "Ge mig ett kort, personligt dagligt motivationstips (max 2-3 meningar). Jag är på nivå {{level}} med {{points}} poäng och har {{activeChallenges}} aktiva utmaningar. Håll det varmt och uppmuntrande. Svara på svenska.",
+    "coachPrompt": "Ge mig ett kort, peppande dagligt meddelande (max 2-3 meningar). Jag är på nivå {{level}} med {{points}} poäng och har {{activeChallenges}} aktiva utmaningar. Var uppmuntrande och positiv. Avsluta INTE med en fråga — detta är ett stöttande påstående, inte en konversationsstartare. Svara på svenska.",
     "noActiveChallenges": "Du har inga aktiva utmaningar ännu. Starta en för att se den här!",
     "browseChallenges": "Utforska utmaningar",
     "goToChallenge": "Gå till utmaning",
@@ -119,6 +119,11 @@
     "greetingMorning": "God morgon",
     "greetingAfternoon": "God eftermiddag",
     "greetingEvening": "God kväll",
+    "dailyRitual": "Dagens rutin",
+    "ritualCheckIn": "Checka in",
+    "ritualChallenge": "Utmaning",
+    "ritualReward": "Belöning",
+    "ritualComplete": "Alla steg klara idag! 🌟",
     "coachMessages": [
       "Varje dag är en ny möjlighet att växa. Du klarar detta! 💪",
       "Kom ihåg: Framsteg är inte alltid linjära. Varje steg framåt räknas. 🌟",
@@ -180,6 +185,8 @@
     "step2Subtitle": "Denna information hjälper oss ge dig bättre stöd och rekommendationer.",
     "step3Title": "Var befinner du dig just nu?",
     "step3Subtitle": "Detta hjälper oss anpassa stödet till där du är i din resa.",
+    "coachTitle": "Välj din coach",
+    "coachSubtitle": "Välj den coachstil som passar dig bäst. Du kan alltid byta i inställningarna.",
     "consentTitle": "AI-analys av ditt beteende",
     "consentText": "Jag tillåter att AI-coachen analyserar mina humörloggar och aktivitetsmönster för att ge mig personliga och proaktiva förslag. Du kan ändra detta när som helst i inställningarna.",
     "consentRequired": "Du kan hoppa över detta — analysen är valfri.",
@@ -321,6 +328,8 @@
     "alreadyActiveDesc": "Slutför \"{{name}}\" först innan du startar en ny.",
     "alreadyActiveErrorDesc": "Slutför din pågående aktivitet innan du startar en ny.",
     "couldNotComplete": "Kunde inte slutföra challenge. Försök igen.",
+    "challengeComplete": "Utmaning genomförd! 🎉",
+    "xpEarned": "+{{xp}} XP",
     "difficulty": {
       "easy": "Lätt",
       "medium": "Medel",
@@ -331,7 +340,10 @@
       "physicalActivity": "Fysisk aktivitet",
       "focusDiscipline": "Fokus & disciplin",
       "personalDevelopment": "Personlig utveckling",
-      "drawingExercises": "Ritövningar"
+      "drawingExercises": "Ritövningar",
+      "healthyHabits": "Hälsosamma vanor",
+      "socialSkills": "Sociala färdigheter",
+      "emotionalAwareness": "Emotionell medvetenhet"
     },
     "drawing": {
       "title": "Rityta",
@@ -346,7 +358,9 @@
       "minutesPlaceholder": "Ange minuter",
       "xpPreview": "Du tjänar",
       "confirm": "Slutför med {{xp}} XP"
-    }
+    },
+    "shareToFeed": "Dela med vänner",
+    "shareToFeedHint": "(syns bara för dina vänner)"
   },
   "progress": {
     "title": "Din Framsteg",
@@ -436,7 +450,11 @@
     "jourhavandeMedmanniskaDesc": "Kvällar och nätter",
     "beroendelinjen": "Beroendelinjen",
     "beroendelinjenDesc": "Stöd vid beroende, alla dagar",
-    "emergencyNote": "Vid akut fara, ring alltid 112"
+    "emergencyNote": "Vid akut fara, ring alltid 112",
+    "confirmPrompt": "Vilket nummer vill du ringa?",
+    "confirmCallMind": "Ring Mind nu — 90101",
+    "confirmCall112": "Ring 112 — Akutlinje",
+    "confirmCancel": "Avbryt"
   },
   "sobriety": {
     "title": "Nykterhetstimer",
@@ -461,6 +479,8 @@
     "streakReminder": "En snabb check-in håller din streak vid liv",
     "notePlaceholder": "Valfri anteckning om hur du mår... (max 500 tecken)",
     "checkIn": "Checka in",
+    "streakUpdate": "Streak: {{days}} dagar i rad!",
+    "streakKeepGoing": "Fortsätt så — varje dag räknas.",
     "moods": {
       "veryBad": "Mycket dåligt",
       "bad": "Dåligt",
@@ -490,6 +510,8 @@
     "createDuel": "Utmana någon",
     "duelOpponentEmail": "Motståndarens e-post",
     "duelChallengeName": "Utmaningens namn",
+    "duelSelectChallenge": "Välj en aktiv utmaning...",
+    "duelNoActiveChallenges": "Du har inga aktiva utmaningar att duellera med.",
     "sendDuel": "Skicka utmaning",
     "duelSent": "Duell skickad!",
     "duelFailed": "Kunde inte skicka duell",
@@ -510,5 +532,88 @@
     "tierSILVER": "Silver",
     "tierGOLD": "Guld",
     "tierDIAMOND": "Diamond"
+  },
+  "streak": {
+    "title": "Streak-kalender",
+    "currentDays": "Nuvarande streak",
+    "longestDays": "Längsta streak",
+    "todayDone": "Klart idag"
+  },
+  "streakWarning": {
+    "title": "Din {{days}}-dagarsstreak riskerar att brytas!",
+    "subtitle": "Checka in eller slutför en utmaning för att hålla den vid liv.",
+    "cta": "Gör något nu"
+  },
+  "milestone": {
+    "label": "{{days}} dagar i rad!",
+    "congrats": "Grattis — det är en milstolpe!",
+    "sevenDays": "En hel vecka — det här är en riktig vändpunkt!",
+    "twoWeeks": "Två veckor i rad — du är på väg!",
+    "thirtyDays": "En hel månad! De nya vanorna sitter nu.",
+    "sixtyDays": "60 dagar av styrka och mod — imponerande.",
+    "ninetyDays": "90 dagar! Du har byggt ett helt nytt liv.",
+    "halfYear": "Halvt år — det här är otroligt starkt.",
+    "year": "Ett helt år! Du är en inspiration för alla runt dig."
+  },
+  "moodTrend": {
+    "title": "Humörtrend",
+    "improving": "Uppåtgående",
+    "declining": "Nedåtgående",
+    "stable": "Stabil",
+    "daysAgo": "{{days}} dagar sedan",
+    "today": "Idag",
+    "average": "Snitt: {{avg}}/5"
+  },
+  "reward": {
+    "dailyReward": "Daglig belöning",
+    "rare": "Sällsynt",
+    "bonusXp": "+{{xp}} XP bonus",
+    "quoteCard": "Inspirerande citat",
+    "streakFreeze": "Streak-frysning (skyddar din streak en dag)",
+    "avatarFrame": "Avatarram (+{{xp}} XP)",
+    "claim": "Hämta",
+    "claimed": "Hämtad",
+    "collection": "Samling",
+    "emptyCollection": "Slutför utmaningar för att samla belöningar!"
+  },
+  "feed": {
+    "title": "Aktivitetsflöde",
+    "empty": "När dina vänner delar aktiviteter ser du dem här",
+    "emptyNoFriends": "Lägg till vänner för att se deras aktiviteter här",
+    "enableSharing": "Dela mina aktiviteter med vänner",
+    "enableSharingDesc": "Dina slutförda utmaningar, streak-milstolpar och level-ups syns i vänners flöde",
+    "cheer": "Heja",
+    "cheered": "Du hejar",
+    "cheerCount_one": "{{count}} hejar",
+    "cheerCount_other": "{{count}} hejar",
+    "deleteItem": "Ta bort från flödet",
+    "deleted": "Inlägg borttaget",
+    "sharingSettings": "Delningsinställningar",
+    "shareTypes": {
+      "CHALLENGE_COMPLETED": "Slutförda utmaningar",
+      "STREAK_MILESTONE": "Streak-milstolpar",
+      "LEVEL_UP": "Level-ups",
+      "DUEL_WON": "Duellvinster"
+    },
+    "loadMore": "Ladda fler",
+    "loading": "Laddar flödet...",
+    "ago": {
+      "justNow": "Just nu",
+      "minutesAgo": "{{n}} min sedan",
+      "hoursAgo": "{{n}} h sedan",
+      "yesterday": "Igår",
+      "daysAgo": "{{n}} dagar sedan"
+    }
+  },
+  "welcome": {
+    "title": "Välkommen till NextStep! 🎉",
+    "subtitle": "Det här är din dagliga plats för återhämtning och personlig tillväxt. Välj hur du vill börja.",
+    "actionCheckIn": "Daglig incheckning",
+    "actionCheckInDesc": "Hur mår du idag?",
+    "actionChallenge": "Utforska utmaningar",
+    "actionChallengeDesc": "Hitta något att göra",
+    "actionCoach": "Prata med coachen",
+    "actionCoachDesc": "Få personlig vägledning",
+    "dismiss": "Jag vet hur det fungerar"
   }
 }

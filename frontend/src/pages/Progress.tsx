@@ -182,7 +182,7 @@ const Progress = () => {
   }
 
   return (
-    <div className="min-h-full bg-gradient-to-br from-primary/5 via-background to-secondary/5 p-4 pt-4">
+    <div className="min-h-full bg-gradient-to-br from-primary/5 via-background to-secondary/5 p-4 pt-4 pb-28">
       <div className="max-w-5xl mx-auto space-y-5">
         {/* Header + Avatar — compact row */}
         <motion.div

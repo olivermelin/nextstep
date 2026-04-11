@@ -55,5 +55,17 @@ export default {
       },
     },
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [
+    require("tailwindcss-animate"),
+    function({ addUtilities }: { addUtilities: (utils: Record<string, Record<string, string>>) => void }) {
+      addUtilities({
+        ".animation-delay-0":    { "animation-delay": "0ms" },
+        ".animation-delay-150":  { "animation-delay": "150ms" },
+        ".animation-delay-300":  { "animation-delay": "300ms" },
+        ".animation-delay-2000": { "animation-delay": "2000ms" },
+        ".animation-duration-8":  { "animation-duration": "8s" },
+        ".animation-duration-10": { "animation-duration": "10s" },
+      });
+    },
+  ],
 } satisfies Config;

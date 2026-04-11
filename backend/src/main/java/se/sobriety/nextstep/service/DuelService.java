@@ -2,6 +2,7 @@ package se.sobriety.nextstep.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import se.sobriety.nextstep.dto.CreateDuelDto;
@@ -16,11 +17,19 @@ import java.util.List;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class DuelService {
 
     private final DuelRepository duelRepository;
     private final UserRepository userRepository;
+    private final ActivityFeedService activityFeedService;
+
+    public DuelService(DuelRepository duelRepository,
+                       UserRepository userRepository,
+                       @Lazy ActivityFeedService activityFeedService) {
+        this.duelRepository      = duelRepository;
+        this.userRepository      = userRepository;
+        this.activityFeedService = activityFeedService;
+    }
 
     /**
      * Skapa en ny duell — utmanaren utmanar en annan användare.
@@ -110,9 +119,12 @@ public class DuelService {
             // Jämför vem som slutförde först
             boolean challengerFirst = duel.getChallengerCompletedAt()
                     .isBefore(duel.getChallengedCompletedAt());
-            duel.setWinnerId(challengerFirst ? duel.getChallengerId() : duel.getChallengedId());
+            String winnerId = challengerFirst ? duel.getChallengerId() : duel.getChallengedId();
+            duel.setWinnerId(winnerId);
             duel.setStatus(DuelStatus.COMPLETED);
             duel.setCompletedAt(now);
+            // Publicera duellvinst i flödet
+            activityFeedService.publishDuelWon(winnerId, duel);
         } else if (duel.getChallengerCompletedAt() != null || duel.getChallengedCompletedAt() != null) {
             // Första deltagaren klar — markeras direkt som vinnare om motparten inte svarar inom 7 dagar
             // För nu: håll ACTIVE tills båda slutfört

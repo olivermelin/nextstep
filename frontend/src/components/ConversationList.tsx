@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { X, Plus, MessageSquare, Loader2 } from "lucide-react";
+import { X, Plus, MessageSquare, Loader2, Trash2 } from "lucide-react";
 import { SessionSummary } from "@/services/coachService";
 
 interface ConversationListProps {
@@ -9,6 +9,7 @@ interface ConversationListProps {
   activeSessionId: string | null;
   onSelectSession: (sessionId: string) => void;
   onNewConversation: () => void;
+  onDeleteSession: (sessionId: string) => void;
   loading: boolean;
   open: boolean;
   onClose: () => void;
@@ -19,6 +20,7 @@ const ConversationList = ({
   activeSessionId,
   onSelectSession,
   onNewConversation,
+  onDeleteSession,
   loading,
   open,
   onClose,
@@ -82,29 +84,40 @@ const ConversationList = ({
                 </p>
               ) : (
                 sessions.map((session) => (
-                  <button
+                  <div
                     key={session.sessionId}
-                    onClick={() => { onSelectSession(session.sessionId); onClose(); }}
-                    className={`w-full text-left p-3 rounded-xl mb-1 transition-all ${
+                    className={`group flex items-center gap-1 rounded-xl mb-1 transition-all ${
                       session.sessionId === activeSessionId
                         ? "bg-primary/10 border border-primary/20"
                         : "hover:bg-muted"
                     }`}
                   >
-                    <div className="flex items-start gap-2">
-                      <MessageSquare className="w-3.5 h-3.5 mt-0.5 text-muted-foreground shrink-0" />
-                      <div className="overflow-hidden">
-                        <p className="text-xs font-medium truncate">
-                          {session.preview || t("aiCoach.conversation")}
-                        </p>
-                        <p className="text-[10px] text-muted-foreground mt-0.5">
-                          {new Date(session.lastMessageAt).toLocaleDateString("sv-SE")}
-                          {" · "}
-                          {session.messageCount} {t("aiCoach.messages")}
-                        </p>
+                    <button
+                      onClick={() => { onSelectSession(session.sessionId); onClose(); }}
+                      className="flex-1 text-left p-3 min-w-0"
+                    >
+                      <div className="flex items-start gap-2">
+                        <MessageSquare className="w-3.5 h-3.5 mt-0.5 text-muted-foreground shrink-0" />
+                        <div className="overflow-hidden">
+                          <p className="text-xs font-medium truncate">
+                            {session.preview || t("aiCoach.conversation")}
+                          </p>
+                          <p className="text-[10px] text-muted-foreground mt-0.5">
+                            {new Date(session.lastMessageAt).toLocaleDateString("sv-SE")}
+                            {" · "}
+                            {session.messageCount} {t("aiCoach.messages")}
+                          </p>
+                        </div>
                       </div>
-                    </div>
-                  </button>
+                    </button>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); onDeleteSession(session.sessionId); }}
+                      className="p-2 mr-1 rounded-lg opacity-0 group-hover:opacity-100 hover:bg-destructive/10 hover:text-destructive transition-all shrink-0"
+                      aria-label={t("common.delete")}
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
                 ))
               )}
             </div>

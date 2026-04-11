@@ -1,12 +1,10 @@
 package se.sobriety.nextstep.dto;
 
-import se.sobriety.nextstep.entity.CoachPersonality;
-import se.sobriety.nextstep.entity.RecoveryStage;
-import se.sobriety.nextstep.entity.SubscriptionTier;
-import se.sobriety.nextstep.entity.UserGoal;
+import se.sobriety.nextstep.entity.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 public record UserSettingsOutDto(
         String userId,
@@ -24,5 +22,7 @@ public record UserSettingsOutDto(
         BackgroundInfoDto backgroundInfo,
         LocalDateTime lastUpdated,
         SubscriptionTier subscriptionTier,
-        CoachPersonality coachPersonality
+        CoachPersonality coachPersonality,
+        boolean feedSharingEnabled,
+        Set<FeedItemType> feedSharedTypes
 ) {}

@@ -11,7 +11,7 @@ const PageTransition = ({ children }: PageTransitionProps) => (
     animate={{ opacity: 1, y: 0 }}
     exit={{ opacity: 0, y: -8 }}
     transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }}
-    className="h-full overflow-y-auto overflow-x-hidden pb-24 outline-none page-scroll-container"
+    className="flex-1 min-h-0"
   >
     {children}
   </motion.div>

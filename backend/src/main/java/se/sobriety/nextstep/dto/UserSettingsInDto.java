@@ -3,6 +3,9 @@ package se.sobriety.nextstep.dto;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;
 import se.sobriety.nextstep.entity.CoachPersonality;
+import se.sobriety.nextstep.entity.FeedItemType;
+
+import java.util.Set;
 
 public record UserSettingsInDto(
         String userId,
@@ -24,6 +27,8 @@ public record UserSettingsInDto(
         @Size(max = 10, message = "Language code must be at most 10 characters")
         String language,
 
-        CoachPersonality coachPersonality
+        CoachPersonality coachPersonality,
+        Boolean feedSharingEnabled,
+        Set<FeedItemType> feedSharedTypes
 ) {
 }

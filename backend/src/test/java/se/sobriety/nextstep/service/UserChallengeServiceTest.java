@@ -33,6 +33,10 @@ class UserChallengeServiceTest {
     private UserProgressService userProgressService;
     @Mock
     private StreakService streakService;
+    @Mock
+    private RewardService rewardService;
+    @Mock
+    private ActivityFeedService activityFeedService;
 
     private UserChallengeService service;
 
@@ -45,7 +49,7 @@ class UserChallengeServiceTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        service = new UserChallengeService(userChallengeRepository, challengeRepository, userChallengeMapper, userProgressService, streakService);
+        service = new UserChallengeService(userChallengeRepository, challengeRepository, userChallengeMapper, userProgressService, streakService, rewardService, activityFeedService);
 
         testChallenge = new Challenge("Test Challenge", "Description", 15,
                 ChallengeDifficulty.EASY, ChallengeCategory.MENTAL_HEALTH);
@@ -140,7 +144,7 @@ class UserChallengeServiceTest {
                 LocalDateTime.now(), LocalDateTime.now(), 10, 15);
         when(userChallengeMapper.toDto(any())).thenReturn(completedDto);
 
-        UserChallengeOutDto result = service.completeChallenge(USER_ID, CHALLENGE_ID, 0);
+        UserChallengeOutDto result = service.completeChallenge(USER_ID, CHALLENGE_ID, 0, false);
 
         assertEquals("COMPLETED", result.status());
         verify(userProgressService).addPoints(eq(USER_ID), anyInt());
@@ -151,7 +155,7 @@ class UserChallengeServiceTest {
         when(userChallengeRepository.existsCompletedSince(eq(USER_ID), eq(CHALLENGE_ID), any())).thenReturn(true);
 
         assertThrows(IllegalArgumentException.class,
-                () -> service.completeChallenge(USER_ID, CHALLENGE_ID, 0));
+                () -> service.completeChallenge(USER_ID, CHALLENGE_ID, 0, false));
     }
 
     @Test
@@ -161,7 +165,7 @@ class UserChallengeServiceTest {
                 .thenReturn(Optional.empty());
 
         assertThrows(IllegalArgumentException.class,
-                () -> service.completeChallenge(USER_ID, CHALLENGE_ID, 0));
+                () -> service.completeChallenge(USER_ID, CHALLENGE_ID, 0, false));
     }
 
     // --- getUserChallenges ---

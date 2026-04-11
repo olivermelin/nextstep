@@ -29,6 +29,7 @@ public class UserProgressService {
     private final UserChallengeRepository userChallengeRepository;
     private final AchievementRepository achievementRepository;
     private final UserAchievementRepository userAchievementRepository;
+    private final ActivityFeedService activityFeedService;
 
     @Autowired
     public UserProgressService(UserProgressRepository repo,
@@ -38,7 +39,8 @@ public class UserProgressService {
                               CategoryProgressRepository categoryProgressRepository,
                               UserChallengeRepository userChallengeRepository,
                               AchievementRepository achievementRepository,
-                              UserAchievementRepository userAchievementRepository) {
+                              UserAchievementRepository userAchievementRepository,
+                              @org.springframework.context.annotation.Lazy ActivityFeedService activityFeedService) {
         this.progressRepository = repo;
         this.settingsRepository = userSettingsRepository;
         this.levelService = levelService;
@@ -47,6 +49,7 @@ public class UserProgressService {
         this.userChallengeRepository = userChallengeRepository;
         this.achievementRepository = achievementRepository;
         this.userAchievementRepository = userAchievementRepository;
+        this.activityFeedService = activityFeedService;
     }
 
     /* =========================
@@ -105,12 +108,13 @@ public class UserProgressService {
         int newLevel = levelService.calculateLevel(user.getTotalPoints());
         user.updateLevel(newLevel);
 
-        // Skicka level-up mail om nivå ökades
+        // Skicka level-up mail och publicera i flödet om nivå ökades
         if (newLevel > previousLevel) {
             UserSettings userSettings = settingsRepository.findByUserId(user.getUserId())
                     .orElseThrow(() -> new UserNotFoundException(user.getUserId()));
 
             sendLevelUpEmail(userSettings, user.getUserId(), newLevel);
+            activityFeedService.publishLevelUp(user.getUserId(), newLevel);
         }
 
         return progressRepository.save(user);

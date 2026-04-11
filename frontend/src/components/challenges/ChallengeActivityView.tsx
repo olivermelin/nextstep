@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 import {
   CheckCircle2,
   Clock,
@@ -12,6 +13,7 @@ import {
   Zap,
   Play,
   Timer,
+  Users,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { Progress } from "@/components/ui/progress";
@@ -29,7 +31,7 @@ import {
 interface ChallengeActivityViewProps {
   challenge: ChallengeOutDto;
   loading: boolean;
-  onComplete: (actualMinutes: number) => void;
+  onComplete: (actualMinutes: number, shareToFeed: boolean) => void;
   /** Om true: challenge ej startad – visa info + startknapp istället för timer/slutför */
   previewOnly?: boolean;
   /** Callback to start challenge with a chosen duration */
@@ -63,7 +65,7 @@ function buildPresets(defaultMinutes: number): number[] {
 
 interface TimePickerProps {
   challenge: ChallengeOutDto;
-  onConfirm: (minutes: number) => void;
+  onConfirm: (minutes: number, shareToFeed: boolean) => void;
   loading: boolean;
 }
 
@@ -73,6 +75,7 @@ const TimePicker: React.FC<TimePickerProps> = ({ challenge, onConfirm, loading }
   const [selected, setSelected] = useState<number>(defaultMinutes);
   const [customInput, setCustomInput] = useState<string>("");
   const [useCustom, setUseCustom] = useState(false);
+  const [shareToFeed, setShareToFeed] = useState(false);
 
   const presets = buildPresets(defaultMinutes);
   const effectiveMinutes = useCustom ? (parseInt(customInput) || defaultMinutes) : selected;
@@ -140,7 +143,7 @@ const TimePicker: React.FC<TimePickerProps> = ({ challenge, onConfirm, loading }
       )}
 
       {/* XP-förhandsvisning */}
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
           <Zap className="w-4 h-4 text-amber-500" />
           <span>{t('challenges.timePicker.xpPreview', { defaultValue: 'Du tjänar' })}</span>
@@ -153,8 +156,26 @@ const TimePicker: React.FC<TimePickerProps> = ({ challenge, onConfirm, loading }
         </div>
       </div>
 
+      {/* Dela till flödet? */}
+      <div className="flex items-center justify-between py-2.5 px-3 rounded-xl bg-background/70 border border-border/60 mb-4">
+        <div className="flex items-center gap-2">
+          <Users className="w-3.5 h-3.5 text-muted-foreground" />
+          <span className="text-sm text-foreground">
+            {t('challenges.shareToFeed', { defaultValue: 'Dela med vänner' })}
+          </span>
+          <span className="text-xs text-muted-foreground">
+            {t('challenges.shareToFeedHint', { defaultValue: '(syns bara för dina vänner)' })}
+          </span>
+        </div>
+        <Switch
+          checked={shareToFeed}
+          onCheckedChange={setShareToFeed}
+          aria-label={t('challenges.shareToFeed', { defaultValue: 'Dela med vänner' })}
+        />
+      </div>
+
       <Button
-        onClick={() => onConfirm(effectiveMinutes)}
+        onClick={() => onConfirm(effectiveMinutes, shareToFeed)}
         disabled={loading || (useCustom && (!customInput || parseInt(customInput) < 1))}
         className="w-full bg-green-600 hover:bg-green-700 text-white shadow-md hover:shadow-lg gap-2"
         size="lg"
@@ -198,7 +219,9 @@ const ChallengeActivityView = ({
 
   const hasVideo = !!challenge.youtubeUrl;
   const isDrawing = isDrawingCategory(challenge.category);
-  const showTimer = !isDrawing && !hasVideo;
+  // Heldagsaktiviteter (≥ 240 min) har ingen timer — de slutförs med ett klick
+  const isAllDay = (challenge.durationMinutes || 0) >= 240;
+  const showTimer = !isDrawing && !hasVideo && !isAllDay;
 
   const videoId = extractYouTubeVideoId(challenge.youtubeUrl);
   const ytProgress = useYouTubeProgress(videoId, hasVideo);
@@ -206,6 +229,7 @@ const ChallengeActivityView = ({
 
   const isUnlocked = (() => {
     if (isDrawing) return true;
+    if (isAllDay) return true;
     if (alreadyDone) return true;
     if (hasVideo) return ytProgress.isComplete;
     return timer.isComplete;
@@ -225,7 +249,9 @@ const ChallengeActivityView = ({
             <div className="flex items-center gap-2">
               <div className="flex items-center gap-1 text-sm text-muted-foreground">
                 <Clock className="w-4 h-4" />
-                {challenge.durationMinutes} {t('common.minutes')}
+                {isAllDay
+                  ? t('challenges.allDay', { defaultValue: 'Hela dagen' })
+                  : `${challenge.durationMinutes} ${t('common.minutes')}`}
               </div>
               <Badge className={getDifficultyColor(challenge.difficulty)}>
                 {getDifficultyLabel(challenge.difficulty, t)}
@@ -250,10 +276,10 @@ const ChallengeActivityView = ({
                 {ytProgress.isComplete ? (
                   <span className="flex items-center gap-1 text-green-600 font-medium">
                     <CheckCircle2 className="w-3.5 h-3.5" />
-                    {t('challenges.videoWatched', { fallbackLng: 'sv', defaultValue: 'Video sedd' })}
+                    {t('challenges.videoWatched', { defaultValue: 'Video sedd' })}
                   </span>
                 ) : (
-                  <span>{t('challenges.videoProgress', { percent: ytProgress.watchedPercent, fallbackLng: 'sv', defaultValue: `${ytProgress.watchedPercent}% sett` })}</span>
+                  <span>{t('challenges.videoProgress', { percent: ytProgress.watchedPercent, defaultValue: `${ytProgress.watchedPercent}% sett` })}</span>
                 )}
               </div>
             </div>
@@ -298,8 +324,8 @@ const ChallengeActivityView = ({
         {/* Preview-läge: visa tidsval + startknapp */}
         {previewOnly ? (
           <div className="space-y-4">
-            {/* Duration Picker – visas bara om aktiviteten INTE har en video eller rityta */}
-            {!hasVideo && !isDrawing && (
+            {/* Duration Picker – visas bara om aktiviteten INTE har en video, rityta eller är heldagsaktivitet */}
+            {!hasVideo && !isDrawing && !isAllDay && (
               <Card className="p-5 bg-primary/10 border-primary/35">
                 <div className="flex items-center gap-2 mb-4">
                   <Timer className="w-5 h-5 text-primary" />
@@ -351,16 +377,16 @@ const ChallengeActivityView = ({
             {/* Start Button */}
             <Button
               onClick={() => {
-                const duration = hasVideo || isDrawing
+                const duration = hasVideo || isDrawing || isAllDay
                   ? challenge.durationMinutes || 1
                   : selectedDuration || 0;
                 if (onStart && duration > 0) {
                   onStart(challenge, duration);
                 } else if (!onStart && duration > 0) {
-                  onComplete(duration);
+                  onComplete(duration, false);
                 }
               }}
-              disabled={loading || (!hasVideo && !isDrawing && !selectedDuration)}
+              disabled={loading || (!hasVideo && !isDrawing && !isAllDay && !selectedDuration)}
               className={`w-full gap-2 text-lg py-7 transition-all duration-300 ${
                 (hasVideo || isDrawing || selectedDuration)
                   ? 'bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg hover:shadow-xl'
@@ -376,7 +402,7 @@ const ChallengeActivityView = ({
               ) : (
                 <>
                   <Play className="w-5 h-5" />
-                  {hasVideo || isDrawing
+                  {hasVideo || isDrawing || isAllDay
                     ? t('challenges.startActivity', { defaultValue: 'Starta aktivitet' })
                     : selectedDuration
                       ? t('challenges.startWithDuration', { minutes: selectedDuration, defaultValue: `Starta aktivitet (${selectedDuration} min)` })
@@ -394,8 +420,8 @@ const ChallengeActivityView = ({
                 <Card className={`p-5 text-center border ${timer.isComplete ? 'bg-green-100 border-green-300 dark:bg-green-500/15 dark:border-green-500/40' : 'bg-primary/10 border-primary/35'} transition-colors duration-500`}>
                   <p className="text-xs text-muted-foreground uppercase tracking-wide mb-2">
                     {timer.isComplete
-                      ? (t('challenges.timerComplete', { fallbackLng: 'sv', defaultValue: 'Aktivitetstid klar!' }))
-                      : (t('challenges.timerRemaining', { fallbackLng: 'sv', defaultValue: 'Tid kvar för aktiviteten' }))}
+                      ? (t('challenges.timerComplete', { defaultValue: 'Aktivitetstid klar!' }))
+                      : (t('challenges.timerRemaining', { defaultValue: 'Tid kvar för aktiviteten' }))}
                   </p>
                   <p className={`text-4xl font-mono font-bold ${timer.isComplete ? 'text-green-600' : 'text-foreground'}`}>
                     {timer.isComplete ? '\u2713' : timer.formattedTime}
@@ -414,15 +440,15 @@ const ChallengeActivityView = ({
                   <Card className="p-4 bg-muted/50 border-dashed border-2 border-muted-foreground/20 text-center">
                     <p className="text-sm text-muted-foreground font-medium">
                       {hasVideo
-                        ? (t('challenges.unlockHintVideo', { fallbackLng: 'sv', defaultValue: 'Titta klart p\u00e5 videon (minst 80%) f\u00f6r att kunna slutf\u00f6ra utmaningen' }))
-                        : (t('challenges.unlockHintTimer', { fallbackLng: 'sv', defaultValue: 'Genomf\u00f6r aktiviteten och v\u00e4nta tills timern \u00e4r klar' }))}
+                        ? (t('challenges.unlockHintVideo', { defaultValue: 'Titta klart p\u00e5 videon (minst 80%) f\u00f6r att kunna slutf\u00f6ra utmaningen' }))
+                        : (t('challenges.unlockHintTimer', { defaultValue: 'Genomf\u00f6r aktiviteten och v\u00e4nta tills timern \u00e4r klar' }))}
                     </p>
                   </Card>
                   <button
                     onClick={() => setAlreadyDone(true)}
                     className="text-sm text-muted-foreground hover:text-foreground underline underline-offset-4 transition-colors mx-auto py-1"
                   >
-                    {t('challenges.alreadyDone', { fallbackLng: 'sv', defaultValue: 'Jag har redan gjort denna aktivitet' })}
+                    {t('challenges.alreadyDone', { defaultValue: 'Jag har redan gjort denna aktivitet' })}
                   </button>
                 </>
               )}
@@ -431,7 +457,7 @@ const ChallengeActivityView = ({
               {showTimePicker && isUnlocked ? (
                 <TimePicker
                   challenge={challenge}
-                  onConfirm={(minutes) => onComplete(minutes)}
+                  onConfirm={(minutes, share) => onComplete(minutes, share)}
                   loading={loading}
                 />
               ) : (

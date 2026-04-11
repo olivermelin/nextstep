@@ -47,6 +47,11 @@ public interface UserChallengeRepository extends JpaRepository<UserChallenge, Lo
     List<Long> findCompletedChallengeIdsSince(@Param("userId") String userId,
                                               @Param("since") LocalDateTime since);
 
+    /**
+     * Hämta slutförda utmaningar efter en viss tidpunkt (för AI-coach kontext)
+     */
+    List<UserChallenge> findByUserIdAndCompletedAndCompletedAtAfter(String userId, boolean completed, LocalDateTime since);
+
     void deleteByUserId(String userId);
 }
 

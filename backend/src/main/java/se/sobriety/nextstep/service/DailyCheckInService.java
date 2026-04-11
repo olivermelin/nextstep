@@ -5,6 +5,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import se.sobriety.nextstep.dto.CheckInRequestDto;
 import se.sobriety.nextstep.dto.CheckInResponseDto;
+import se.sobriety.nextstep.dto.DailyRewardDto;
+import se.sobriety.nextstep.dto.StreakResponseDto;
 import se.sobriety.nextstep.entity.DailyCheckIn;
 import se.sobriety.nextstep.repository.DailyCheckInRepository;
 
@@ -23,15 +25,19 @@ public class DailyCheckInService {
 
     private final DailyCheckInRepository checkInRepository;
     private final StreakService streakService;
+    private final RewardService rewardService;
 
-    public DailyCheckInService(DailyCheckInRepository checkInRepository, StreakService streakService) {
+    public DailyCheckInService(DailyCheckInRepository checkInRepository,
+                               StreakService streakService,
+                               RewardService rewardService) {
         this.checkInRepository = checkInRepository;
         this.streakService = streakService;
+        this.rewardService = rewardService;
     }
 
     /**
      * Checka in idag. Om användaren redan checkat in idag uppdateras befintlig post.
-     * Registrerar också aktivitet för streaken.
+     * Vid ny incheckning registreras streak-aktivitet och daglig belöning genereras.
      */
     @Transactional
     public CheckInResponseDto checkIn(String userId, CheckInRequestDto request) {
@@ -46,16 +52,39 @@ public class DailyCheckInService {
             checkIn = existing.get();
             checkIn.update(request.moodScore(), request.note());
             log.info("Uppdaterar incheckning för användare {} idag", userId);
-        } else {
-            // Skapa ny incheckning
-            checkIn = new DailyCheckIn(userId, request.moodScore(), request.note());
-            // Registrera aktivitet för streaken vid ny incheckning
-            streakService.registerActivity(userId);
-            log.info("Ny incheckning registrerad för användare {} med mood {}", userId, request.moodScore());
+            checkIn = checkInRepository.save(checkIn);
+            return CheckInResponseDto.simple(checkIn.getId(), checkIn.getUserId(),
+                    checkIn.getCheckInDate(), checkIn.getMoodScore(), checkIn.getNote(), true);
         }
 
+        // Ny incheckning — registrera streak och generera belöning
+        checkIn = new DailyCheckIn(userId, request.moodScore(), request.note());
+        streakService.registerActivity(userId);
+        log.info("Ny incheckning registrerad för användare {} med mood {}", userId, request.moodScore());
         checkIn = checkInRepository.save(checkIn);
-        return toDto(checkIn, alreadyCheckedIn);
+
+        // Hämta aktuell streak-data
+        StreakResponseDto streakData = streakService.getStreak(userId);
+
+        // Generera daglig belöning (idempotent — returnerar befintlig om redan skapad)
+        DailyRewardDto reward = null;
+        try {
+            reward = rewardService.generateDailyReward(userId);
+        } catch (Exception e) {
+            log.warn("Kunde inte generera daglig belöning för användare {}: {}", userId, e.getMessage());
+        }
+
+        return new CheckInResponseDto(
+                checkIn.getId(),
+                checkIn.getUserId(),
+                checkIn.getCheckInDate(),
+                checkIn.getMoodScore(),
+                checkIn.getNote(),
+                false,
+                streakData.currentStreak(),
+                true,
+                reward
+        );
     }
 
     /**
@@ -63,7 +92,15 @@ public class DailyCheckInService {
      */
     public Optional<CheckInResponseDto> getTodaysCheckIn(String userId) {
         return checkInRepository.findByUserIdAndCheckInDate(userId, LocalDate.now())
-                .map(c -> toDto(c, true));
+                .map(c -> CheckInResponseDto.simple(c.getId(), c.getUserId(),
+                        c.getCheckInDate(), c.getMoodScore(), c.getNote(), true));
+    }
+
+    /**
+     * Hämta dagens incheckning som rå entitet (för SystemPromptBuilder).
+     */
+    public Optional<DailyCheckIn> getTodaysCheckInEntity(String userId) {
+        return checkInRepository.findByUserIdAndCheckInDate(userId, LocalDate.now());
     }
 
     /**
@@ -75,7 +112,8 @@ public class DailyCheckInService {
         return checkInRepository
                 .findByUserIdAndCheckInDateBetweenOrderByCheckInDateDesc(userId, from, to)
                 .stream()
-                .map(c -> toDto(c, false))
+                .map(c -> CheckInResponseDto.simple(c.getId(), c.getUserId(),
+                        c.getCheckInDate(), c.getMoodScore(), c.getNote(), false))
                 .toList();
     }
 
@@ -85,16 +123,5 @@ public class DailyCheckInService {
     @Transactional
     public void deleteAllForUser(String userId) {
         checkInRepository.deleteByUserId(userId);
-    }
-
-    private CheckInResponseDto toDto(DailyCheckIn checkIn, boolean alreadyCheckedIn) {
-        return new CheckInResponseDto(
-                checkIn.getId(),
-                checkIn.getUserId(),
-                checkIn.getCheckInDate(),
-                checkIn.getMoodScore(),
-                checkIn.getNote(),
-                alreadyCheckedIn
-        );
     }
 }

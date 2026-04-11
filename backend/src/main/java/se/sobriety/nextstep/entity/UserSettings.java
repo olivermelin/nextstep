@@ -6,7 +6,9 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -54,6 +56,14 @@ public class UserSettings extends BaseUserData {
 
     /** Tidpunkt när samtycket gavs — null om inte samtyckt */
     private LocalDateTime aiAnalysisConsentAt;
+
+    /** Om användarens aktiviteter visas i vänners flöde — OPT-IN, aldrig default */
+    private boolean feedSharingEnabled = false;
+
+    /** Vilka aktivitetstyper som delas — tom = inget delas även om feedSharingEnabled=true */
+    @ElementCollection
+    @Enumerated(EnumType.STRING)
+    private Set<FeedItemType> feedSharedTypes = new HashSet<>();
 
     protected UserSettings() {}
 

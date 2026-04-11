@@ -23,18 +23,24 @@ public class UserChallengeService {
     private final UserChallengeMapper userChallengeMapper;
     private final UserProgressService userProgressService;
     private final StreakService streakService;
+    private final RewardService rewardService;
+    private final ActivityFeedService activityFeedService;
 
     public UserChallengeService(
             UserChallengeRepository userChallengeRepository,
             ChallengeRepository challengeRepository,
             UserChallengeMapper userChallengeMapper,
             UserProgressService userProgressService,
-            StreakService streakService) {
+            StreakService streakService,
+            RewardService rewardService,
+            ActivityFeedService activityFeedService) {
         this.userChallengeRepository = userChallengeRepository;
         this.challengeRepository = challengeRepository;
         this.userChallengeMapper = userChallengeMapper;
         this.userProgressService = userProgressService;
         this.streakService = streakService;
+        this.rewardService = rewardService;
+        this.activityFeedService = activityFeedService;
     }
 
     /**
@@ -87,7 +93,7 @@ public class UserChallengeService {
      *
      * @param actualMinutes faktisk tid som användaren spenderade (0 = använd standardtid för utmaningen)
      */
-    public UserChallengeOutDto completeChallenge(String userId, Long challengeId, int actualMinutes) {
+    public UserChallengeOutDto completeChallenge(String userId, Long challengeId, int actualMinutes, boolean shareToFeed) {
         // Kolla om redan slutförd idag
         LocalDateTime startOfDay = LocalDate.now().atStartOfDay();
         boolean alreadyCompletedToday = userChallengeRepository
@@ -112,6 +118,14 @@ public class UserChallengeService {
 
         // Uppdatera streak — registrera dagens aktivitet
         streakService.registerActivity(userId);
+
+        // Generera daglig belöning om den inte redan skapats (triggas av aktivitet)
+        rewardService.generateDailyReward(userId);
+
+        // Publicera i socialt flöde om användaren valde att dela just denna aktivitet
+        if (shareToFeed) {
+            activityFeedService.publishChallengeCompleted(userId, userChallenge);
+        }
 
         return userChallengeMapper.toDto(userChallenge);
     }

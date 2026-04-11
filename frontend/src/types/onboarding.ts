@@ -66,6 +66,8 @@ export interface OnboardingData {
   recoveryStage?: RecoveryStage;
   /** Samtycke till att AI-coachen analyserar beteendemönster */
   aiAnalysisConsent?: boolean;
+  /** Vald coach-personlighet */
+  coachPersonality?: "SUPPORTIVE" | "MOTIVATIONAL" | "REFLECTIVE" | "DIRECT";
 }
 
 export interface OnboardingResponse {

@@ -12,6 +12,7 @@ import se.sobriety.nextstep.mapper.UserSettingsMapper;
 import se.sobriety.nextstep.repository.UserSettingsRepository;
 
 import java.util.Optional;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
@@ -72,7 +73,7 @@ class UserSettingsServiceTest {
     @Test
     void updateUserSettings_existingUser_updatesAndReturnsDto() {
         UserSettings entity = new UserSettings(USER_ID);
-        UserSettingsInDto inDto = new UserSettingsInDto(USER_ID, "New Name", "new@example.com", "+123", false, true, true, "sv", null);
+        UserSettingsInDto inDto = new UserSettingsInDto(USER_ID, "New Name", "new@example.com", "+123", false, true, true, "sv", null, null, null);
         UserSettingsOutDto expectedDto = buildOutDto(USER_ID, "New Name", "new@example.com", "+123", false, true, true, "sv");
 
         when(userSettingsRepository.findByUserId(USER_ID)).thenReturn(Optional.of(entity));
@@ -93,7 +94,7 @@ class UserSettingsServiceTest {
     @Test
     void updateUserSettings_nonExistingUser_createsDefaultThenUpdates() {
         UserSettings newEntity = new UserSettings(USER_ID);
-        UserSettingsInDto inDto = new UserSettingsInDto(USER_ID, "Name", "a@b.com", "555", true, true, false, "en", null);
+        UserSettingsInDto inDto = new UserSettingsInDto(USER_ID, "Name", "a@b.com", "555", true, true, false, "en", null, null, null);
         UserSettingsOutDto expectedDto = buildOutDto(USER_ID, "Name", "a@b.com", "555", true, true, false, "en");
 
         when(userSettingsRepository.findByUserId(USER_ID)).thenReturn(Optional.empty());
@@ -103,12 +104,13 @@ class UserSettingsServiceTest {
         UserSettingsOutDto result = userSettingsService.updateUserSettings(USER_ID, inDto);
 
         assertEquals(expectedDto, result);
-        verify(userSettingsRepository).save(any(UserSettings.class));
+        // 2 saves förväntas: createAndSaveDefault + explicit save efter applyUpdates
+        verify(userSettingsRepository, times(2)).save(any(UserSettings.class));
     }
 
     @Test
     void updateUserSettings_invalidEmail_throwsException() {
-        UserSettingsInDto inDto = new UserSettingsInDto(USER_ID, "Name", "not-an-email", "555", true, false, false, "en", null);
+        UserSettingsInDto inDto = new UserSettingsInDto(USER_ID, "Name", "not-an-email", "555", true, false, false, "en", null, null, null);
 
         assertThrows(IllegalArgumentException.class,
                 () -> userSettingsService.updateUserSettings(USER_ID, inDto));
@@ -119,7 +121,7 @@ class UserSettingsServiceTest {
     @Test
     void updateUserSettings_nullEmail_doesNotThrow() {
         UserSettings entity = new UserSettings(USER_ID);
-        UserSettingsInDto inDto = new UserSettingsInDto(USER_ID, "Name", null, "555", true, false, false, "en", null);
+        UserSettingsInDto inDto = new UserSettingsInDto(USER_ID, "Name", null, "555", true, false, false, "en", null, null, null);
         UserSettingsOutDto expectedDto = buildOutDto(USER_ID, "Name", null, "555", true, false, false, "en");
 
         when(userSettingsRepository.findByUserId(USER_ID)).thenReturn(Optional.of(entity));
@@ -133,7 +135,7 @@ class UserSettingsServiceTest {
     @Test
     void updateUserSettings_blankEmail_doesNotThrow() {
         UserSettings entity = new UserSettings(USER_ID);
-        UserSettingsInDto inDto = new UserSettingsInDto(USER_ID, "Name", "   ", "555", true, false, false, "en", null);
+        UserSettingsInDto inDto = new UserSettingsInDto(USER_ID, "Name", "   ", "555", true, false, false, "en", null, null, null);
         UserSettingsOutDto expectedDto = buildOutDto(USER_ID, "Name", "   ", "555", true, false, false, "en");
 
         when(userSettingsRepository.findByUserId(USER_ID)).thenReturn(Optional.of(entity));
@@ -147,7 +149,7 @@ class UserSettingsServiceTest {
     @Test
     void updateUserSettings_emptyStringEmail_doesNotThrow() {
         UserSettings entity = new UserSettings(USER_ID);
-        UserSettingsInDto inDto = new UserSettingsInDto(USER_ID, "Name", "", "555", true, false, false, "en", null);
+        UserSettingsInDto inDto = new UserSettingsInDto(USER_ID, "Name", "", "555", true, false, false, "en", null, null, null);
         UserSettingsOutDto expectedDto = buildOutDto(USER_ID, "Name", "", "555", true, false, false, "en");
 
         when(userSettingsRepository.findByUserId(USER_ID)).thenReturn(Optional.of(entity));
@@ -161,7 +163,7 @@ class UserSettingsServiceTest {
     @Test
     void updateUserSettings_validEmailWithAt_doesNotThrow() {
         UserSettings entity = new UserSettings(USER_ID);
-        UserSettingsInDto inDto = new UserSettingsInDto(USER_ID, "Name", "user@domain.com", "555", true, false, false, "en", null);
+        UserSettingsInDto inDto = new UserSettingsInDto(USER_ID, "Name", "user@domain.com", "555", true, false, false, "en", null, null, null);
         UserSettingsOutDto expectedDto = buildOutDto(USER_ID, "Name", "user@domain.com", "555", true, false, false, "en");
 
         when(userSettingsRepository.findByUserId(USER_ID)).thenReturn(Optional.of(entity));
@@ -227,6 +229,7 @@ class UserSettingsServiceTest {
         return new UserSettingsOutDto(userId, name, email, phone, notifications, aiNotifications,
                 darkMode, language, false, null, null, null, null, null,
                 se.sobriety.nextstep.entity.SubscriptionTier.FREE,
-                se.sobriety.nextstep.entity.CoachPersonality.SUPPORTIVE);
+                se.sobriety.nextstep.entity.CoachPersonality.SUPPORTIVE,
+                false, Set.of());
     }
 }

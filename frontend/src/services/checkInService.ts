@@ -1,5 +1,15 @@
 import { API_ENDPOINTS, fetchWithCredentials } from "@/config/api";
 
+export interface DailyRewardData {
+  id: number;
+  rewardDate: string;
+  rewardType: string;
+  rewardValue: string;
+  claimed: boolean;
+  consecutiveDays: number;
+  rare: boolean;
+}
+
 export interface CheckInData {
   id: number;
   userId: string;
@@ -7,6 +17,10 @@ export interface CheckInData {
   moodScore: number;
   note: string | null;
   alreadyCheckedInToday: boolean;
+  // Berikad data — finns vid ny incheckning
+  currentStreak?: number;
+  streakIncremented?: boolean;
+  dailyReward?: DailyRewardData | null;
 }
 
 export interface CheckInRequest {

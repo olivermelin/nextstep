@@ -103,6 +103,13 @@ export const API_ENDPOINTS = {
     DUEL_COMPLETE: (duelId: number, userId: string) => `${API_BASE_URL}/social/duels/${duelId}/complete?userId=${encodeURIComponent(userId)}`,
     LEAGUE: (userId: string) => `${API_BASE_URL}/social/league?userId=${encodeURIComponent(userId)}`,
     LEAGUE_ME: (userId: string) => `${API_BASE_URL}/social/league/me?userId=${encodeURIComponent(userId)}`,
+    // Feed-endpoints
+    FEED: (userId: string, cursor?: number) =>
+      `${API_BASE_URL}/social/feed?userId=${encodeURIComponent(userId)}${cursor !== undefined ? `&cursor=${cursor}` : ''}`,
+    FEED_CHEER: (itemId: number, userId: string) =>
+      `${API_BASE_URL}/social/feed/${itemId}/cheer?userId=${encodeURIComponent(userId)}`,
+    FEED_DELETE: (itemId: number, userId: string) =>
+      `${API_BASE_URL}/social/feed/${itemId}?userId=${encodeURIComponent(userId)}`,
   },
 
   // AI Coach endpoints
@@ -111,6 +118,7 @@ export const API_ENDPOINTS = {
     MESSAGE: (userId: string) => `${API_BASE_URL}/coach/message?userId=${encodeURIComponent(userId)}`,
     PERSONALIZED: (userId: string) => `${API_BASE_URL}/coach/personalized/${encodeURIComponent(userId)}`,
     STATUS: `${API_BASE_URL}/coach/status`,
+    QUICK_PROMPTS: (userId: string) => `${API_BASE_URL}/coach/quick-prompts/${encodeURIComponent(userId)}`,
     // Kvotstatus
     QUOTA: (userId: string) => `${API_BASE_URL}/coach/quota/${encodeURIComponent(userId)}`,
     // Multi-konversation

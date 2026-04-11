@@ -31,5 +31,8 @@ public record OnboardingDataDto(
         RecoveryStage recoveryStage,
 
         /** Samtycke till AI-baserad beteendeanalys — användaren väljer aktivt */
-        Boolean aiAnalysisConsent
+        Boolean aiAnalysisConsent,
+
+        /** Vald coach-personlighet — valfritt, default SUPPORTIVE om ej satt */
+        se.sobriety.nextstep.entity.CoachPersonality coachPersonality
 ) {}

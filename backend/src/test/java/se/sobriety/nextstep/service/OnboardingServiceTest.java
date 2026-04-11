@@ -42,7 +42,9 @@ class OnboardingServiceTest {
                 List.of(UserGoal.DAILY_STABILITY),
                 null,
                 null,
-                RecoveryStage.TRYING_TO_QUIT
+                RecoveryStage.TRYING_TO_QUIT,
+                null,
+                null
         );
 
         UserSettings settings = new UserSettings(userId);
@@ -68,7 +70,9 @@ class OnboardingServiceTest {
                 List.of(UserGoal.REDUCE_SUBSTANCES, UserGoal.MENTAL_HEALTH),
                 "My custom goal",
                 bgDto,
-                RecoveryStage.ONE_TO_FOUR_WEEKS
+                RecoveryStage.ONE_TO_FOUR_WEEKS,
+                null,
+                null
         );
 
         UserSettings settings = new UserSettings(userId);
@@ -90,7 +94,7 @@ class OnboardingServiceTest {
     void completeOnboarding_nullUserId_throwsException() {
         OnboardingDataDto data = new OnboardingDataDto(
                 OnboardingTrack.CONSUMER,
-                List.of(UserGoal.DAILY_STABILITY), null, null, RecoveryStage.ACTIVE_USE
+                List.of(UserGoal.DAILY_STABILITY), null, null, RecoveryStage.ACTIVE_USE, null, null
         );
 
         assertThrows(IllegalArgumentException.class,
@@ -102,7 +106,7 @@ class OnboardingServiceTest {
     void completeOnboarding_blankUserId_throwsException() {
         OnboardingDataDto data = new OnboardingDataDto(
                 OnboardingTrack.CONSUMER,
-                List.of(UserGoal.DAILY_STABILITY), null, null, RecoveryStage.ACTIVE_USE
+                List.of(UserGoal.DAILY_STABILITY), null, null, RecoveryStage.ACTIVE_USE, null, null
         );
 
         assertThrows(IllegalArgumentException.class,
@@ -121,7 +125,7 @@ class OnboardingServiceTest {
     void completeOnboarding_nullUserGoals_throwsException() {
         OnboardingDataDto data = new OnboardingDataDto(
                 OnboardingTrack.CONSUMER,
-                null, null, null, RecoveryStage.ACTIVE_USE
+                null, null, null, RecoveryStage.ACTIVE_USE, null, null
         );
 
         assertThrows(IllegalArgumentException.class,
@@ -132,7 +136,7 @@ class OnboardingServiceTest {
     void completeOnboarding_emptyUserGoals_throwsException() {
         OnboardingDataDto data = new OnboardingDataDto(
                 OnboardingTrack.CONSUMER,
-                Collections.emptyList(), null, null, RecoveryStage.ACTIVE_USE
+                Collections.emptyList(), null, null, RecoveryStage.ACTIVE_USE, null, null
         );
 
         assertThrows(IllegalArgumentException.class,
@@ -143,7 +147,7 @@ class OnboardingServiceTest {
     void completeOnboarding_nullRecoveryStage_succeeds() {
         OnboardingDataDto data = new OnboardingDataDto(
                 OnboardingTrack.CONSUMER,
-                List.of(UserGoal.DAILY_STABILITY), null, null, null
+                List.of(UserGoal.DAILY_STABILITY), null, null, null, null, null
         );
 
         UserSettings settings = new UserSettings("user-123");
@@ -160,7 +164,7 @@ class OnboardingServiceTest {
         String tooLong = "x".repeat(1001);
         OnboardingDataDto data = new OnboardingDataDto(
                 OnboardingTrack.CONSUMER,
-                List.of(UserGoal.OTHER), tooLong, null, RecoveryStage.ACTIVE_USE
+                List.of(UserGoal.OTHER), tooLong, null, RecoveryStage.ACTIVE_USE, null, null
         );
 
         assertThrows(IllegalArgumentException.class,
@@ -172,7 +176,7 @@ class OnboardingServiceTest {
         String atLimit = "x".repeat(1000);
         OnboardingDataDto data = new OnboardingDataDto(
                 OnboardingTrack.CONSUMER,
-                List.of(UserGoal.OTHER), atLimit, null, RecoveryStage.ACTIVE_USE
+                List.of(UserGoal.OTHER), atLimit, null, RecoveryStage.ACTIVE_USE, null, null
         );
 
         UserSettings settings = new UserSettings("user-123");

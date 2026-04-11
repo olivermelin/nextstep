@@ -65,7 +65,9 @@ class OnboardingControllerTest {
                 List.of(UserGoal.DAILY_STABILITY, UserGoal.MENTAL_HEALTH),
                 null,
                 null,
-                RecoveryStage.TRYING_TO_QUIT
+                RecoveryStage.TRYING_TO_QUIT,
+                null,
+                null
         );
 
         doNothing().when(onboardingService).completeOnboarding(eq(USER_ID), any(OnboardingDataDto.class));
@@ -86,7 +88,9 @@ class OnboardingControllerTest {
                 null,
                 null,
                 null,
-                RecoveryStage.ACTIVE_USE
+                RecoveryStage.ACTIVE_USE,
+                null,
+                null
         );
 
         mockMvc.perform(post("/api/onboarding/complete/{userId}", USER_ID)
@@ -101,6 +105,8 @@ class OnboardingControllerTest {
         OnboardingDataDto data = new OnboardingDataDto(
                 OnboardingTrack.CONSUMER,
                 List.of(UserGoal.REDUCE_SUBSTANCES),
+                null,
+                null,
                 null,
                 null,
                 null

@@ -65,9 +65,10 @@ public class UserChallengesController {
     public UserChallengeOutDto completeChallenge(
             @PathVariable String userId,
             @PathVariable Long challengeId,
-            @RequestParam(defaultValue = "0") int actualMinutes) {
+            @RequestParam(defaultValue = "0") int actualMinutes,
+            @RequestParam(defaultValue = "false") boolean shareToFeed) {
         verifyUserAccess(userId);
-        return userChallengeService.completeChallenge(userId, challengeId, actualMinutes);
+        return userChallengeService.completeChallenge(userId, challengeId, actualMinutes, shareToFeed);
     }
 }
 

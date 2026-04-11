@@ -26,6 +26,7 @@ class UserProgressServiceTest {
     @Mock private UserChallengeRepository userChallengeRepository;
     @Mock private AchievementRepository achievementRepository;
     @Mock private UserAchievementRepository userAchievementRepository;
+    @Mock private ActivityFeedService activityFeedService;
 
     private UserProgressService service;
 
@@ -37,7 +38,7 @@ class UserProgressServiceTest {
         service = new UserProgressService(
                 progressRepository, settingsRepository, levelService, mailService,
                 categoryProgressRepository, userChallengeRepository,
-                achievementRepository, userAchievementRepository
+                achievementRepository, userAchievementRepository, activityFeedService
         );
     }
 

@@ -1,6 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { AIChat } from "../components/AIChat";
+import { useAuth } from "@/context/AuthContext";
+import { API_ENDPOINTS } from "@/config/api";
 import {
   MessageCircle,
   Lightbulb,
@@ -8,21 +10,52 @@ import {
   Target,
   Zap,
   Info,
+  LucideIcon,
 } from "lucide-react";
+
+interface QuickPromptData {
+  icon: string;
+  label: string;
+  prompt: string;
+}
+
+const iconMap: Record<string, LucideIcon> = {
+  Heart, Target, Zap, Lightbulb,
+};
 
 const AICoach: React.FC = () => {
   const { t } = useTranslation();
+  const { user } = useAuth();
   const [quickPrompt, setQuickPrompt] = useState<string | null>(null);
+  const [dynamicPrompts, setDynamicPrompts] = useState<QuickPromptData[] | null>(null);
 
-  const quickPrompts = [
-    { icon: Heart, label: t('aiCoach.quickPrompts.howAmI'), prompt: t('aiCoach.quickPrompts.howAmIPrompt') },
-    { icon: Target, label: t('aiCoach.quickPrompts.setGoals'), prompt: t('aiCoach.quickPrompts.setGoalsPrompt') },
-    { icon: Zap, label: t('aiCoach.quickPrompts.motivation'), prompt: t('aiCoach.quickPrompts.motivationPrompt') },
-    { icon: Lightbulb, label: t('aiCoach.quickPrompts.dailyTip'), prompt: t('aiCoach.quickPrompts.dailyTipPrompt') },
+  const userId = user?.email || user?.id || null;
+
+  // Hämta personaliserade snabbfrågor från backend
+  useEffect(() => {
+    if (!userId) return;
+    fetch(API_ENDPOINTS.COACH.QUICK_PROMPTS(userId), { credentials: "include" })
+      .then(res => res.ok ? res.json() : null)
+      .then(data => { if (data) setDynamicPrompts(data); })
+      .catch(() => {});
+  }, [userId]);
+
+  // Fallback till statiska prompts om API ej svarar
+  const fallbackPrompts: QuickPromptData[] = [
+    { icon: "Heart", label: t('aiCoach.quickPrompts.howAmI'), prompt: t('aiCoach.quickPrompts.howAmIPrompt') },
+    { icon: "Target", label: t('aiCoach.quickPrompts.setGoals'), prompt: t('aiCoach.quickPrompts.setGoalsPrompt') },
+    { icon: "Zap", label: t('aiCoach.quickPrompts.motivation'), prompt: t('aiCoach.quickPrompts.motivationPrompt') },
+    { icon: "Lightbulb", label: t('aiCoach.quickPrompts.dailyTip'), prompt: t('aiCoach.quickPrompts.dailyTipPrompt') },
   ];
 
+  const quickPrompts = (dynamicPrompts || fallbackPrompts).map(p => ({
+    icon: iconMap[p.icon] || Heart,
+    label: p.label,
+    prompt: p.prompt,
+  }));
+
   return (
-    <div className="flex h-full bg-gradient-to-br from-background via-background to-primary/5 relative overflow-hidden">
+    <div className="flex h-full pb-20 bg-gradient-to-br from-background via-background to-primary/5 relative overflow-hidden">
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div
@@ -36,10 +69,10 @@ const AICoach: React.FC = () => {
       </div>
 
       {/* Main content area */}
-      <div className="flex-1 flex relative z-10 p-4 gap-4 max-w-[1400px] mx-auto w-full h-full animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <div className="flex-1 flex relative z-10 p-4 gap-4 max-w-[1400px] mx-auto w-full h-full min-h-0 animate-in fade-in slide-in-from-bottom-4 duration-700">
 
         {/* Sidopanel - vänster (gömd på mobil) */}
-        <aside className="hidden lg:flex flex-col w-72 flex-shrink-0 space-y-4">
+        <aside className="hidden lg:flex flex-col w-72 flex-shrink-0 space-y-4 overflow-y-auto min-h-0">
           {/* Header-kort */}
           <div className="bg-card/80 backdrop-blur-xl border border-border/50 rounded-2xl shadow-lg p-5 text-center space-y-3">
             <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-br from-primary to-primary/60 shadow-lg">
@@ -95,7 +128,7 @@ const AICoach: React.FC = () => {
         </aside>
 
         {/* Chat - huvudyta */}
-        <div className="flex-1 flex flex-col min-w-0">
+        <div className="flex-1 flex flex-col min-w-0 min-h-0">
           {/* Mobil-header (visas bara på sm/md) */}
           <div className="lg:hidden text-center space-y-2 mb-4">
             <div className="inline-flex items-center justify-center w-11 h-11 rounded-xl bg-gradient-to-br from-primary to-primary/60 shadow-lg">
@@ -121,7 +154,7 @@ const AICoach: React.FC = () => {
           </div>
 
           {/* Chat-container */}
-          <div className="bg-card/80 backdrop-blur-xl border border-border/50 rounded-3xl shadow-2xl flex-1 flex flex-col overflow-hidden min-h-[500px]">
+          <div className="bg-card/80 backdrop-blur-xl border border-border/50 rounded-3xl shadow-2xl flex-1 flex flex-col overflow-hidden min-h-0">
             <AIChat quickPrompt={quickPrompt} onQuickPromptConsumed={() => setQuickPrompt(null)} />
           </div>
         </div>

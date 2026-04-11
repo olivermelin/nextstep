@@ -11,10 +11,10 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Progress } from "@/components/ui/progress";
-import { 
-  ArrowRight, 
-  ArrowLeft, 
-  Check, 
+import {
+  ArrowRight,
+  ArrowLeft,
+  Check,
   Info,
   Loader2
 } from "lucide-react";
@@ -29,6 +29,7 @@ import {
   OnboardingTrack,
   OnboardingData,
 } from "@/types/onboarding";
+import CoachPersonaSelector, { type CoachPersonality } from "@/components/CoachPersonaSelector";
 
 const Onboarding = () => {
   const navigate = useNavigate();
@@ -64,9 +65,13 @@ const Onboarding = () => {
   // Samtycke till AI-beteendeanalys — visas på sista steget
   const [aiAnalysisConsent, setAiAnalysisConsent] = useState(false);
 
+  // Steg coach-val
+  const [coachPersonality, setCoachPersonality] = useState<CoachPersonality>("SUPPORTIVE");
+
   // Antal steg beror på vilket spår användaren väljer
+  // Coach-val är alltid sista steget
   const isRecoveryTrack = selectedTrack === OnboardingTrack.RECOVERY;
-  const totalSteps = isRecoveryTrack ? 4 : 2;
+  const totalSteps = isRecoveryTrack ? 5 : 3;
   const progress = (currentStep / totalSteps) * 100;
 
   const goalOptions = [
@@ -186,6 +191,7 @@ const Onboarding = () => {
         } : undefined,
         recoveryStage: isRecoveryTrack ? recoveryStage : undefined,
         aiAnalysisConsent,
+      coachPersonality,
       };
 
       await onboardingApi.completeOnboarding(user.email || user.id, onboardingData);
@@ -199,7 +205,7 @@ const Onboarding = () => {
   };
 
   return (
-    <div className="min-h-full flex items-start justify-center px-4 py-6 md:py-10">
+    <div className="min-h-full flex items-start justify-center px-4 py-6 md:py-10 pb-28">
       <Card className="w-full max-w-2xl p-5 md:p-8 shadow-[var(--shadow-elevated)] animate-fade-in-up">
         {/* Progress Bar */}
         <div className="mb-4">
@@ -527,6 +533,30 @@ const Onboarding = () => {
             </RadioGroup>
           </motion.div>
         )}
+        {/* STEG 3 (CONSUMER) / STEG 5 (RECOVERY) - Coach-val */}
+        {currentStep === totalSteps && (
+          <motion.div
+            key="step-coach"
+            custom={directionRef.current}
+            variants={stepVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
+            className="space-y-4"
+          >
+            <div>
+              <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
+                {t('onboarding.coachTitle')}
+              </h1>
+              <p className="text-muted-foreground">
+                {t('onboarding.coachSubtitle')}
+              </p>
+            </div>
+            <CoachPersonaSelector value={coachPersonality} onChange={setCoachPersonality} />
+          </motion.div>
+        )}
+
         </AnimatePresence>
 
         {/* Samtycke till AI-analys — visas på sista steget */}

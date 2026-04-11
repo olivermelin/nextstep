@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { CheckCircle2, Loader2 } from "lucide-react";
+import { CheckCircle2, Flame, Loader2 } from "lucide-react";
 import { checkInService, CheckInData } from "@/services/checkInService";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
@@ -56,6 +56,15 @@ const DailyCheckIn = ({ userId, existingCheckIn, onCheckInComplete }: DailyCheck
         title: t("checkin.complete"),
         description: t("checkin.completeDesc"),
       });
+      // Visa streak-toast om streaken ökade
+      if (result.streakIncremented && result.currentStreak) {
+        setTimeout(() => {
+          toast({
+            title: `🔥 ${t("checkin.streakUpdate", { days: result.currentStreak })}`,
+            description: t("checkin.streakKeepGoing"),
+          });
+        }, 800);
+      }
     } catch {
       toast({
         title: t("common.error"),

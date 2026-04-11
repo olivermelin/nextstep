@@ -11,6 +11,7 @@ import se.sobriety.nextstep.exception.QuotaExceededException;
 import se.sobriety.nextstep.service.QuotaService;
 import se.sobriety.nextstep.service.ai.ClaudeApiService;
 import se.sobriety.nextstep.service.ai.ConversationService;
+import se.sobriety.nextstep.service.ai.QuickPromptService;
 
 import java.util.List;
 import java.util.Map;
@@ -25,13 +26,16 @@ public class AICoachController {
     private final ClaudeApiService claudeApiService;
     private final ConversationService conversationService;
     private final QuotaService quotaService;
+    private final QuickPromptService quickPromptService;
 
     public AICoachController(ClaudeApiService claudeApiService,
                              ConversationService conversationService,
-                             QuotaService quotaService) {
+                             QuotaService quotaService,
+                             QuickPromptService quickPromptService) {
         this.claudeApiService = claudeApiService;
         this.conversationService = conversationService;
         this.quotaService = quotaService;
+        this.quickPromptService = quickPromptService;
     }
 
     /**
@@ -128,6 +132,16 @@ public class AICoachController {
     }
 
     /**
+     * GET /api/coach/quick-prompts/{userId}
+     * Returnerar personaliserade snabbfrågor baserat på användarens kontext.
+     */
+    @GetMapping("/quick-prompts/{userId}")
+    public List<QuickPromptDto> getQuickPrompts(@PathVariable String userId) {
+        verifyUserAccess(userId);
+        return quickPromptService.getQuickPrompts(userId);
+    }
+
+    /**
      * Check if AI service is available
      * GET /api/coach/status
      */
@@ -143,12 +157,16 @@ public class AICoachController {
     }
 
     /**
-     * GET /api/coach/personalized/{userId}
-     * Hämtar ett personligt meddelande från AI-coachen
+     * POST /api/coach/personalized/{userId}
+     * Hämtar ett personligt meddelande från AI-coachen baserat på användarens kontext.
+     * Sparas inte i konversationshistoriken (stateless).
      */
-    @GetMapping("/personalized/{userId}")
-    public CoachMessageResponse getPersonalizedMessage(@PathVariable String userId) {
+    @PostMapping("/personalized/{userId}")
+    public CoachMessageResponse getPersonalizedMessage(
+            @PathVariable String userId,
+            @Valid @RequestBody CoachMessageRequest request
+    ) {
         verifyUserAccess(userId);
-        return claudeApiService.sendMessage(userId, "Ge mig personligt stöd och råd för min nykterhetsresa.", null);
+        return claudeApiService.sendStateless(userId, request.message());
     }
 }

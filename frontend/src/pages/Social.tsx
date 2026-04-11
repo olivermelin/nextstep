@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import {
   Users, Swords, Trophy, UserPlus, Check, X, Trash2,
-  Crown, Medal, Star, CircleDot, Target, ChevronRight
+  Crown, Medal, Star, CircleDot, Target, ChevronRight, Rss
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useTranslation } from "react-i18next";
@@ -17,13 +17,16 @@ import {
   getDuels, createDuel, acceptDuel, declineDuel, completeDuel,
   getLeaderboard
 } from "@/services/socialService";
+import FeedList from "@/components/feed/FeedList";
+import { userChallengeApi } from "@/services/challengeService";
+import { UserChallengeOutDto } from "@/types/challenge";
 
-type Tab = "friends" | "duels" | "league";
+type Tab = "feed" | "friends" | "duels" | "league";
 
 const TIER_COLORS: Record<string, string> = {
-  DIAMOND: "text-cyan-400",
-  GOLD: "text-yellow-400",
-  SILVER: "text-slate-300",
+  DIAMOND: "text-cyan-600 dark:text-cyan-400",
+  GOLD: "text-yellow-600 dark:text-yellow-500",
+  SILVER: "text-slate-500 dark:text-slate-300",
   BRONZE: "text-amber-600",
 };
 
@@ -45,7 +48,7 @@ const Social = () => {
   const { user } = useAuth();
   const { t } = useTranslation();
   const { toast } = useToast();
-  const [activeTab, setActiveTab] = useState<Tab>("friends");
+  const [activeTab, setActiveTab] = useState<Tab>("feed");
 
   const userId = user?.email || user?.id || null;
 
@@ -60,10 +63,10 @@ const Social = () => {
   const [duels, setDuels] = useState<DuelDto[]>([]);
   const [duelsLoading, setDuelsLoading] = useState(false);
   const [newDuelEmail, setNewDuelEmail] = useState("");
-  const [newDuelChallengeName, setNewDuelChallengeName] = useState("");
-  const [newDuelChallengeId, setNewDuelChallengeId] = useState("");
+  const [selectedChallenge, setSelectedChallenge] = useState<UserChallengeOutDto | null>(null);
   const [duelFormOpen, setDuelFormOpen] = useState(false);
   const [duelCreateLoading, setDuelCreateLoading] = useState(false);
+  const [activeChallenges, setActiveChallenges] = useState<UserChallengeOutDto[]>([]);
 
   // --- League state ---
   const [leaderboard, setLeaderboard] = useState<LeagueEntryDto[]>([]);
@@ -88,7 +91,12 @@ const Social = () => {
     if (!userId) return;
     setDuelsLoading(true);
     try {
-      setDuels(await getDuels(userId));
+      const [duelsData, challengesData] = await Promise.all([
+        getDuels(userId),
+        userChallengeApi.getUserActiveChallenges(userId).catch(() => []),
+      ]);
+      setDuels(duelsData);
+      setActiveChallenges(challengesData);
     } catch {
       // silent
     } finally {
@@ -166,14 +174,12 @@ const Social = () => {
 
   // --- Duel actions ---
   const handleCreateDuel = async () => {
-    if (!userId || !newDuelEmail.trim() || !newDuelChallengeName.trim()) return;
+    if (!userId || !newDuelEmail.trim() || !selectedChallenge) return;
     setDuelCreateLoading(true);
     try {
-      const challengeIdNum = parseInt(newDuelChallengeId) || 1;
-      await createDuel(userId, newDuelEmail.trim(), challengeIdNum, newDuelChallengeName.trim());
+      await createDuel(userId, newDuelEmail.trim(), selectedChallenge.challengeId, selectedChallenge.challengeName);
       setNewDuelEmail("");
-      setNewDuelChallengeName("");
-      setNewDuelChallengeId("");
+      setSelectedChallenge(null);
       setDuelFormOpen(false);
       toast({ title: t("social.duelSent") });
       loadDuels();
@@ -208,13 +214,14 @@ const Social = () => {
   };
 
   const tabs: { id: Tab; label: string; icon: typeof Users; count?: number }[] = [
+    { id: "feed",    label: t("feed.title"),    icon: Rss },
     { id: "friends", label: t("social.friends"), icon: Users, count: pendingRequests.length || undefined },
-    { id: "duels", label: t("social.duels"), icon: Swords },
-    { id: "league", label: t("social.league"), icon: Trophy },
+    { id: "duels",   label: t("social.duels"),   icon: Swords },
+    { id: "league",  label: t("social.league"),  icon: Trophy },
   ];
 
   return (
-    <div className="min-h-full bg-gradient-to-br from-background via-background to-primary/5 p-4 pt-4">
+    <div className="min-h-full bg-gradient-to-br from-background via-background to-primary/5 p-4 pt-4 pb-28">
       <div className="max-w-4xl mx-auto space-y-5">
         {/* Header */}
         <div className="pt-2">
@@ -248,6 +255,11 @@ const Social = () => {
           })}
         </div>
 
+        {/* ===== FLÖDE ===== */}
+        {activeTab === "feed" && userId && (
+          <FeedList userId={userId} hasFriends={friends.length > 0} />
+        )}
+
         {/* ===== VÄNNER ===== */}
         {activeTab === "friends" && (
           <div className="space-y-4">
@@ -259,6 +271,8 @@ const Social = () => {
               </h3>
               <div className="flex gap-2">
                 <Input
+                  id="friend-email"
+                  aria-label={t("social.addFriend")}
                   placeholder={t("social.friendEmailPlaceholder")}
                   value={addEmail}
                   onChange={(e) => setAddEmail(e.target.value)}
@@ -368,20 +382,41 @@ const Social = () => {
               </button>
               {duelFormOpen && (
                 <div className="mt-4 space-y-3 animate-in fade-in duration-200">
+                  {/* Motståndarens e-post */}
                   <Input
                     placeholder={t("social.duelOpponentEmail")}
                     value={newDuelEmail}
                     onChange={(e) => setNewDuelEmail(e.target.value)}
                   />
-                  <Input
-                    placeholder={t("social.duelChallengeName")}
-                    value={newDuelChallengeName}
-                    onChange={(e) => setNewDuelChallengeName(e.target.value)}
-                  />
+
+                  {/* Välj aktiv utmaning från dropdown */}
+                  {activeChallenges.length > 0 ? (
+                    <select
+                      aria-label={t("social.duelSelectChallenge")}
+                      className="w-full px-3 py-2 text-sm rounded-xl border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                      value={selectedChallenge?.challengeId ?? ""}
+                      onChange={(e) => {
+                        const found = activeChallenges.find(c => c.challengeId === Number(e.target.value));
+                        setSelectedChallenge(found ?? null);
+                      }}
+                    >
+                      <option value="">{t("social.duelSelectChallenge")}</option>
+                      {activeChallenges.map((c) => (
+                        <option key={c.challengeId} value={c.challengeId}>
+                          {c.challengeName}
+                        </option>
+                      ))}
+                    </select>
+                  ) : (
+                    <p className="text-xs text-muted-foreground text-center py-2">
+                      {t("social.duelNoActiveChallenges")}
+                    </p>
+                  )}
+
                   <Button
                     className="w-full"
                     onClick={handleCreateDuel}
-                    disabled={duelCreateLoading || !newDuelEmail.trim() || !newDuelChallengeName.trim()}
+                    disabled={duelCreateLoading || !newDuelEmail.trim() || !selectedChallenge}
                   >
                     {duelCreateLoading ? "..." : t("social.sendDuel")}
                   </Button>

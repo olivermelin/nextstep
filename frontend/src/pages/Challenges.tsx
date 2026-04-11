@@ -8,6 +8,7 @@ import { useAuth } from "@/context/AuthContext";
 import { challengeApi, userChallengeApi } from "@/services/challengeService";
 import { useToast } from "@/hooks/use-toast";
 import { clearChallengeTimer } from "@/hooks/useActivityTimer";
+import { useConfetti } from "@/components/Confetti";
 import {
   ChallengeOutDto,
   UserChallengeOutDto,
@@ -25,6 +26,7 @@ const Challenges = () => {
   const { t } = useTranslation();
   const { user } = useAuth();
   const { toast } = useToast();
+  const { fireBurst } = useConfetti();
   const { categorySlug, challengeId } = useParams<{ categorySlug?: string; challengeId?: string }>();
   const navigate = useNavigate();
 
@@ -171,7 +173,7 @@ const Challenges = () => {
     }
   };
 
-  const handleCompleteChallenge = async (actualMinutes: number = 0) => {
+  const handleCompleteChallenge = async (actualMinutes: number = 0, shareToFeed: boolean = false) => {
     if ((!user?.email && !user?.id) || !selectedChallenge) return;
     const userId = user.email || user.id;
 
@@ -179,7 +181,7 @@ const Challenges = () => {
     setError(null);
 
     try {
-      await userChallengeApi.completeChallenge(userId, selectedChallenge.id, actualMinutes);
+      const result = await userChallengeApi.completeChallenge(userId, selectedChallenge.id, actualMinutes, shareToFeed);
       await loadUserChallenges();
 
       clearChallengeTimer(selectedChallenge.id);
@@ -187,11 +189,16 @@ const Challenges = () => {
       setChallenges(prev => prev.map(c => c.id === selectedChallenge.id ? { ...c, completedToday: true } : c));
       setAllChallenges(prev => prev.map(c => c.id === selectedChallenge.id ? { ...c, completedToday: true } : c));
 
-      if (categorySlug) {
-        navigate(`/challenges/${categorySlug}`);
-      } else {
-        navigate("/challenges");
-      }
+      // Fira! Konfetti + XP-toast
+      fireBurst();
+      toast({
+        title: t('challenges.challengeComplete'),
+        description: t('challenges.xpEarned', { xp: result.pointsEarned }),
+      });
+
+      // Fördröj navigering så användaren hinner se firandet
+      const dest = categorySlug ? `/challenges/${categorySlug}` : "/challenges";
+      setTimeout(() => navigate(dest), 1500);
     } catch (err: any) {
       const msg = err?.message || '';
       if (msg.includes('already completed today') || msg.includes('Challenge already completed')) {
@@ -241,7 +248,7 @@ const Challenges = () => {
   };
 
   return (
-    <div className="min-h-full bg-gradient-to-br from-primary/5 via-background to-secondary/5 p-4 pt-4">
+    <div className="min-h-full bg-gradient-to-br from-primary/5 via-background to-secondary/5 p-4 pt-4 pb-28">
       <div className="max-w-4xl mx-auto space-y-6">
         {/* Header */}
         <div className="pt-2">
@@ -324,7 +331,7 @@ const Challenges = () => {
               <ChallengeActivityView
                 challenge={selectedChallenge}
                 loading={loading}
-                onComplete={() => {}}
+                onComplete={(_m, _s) => {}}
                 onStart={(_challenge, _chosenMinutes) => handleStartChallenge(selectedChallenge)}
                 previewOnly
               />

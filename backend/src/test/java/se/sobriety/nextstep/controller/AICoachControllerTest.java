@@ -17,6 +17,7 @@ import se.sobriety.nextstep.exception.GlobalExceptionHandler;
 import se.sobriety.nextstep.service.QuotaService;
 import se.sobriety.nextstep.service.ai.ClaudeApiService;
 import se.sobriety.nextstep.service.ai.ConversationService;
+import se.sobriety.nextstep.service.ai.QuickPromptService;
 
 import java.util.List;
 
@@ -41,10 +42,13 @@ class AICoachControllerTest {
     @Mock
     private QuotaService quotaService;
 
+    @Mock
+    private QuickPromptService quickPromptService;
+
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        AICoachController controller = new AICoachController(claudeApiService, conversationService, quotaService);
+        AICoachController controller = new AICoachController(claudeApiService, conversationService, quotaService, quickPromptService);
         mockMvc = MockMvcBuilders.standaloneSetup(controller)
                 .setControllerAdvice(new GlobalExceptionHandler())
                 .build();

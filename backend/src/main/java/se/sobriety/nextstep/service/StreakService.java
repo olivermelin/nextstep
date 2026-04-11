@@ -1,6 +1,7 @@
 package se.sobriety.nextstep.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import se.sobriety.nextstep.dto.StreakResponseDto;
@@ -19,9 +20,12 @@ import java.time.LocalDate;
 public class StreakService {
 
     private final UserStreakRepository streakRepository;
+    private final ActivityFeedService activityFeedService;
 
-    public StreakService(UserStreakRepository streakRepository) {
-        this.streakRepository = streakRepository;
+    public StreakService(UserStreakRepository streakRepository,
+                         @Lazy ActivityFeedService activityFeedService) {
+        this.streakRepository    = streakRepository;
+        this.activityFeedService = activityFeedService;
     }
 
     /**
@@ -53,6 +57,8 @@ public class StreakService {
 
         if (increased) {
             log.info("Streak uppdaterad för användare {}: {} dagar", userId, streak.getCurrentStreak());
+            // Publicera milstolpe i flödet om streak nått ett milstolpeantal
+            activityFeedService.publishStreakMilestoneIfReached(userId, streak.getCurrentStreak());
         }
 
         return toDto(streakRepository.save(streak));

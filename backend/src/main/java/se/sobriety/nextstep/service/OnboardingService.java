@@ -72,6 +72,11 @@ public class OnboardingService {
         userSettings.setAiAnalysisConsent(consent);
         userSettings.setAiAnalysisConsentAt(consent ? java.time.LocalDateTime.now() : null);
 
+        // Spara vald coach-personlighet (default SUPPORTIVE om ej vald)
+        if (data.coachPersonality() != null) {
+            userSettings.setCoachPersonality(data.coachPersonality());
+        }
+
         // Markera onboarding som slutförd
         userSettings.setOnboardingCompleted(true);
 

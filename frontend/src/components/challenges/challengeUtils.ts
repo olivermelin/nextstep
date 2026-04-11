@@ -4,6 +4,9 @@ import {
   Focus,
   Lightbulb,
   Pencil,
+  Heart,
+  Users,
+  Leaf,
 } from "lucide-react";
 import {
   ChallengeCategory,
@@ -18,6 +21,9 @@ export const categorySlugMap: Record<string, ChallengeCategory> = {
   "focus-discipline": ChallengeCategory.FOCUS_DISCIPLINE,
   "personal-development": ChallengeCategory.PERSONAL_DEVELOPMENT,
   "drawing-exercises": ChallengeCategory.DRAWING_EXERCISES,
+  "healthy-habits": ChallengeCategory.HEALTHY_HABITS,
+  "social-skills": ChallengeCategory.SOCIAL_SKILLS,
+  "emotional-awareness": ChallengeCategory.EMOTIONAL_AWARENESS,
 };
 
 export const categoryToSlug: Record<ChallengeCategory, string> = {
@@ -26,6 +32,9 @@ export const categoryToSlug: Record<ChallengeCategory, string> = {
   [ChallengeCategory.FOCUS_DISCIPLINE]: "focus-discipline",
   [ChallengeCategory.PERSONAL_DEVELOPMENT]: "personal-development",
   [ChallengeCategory.DRAWING_EXERCISES]: "drawing-exercises",
+  [ChallengeCategory.HEALTHY_HABITS]: "healthy-habits",
+  [ChallengeCategory.SOCIAL_SKILLS]: "social-skills",
+  [ChallengeCategory.EMOTIONAL_AWARENESS]: "emotional-awareness",
 };
 
 export interface CategoryConfig {
@@ -78,6 +87,30 @@ export const categoryConfigs: CategoryConfig[] = [
     borderColor: "border-teal-500/30",
     bgColor: "from-teal-500/10 to-teal-500/5",
   },
+  {
+    id: ChallengeCategory.HEALTHY_HABITS,
+    nameKey: "challenges.categories.healthyHabits",
+    icon: Leaf,
+    color: "text-green-500",
+    borderColor: "border-green-500/30",
+    bgColor: "from-green-500/10 to-green-500/5",
+  },
+  {
+    id: ChallengeCategory.SOCIAL_SKILLS,
+    nameKey: "challenges.categories.socialSkills",
+    icon: Users,
+    color: "text-indigo-500",
+    borderColor: "border-indigo-500/30",
+    bgColor: "from-indigo-500/10 to-indigo-500/5",
+  },
+  {
+    id: ChallengeCategory.EMOTIONAL_AWARENESS,
+    nameKey: "challenges.categories.emotionalAwareness",
+    icon: Heart,
+    color: "text-rose-500",
+    borderColor: "border-rose-500/30",
+    bgColor: "from-rose-500/10 to-rose-500/5",
+  },
 ];
 
 export const getDifficultyLabel = (difficulty: ChallengeDifficulty, t: (key: string) => string): string => {
@@ -113,6 +146,9 @@ export const getCategoryKey = (category: string): string => {
     FOCUS_DISCIPLINE: "focusDiscipline",
     PERSONAL_DEVELOPMENT: "personalDevelopment",
     DRAWING_EXERCISES: "drawingExercises",
+    HEALTHY_HABITS: "healthyHabits",
+    SOCIAL_SKILLS: "socialSkills",
+    EMOTIONAL_AWARENESS: "emotionalAwareness",
   };
   return map[category] || category;
 };

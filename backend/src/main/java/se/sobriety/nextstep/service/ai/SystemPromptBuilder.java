@@ -1,9 +1,12 @@
 package se.sobriety.nextstep.service.ai;
 
 import org.springframework.stereotype.Component;
+import se.sobriety.nextstep.dto.StreakResponseDto;
 import se.sobriety.nextstep.entity.*;
 import se.sobriety.nextstep.repository.ChallengeRepository;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -24,7 +27,9 @@ public class SystemPromptBuilder {
      * Bygger komplett systemprompt för Claude baserat på användarens återhämtningskontext.
      */
     public String build(UserSettings settings, UserProgress progress, int completedChallenges,
-                        CoachPersonality personality, CrisisLevel currentCrisisLevel) {
+                        CoachPersonality personality, CrisisLevel currentCrisisLevel,
+                        DailyCheckIn todaysCheckIn, StreakResponseDto streakData,
+                        List<UserChallenge> recentCompletions) {
 
         StringBuilder prompt = new StringBuilder();
 
@@ -125,10 +130,68 @@ public class SystemPromptBuilder {
             prompt.append("- Vid akut fara: ring 112\n");
         }
 
+        // Dagens status — ger coachen kontext om vad användaren gjort idag
+        prompt.append(buildDailyStatus(todaysCheckIn, streakData, recentCompletions));
+
         // Tillgängliga challenges för rekommendationer
         prompt.append(buildChallengeCatalog());
 
         return prompt.toString();
+    }
+
+    /**
+     * Bygger en sektion med dagens aktiviteter så coachen kan referera till dem.
+     */
+    private String buildDailyStatus(DailyCheckIn todaysCheckIn, StreakResponseDto streakData,
+                                     List<UserChallenge> recentCompletions) {
+        StringBuilder status = new StringBuilder();
+        boolean hasContent = false;
+
+        if (todaysCheckIn != null) {
+            if (!hasContent) { status.append("\nDAGENS STATUS:\n"); hasContent = true; }
+            status.append("- Användaren har checkat in idag med humör: ")
+                    .append(todaysCheckIn.getMoodScore()).append("/5");
+            if (todaysCheckIn.getMoodScore() <= 2) {
+                status.append(" (lågt — var extra empatisk)");
+            } else if (todaysCheckIn.getMoodScore() >= 4) {
+                status.append(" (bra dag!)");
+            }
+            status.append("\n");
+            if (todaysCheckIn.getNote() != null && !todaysCheckIn.getNote().isBlank()) {
+                status.append("- Anteckning vid incheckning: \"").append(todaysCheckIn.getNote()).append("\"\n");
+            }
+        }
+
+        if (streakData != null && streakData.streakActive()) {
+            if (!hasContent) { status.append("\nDAGENS STATUS:\n"); hasContent = true; }
+            status.append("- Aktiv streak: ").append(streakData.currentStreak()).append(" dagar i rad");
+            if (streakData.currentStreak() >= 7) {
+                status.append(" — fira detta!");
+            }
+            status.append("\n");
+            if (streakData.longestStreak() > streakData.currentStreak()) {
+                status.append("- Längsta streak: ").append(streakData.longestStreak()).append(" dagar\n");
+            }
+        }
+
+        if (recentCompletions != null && !recentCompletions.isEmpty()) {
+            if (!hasContent) { status.append("\nDAGENS STATUS:\n"); hasContent = true; }
+            status.append("- Nyligen genomförda utmaningar (senaste 7 dagarna):\n");
+            DateTimeFormatter fmt = DateTimeFormatter.ofPattern("d/M");
+            for (UserChallenge uc : recentCompletions) {
+                status.append("  * ").append(uc.getChallenge().getTitle());
+                if (uc.getCompletedAt() != null) {
+                    status.append(" (").append(uc.getCompletedAt().format(fmt)).append(")");
+                }
+                status.append("\n");
+            }
+        }
+
+        if (hasContent) {
+            status.append("Använd denna information naturligt — referera till den OM det passar, men tvinga inte in det.\n\n");
+        }
+
+        return status.toString();
     }
 
     /**

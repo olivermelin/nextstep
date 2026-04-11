@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import se.sobriety.nextstep.dto.*;
+import se.sobriety.nextstep.service.ActivityFeedService;
 import se.sobriety.nextstep.service.DuelService;
 import se.sobriety.nextstep.service.FriendshipService;
 import se.sobriety.nextstep.service.LeagueService;
@@ -24,6 +25,7 @@ public class SocialController {
     private final FriendshipService friendshipService;
     private final DuelService duelService;
     private final LeagueService leagueService;
+    private final ActivityFeedService activityFeedService;
 
     // ===================== VÄNNER =====================
 
@@ -138,6 +140,36 @@ public class SocialController {
     public ResponseEntity<LeagueEntryDto> getMyLeagueEntry(@RequestParam String userId) {
         SecurityUtils.verifyUserAccess(userId);
         return ResponseEntity.ok(leagueService.getUserLeagueEntry(userId));
+    }
+
+    // ===================== FLÖDE =====================
+
+    /** Hämta paginerat aktivitetsflöde från accepterade vänner */
+    @GetMapping("/feed")
+    public ResponseEntity<FeedPageDto> getFeed(
+            @RequestParam String userId,
+            @RequestParam(required = false) Long cursor) {
+        SecurityUtils.verifyUserAccess(userId);
+        return ResponseEntity.ok(activityFeedService.getFeed(userId, cursor));
+    }
+
+    /** Växla heja-reaktion på ett feed-inlägg */
+    @PostMapping("/feed/{itemId}/cheer")
+    public ResponseEntity<Map<String, Object>> toggleCheer(
+            @PathVariable Long itemId,
+            @RequestParam String userId) {
+        SecurityUtils.verifyUserAccess(userId);
+        return ResponseEntity.ok(activityFeedService.toggleCheer(userId, itemId));
+    }
+
+    /** Soft-radera ett eget feed-inlägg */
+    @DeleteMapping("/feed/{itemId}")
+    public ResponseEntity<Map<String, String>> deleteFeedItem(
+            @PathVariable Long itemId,
+            @RequestParam String userId) {
+        SecurityUtils.verifyUserAccess(userId);
+        activityFeedService.deleteFeedItem(userId, itemId);
+        return ResponseEntity.ok(Map.of("message", "Inlägg borttaget"));
     }
 
     // ===================== FELHANTERING =====================

@@ -31,11 +31,13 @@ public class CrisisDetectionService {
 
     // CRITICAL – direkta krisuttryck kring självmord, överdos, självskada
     private static final List<Pattern> CRITICAL_PATTERNS = List.of(
-            // "vill/tänker/planerar (att) ta livet av mig / döda mig / begå självmord"
-            Pattern.compile(FLAGS + WB_START + "(vill|tänker|planerar|ska|kommer)(?:\\s+att)?\\s+(ta\\s+livet|döda\\s+mig|begå\\s+självmord|avsluta\\s+allt)"),
+            // "vill/tänker/planerar (på att / att) ta livet av mig / döda mig / begå självmord"
+            Pattern.compile(FLAGS + WB_START + "(vill|tänker|planerar|ska|kommer)(?:\\s+(?:på\\s+)?att)?\\s+(ta\\s+livet|döda\\s+mig|begå\\s+självmord|avsluta\\s+allt)"),
             Pattern.compile(FLAGS + WB_START + "(självmord|suicid)" + WB_END),
             Pattern.compile(FLAGS + WB_START + "(överdos|overdose)" + WB_END),
-            Pattern.compile(FLAGS + WB_START + "(vill\\s+inte\\s+leva|orkar\\s+inte\\s+leva|vill\\s+dö|bättre\\s+utan\\s+mig)"),
+            // "vill dö" — men INTE i positiva sammanhang som "vill dö av lycka"
+            Pattern.compile(FLAGS + WB_START + "(vill\\s+inte\\s+leva|orkar\\s+inte\\s+leva|bättre\\s+utan\\s+mig)"),
+            Pattern.compile(FLAGS + "vill\\s+dö(?!\\s+av\\s+(?:lycka|glädje|skratt|framgång|kärlek))"),
             Pattern.compile(FLAGS + WB_START + "(tagit\\s+för\\s+mycket|tagit\\s+en\\s+överdos)"),
             Pattern.compile(FLAGS + WB_START + "(skära\\s+mig|skadar\\s+mig\\s+själv|självskada)" + WB_END),
             Pattern.compile(FLAGS + WB_START + "(ingen\\s+mening\\s+att\\s+leva)"),
@@ -44,8 +46,9 @@ public class CrisisDetectionService {
 
     // ELEVATED – återfall kombinerat med hopplöshetsmönster
     private static final List<Pattern> ELEVATED_PATTERNS = List.of(
-            Pattern.compile(FLAGS + WB_START + "(återfall|relaps|börjat\\s+dricka\\s+igen|tagit\\s+droger\\s+igen|börjat\\s+använda\\s+igen)"),
+            Pattern.compile(FLAGS + WB_START + "(återfall|relaps|börjat\\s+dricka\\s+igen|druckit\\s+igen|druckit|tagit\\s+droger\\s+igen|börjat\\s+använda\\s+igen|använda\\s+igen)"),
             Pattern.compile(FLAGS + WB_START + "(hopplös|ingen\\s+mening|ger\\s+upp|kan\\s+inte\\s+mer|klarar\\s+inte)"),
+            Pattern.compile(FLAGS + WB_START + "(meningslöst|(?:ingenting|inget)\\s+(?:känns|är|verkar)\\s+meningsfullt)"),
             Pattern.compile(FLAGS + WB_START + "(ensam|ingen\\s+bryr\\s+sig|ingen\\s+förstår)"),
             Pattern.compile(FLAGS + WB_START + "(panik|ångest\\s+attack|panikångest)" + WB_END),
             Pattern.compile(FLAGS + WB_START + "(sug\\s+efter|craving|måste\\s+ha|abstinens)" + WB_END)
@@ -58,7 +61,7 @@ public class CrisisDetectionService {
     );
 
     private static final List<Pattern> RELAPSE_PATTERNS = List.of(
-            Pattern.compile(FLAGS + WB_START + "(återfall|relaps|druckit|tagit\\s+droger|använt\\s+igen|börjat\\s+igen)")
+            Pattern.compile(FLAGS + WB_START + "(återfall|relaps|druckit|tagit\\s+droger|använt\\s+igen|använda\\s+igen|börjat\\s+igen|börjat\\s+använda\\s+igen)")
     );
 
     /**

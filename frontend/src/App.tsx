@@ -6,8 +6,10 @@ import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from
 import { AnimatePresence } from "framer-motion";
 import PageTransition from "@/components/PageTransition";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
-import { Settings as SettingsIcon } from "lucide-react";
+import { Settings as SettingsIcon, Phone, ShieldAlert } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import ErrorBoundary from "@/components/ErrorBoundary";
+import { CrisisProvider, useCrisis } from "@/context/CrisisContext";
 import { useTranslation } from "react-i18next";
 import Onboarding from "./pages/Onboarding";
 import Dashboard from "./pages/Dashboard";
@@ -27,6 +29,7 @@ const queryClient = new QueryClient();
 
 function AppContent() {
   const { user, loading, login, logout } = useAuth();
+  const { showCrisisBanner } = useCrisis();
   const { t } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
@@ -43,7 +46,7 @@ function AppContent() {
   }
 
   return (
-    <div className="flex flex-col h-screen">
+    <div className={`flex flex-col h-screen ${user ? 'bg-background' : ''}`}>
       {/* Header */}
       <header className="bg-card/70 backdrop-blur-xl border-b border-border/50 px-4 py-3 sticky top-0 z-40">
         <div className="max-w-4xl mx-auto flex justify-between items-center">
@@ -64,20 +67,38 @@ function AppContent() {
                   <p className="text-xs text-muted-foreground">{user.email}</p>
                 </div>
               </div>
-              <button
+              <Button
+                variant="ghost"
+                size="icon"
                 onClick={() => navigate('/settings')}
-                className="p-2 rounded-xl hover:bg-muted text-muted-foreground hover:text-foreground transition-all duration-200"
+                className="rounded-xl text-muted-foreground hover:text-foreground"
                 aria-label={t('navigation.settings')}
               >
                 <SettingsIcon className="w-5 h-5" />
-              </button>
+              </Button>
             </div>
           )}
         </div>
       </header>
 
+      {/* Global krisbanner — visas på alla sidor vid CRITICAL */}
+      {user && showCrisisBanner && (
+        <div className="bg-gradient-to-r from-red-600 to-red-500 text-white px-4 py-3 flex items-center gap-3 z-30">
+          <ShieldAlert className="w-5 h-5 flex-shrink-0" />
+          <div className="flex-1 text-sm font-medium">{t('aiCoach.crisisBanner')}</div>
+          <div className="flex gap-2 flex-shrink-0">
+            <a href="tel:112" className="inline-flex items-center gap-1 bg-white text-red-600 rounded-lg px-3 py-1.5 text-xs font-bold hover:bg-white/90 transition-colors shadow-sm">
+              <Phone className="w-3 h-3" /> 112
+            </a>
+            <a href="tel:90101" className="inline-flex items-center gap-1 bg-white/90 text-red-600 rounded-lg px-3 py-1.5 text-xs font-bold hover:bg-white transition-colors shadow-sm">
+              <Phone className="w-3 h-3" /> Mind: 90101
+            </a>
+          </div>
+        </div>
+      )}
+
       {/* Huvudinnehål */}
-      <main className="flex-1 min-h-0">
+      <main className="flex-1 overflow-y-auto overflow-x-hidden page-scroll-container outline-none flex flex-col bg-background">
         <AnimatePresence mode="wait">
         {user ? (
           // Redirecta till onboarding om inte slutförd
@@ -123,7 +144,9 @@ function App() {
         <TooltipProvider>
           <BrowserRouter>
             <AuthProvider>
-              <AppContent />
+              <CrisisProvider>
+                <AppContent />
+              </CrisisProvider>
             </AuthProvider>
           </BrowserRouter>
           <Toaster />

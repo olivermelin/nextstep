@@ -1,0 +1,23 @@
+# Testmiljö — överskriver main application.yaml
+# Flyway inaktiveras; H2 hanterar schema via ddl-auto: create-drop
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+  flyway:
+    enabled: false
+
+ai:
+  coach:
+    enabled: false
+    anthropic-api-key: test-key
+    use-groq: false
+    groq-api-key: test-key

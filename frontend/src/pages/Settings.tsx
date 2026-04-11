@@ -1,15 +1,18 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
-import { Bell, User, Palette, LogOut, Settings as SettingsIcon, Bot, Trash2, AlertTriangle } from "lucide-react";
+import { Bell, User, Palette, LogOut, Settings as SettingsIcon, Bot, Trash2, AlertTriangle, Download } from "lucide-react";
 import { SettingsPageSkeleton } from "@/components/skeletons/SettingsSkeleton";
 import { useAuth } from "@/context/AuthContext";
-import { API_ENDPOINTS } from "@/config/api";
-import { useTranslation } from "react-i18next";
+import { API_ENDPOINTS, fetchWithCredentials } from "@/config/api";
+import { useTranslation, Trans } from "react-i18next";
 import CoachPersonaSelector, { type CoachPersonality } from "@/components/CoachPersonaSelector";
+
+type FeedItemType = "CHALLENGE_COMPLETED" | "STREAK_MILESTONE" | "LEVEL_UP" | "DUEL_WON";
 
 interface UserSettings {
   name: string;
@@ -20,6 +23,8 @@ interface UserSettings {
   darkModeEnabled: boolean;
   language: "sv" | "en";
   coachPersonality: CoachPersonality;
+  feedSharingEnabled: boolean;
+  feedSharedTypes: FeedItemType[];
 }
 
 const Settings = () => {
@@ -30,6 +35,7 @@ const Settings = () => {
   const [loading, setLoading] = useState(true);
   const hasFetched = useRef(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [exportLoading, setExportLoading] = useState(false);
   const [deleteConfirmText, setDeleteConfirmText] = useState("");
   const [deleting, setDeleting] = useState(false);
 
@@ -83,6 +89,8 @@ const Settings = () => {
             darkModeEnabled: darkMode,
             language: lang,
             coachPersonality: data.coachPersonality ?? "SUPPORTIVE",
+            feedSharingEnabled: data.feedSharingEnabled ?? false,
+            feedSharedTypes: data.feedSharedTypes ?? [],
           });
           applyTheme(darkMode);
           // Synka i18n-språk med backend-värdet (single source of truth)
@@ -102,6 +110,8 @@ const Settings = () => {
             darkModeEnabled: isDark,
             language: "sv" as const,
             coachPersonality: "SUPPORTIVE",
+            feedSharingEnabled: false,
+            feedSharedTypes: [],
           });
         }
       } catch {
@@ -125,12 +135,8 @@ const Settings = () => {
     const userId = user.email || user.id;
 
     try {
-      const res = await fetch(API_ENDPOINTS.SETTINGS.UPDATE_USER_SETTINGS(userId), {
+      await fetchWithCredentials(API_ENDPOINTS.SETTINGS.UPDATE_USER_SETTINGS(userId), {
         method: "POST",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify({
           userId: user.id,
           name: settings.name,
@@ -141,12 +147,10 @@ const Settings = () => {
           darkModeEnabled: settings.darkModeEnabled,
           language: settings.language,
           coachPersonality: settings.coachPersonality,
+          feedSharingEnabled: settings.feedSharingEnabled,
+          feedSharedTypes: settings.feedSharedTypes,
         }),
       });
-
-      if (!res.ok) {
-        throw new Error(`HTTP error! status: ${res.status}`);
-      }
 
       // Applicera språkbyte efter lyckad sparning
       if (i18n.language !== settings.language) {
@@ -170,23 +174,15 @@ const Settings = () => {
   // Logga ut
   const handleLogout = async () => {
     try {
-      const res = await fetch(API_ENDPOINTS.AUTH.LOGOUT, {
-        method: "POST",
-        credentials: "include",
+      await fetchWithCredentials(API_ENDPOINTS.AUTH.LOGOUT, { method: "POST" });
+      localStorage.removeItem("userPoints");
+      localStorage.removeItem("userLevel");
+      localStorage.removeItem("theme");
+      toast({
+        title: t('auth.loggedOut'),
+        description: t('auth.loggedOutDesc'),
       });
-
-      if (res.ok) {
-        localStorage.removeItem("userPoints");
-        localStorage.removeItem("userLevel");
-        localStorage.removeItem("theme");
-        toast({
-          title: t('auth.loggedOut'),
-          description: t('auth.loggedOutDesc'),
-        });
-        window.location.href = "/";
-      } else {
-        throw new Error("Logout failed");
-      }
+      window.location.href = "/";
     } catch {
       toast({
         title: t('auth.logoutError'),
@@ -201,16 +197,9 @@ const Settings = () => {
     if (!user || deleting) return;
     setDeleting(true);
     try {
-      const res = await fetch(API_ENDPOINTS.AUTH.DELETE_ACCOUNT, {
-        method: "DELETE",
-        credentials: "include",
-      });
-      if (res.ok) {
-        localStorage.clear();
-        window.location.href = "/login";
-      } else {
-        throw new Error("Delete failed");
-      }
+      await fetchWithCredentials(API_ENDPOINTS.AUTH.DELETE_ACCOUNT, { method: "DELETE" });
+      localStorage.clear();
+      window.location.href = "/login";
     } catch {
       toast({
         title: t('settings.deleteError'),
@@ -236,7 +225,7 @@ const Settings = () => {
   }
 
   return (
-    <div className="min-h-full bg-gradient-to-br from-background via-background to-primary/5 relative">
+    <div className="min-h-full bg-gradient-to-br from-background via-background to-primary/5 relative pb-28">
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div
@@ -426,19 +415,118 @@ const Settings = () => {
 
         {/* Sparaknapp & Logout */}
         <div className="space-y-3 pt-1">
-          <button
+          <Button
             onClick={handleSave}
-            className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-primary to-primary/80 text-primary-foreground font-semibold text-sm shadow-lg hover:shadow-xl hover:scale-[1.01] active:scale-[0.99] transition-all duration-200"
+            className="h-auto w-full py-3.5 rounded-2xl bg-gradient-to-r from-primary to-primary/80 text-primary-foreground font-semibold text-sm shadow-lg hover:shadow-xl hover:scale-[1.01] active:scale-[0.99] transition-all duration-200"
           >
             {t('common.save')}
-          </button>
-          <button
+          </Button>
+          <Button
+            variant="outline"
             onClick={handleLogout}
-            className="w-full flex items-center justify-center gap-2 py-3.5 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-400 font-semibold text-sm hover:bg-red-500/20 hover:border-red-500/30 active:scale-[0.99] transition-all duration-200"
+            className="h-auto w-full flex items-center justify-center gap-2 py-3.5 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-400 font-semibold text-sm hover:bg-red-500/20 hover:border-red-500/30 active:scale-[0.99] transition-all duration-200"
           >
             <LogOut className="w-4 h-4" />
             {t('auth.logout')}
-          </button>
+          </Button>
+        </div>
+
+        {/* Feed-delningsinställningar */}
+        <div className="bg-card border border-border/50 rounded-2xl p-5 space-y-4">
+          <div className="flex items-start gap-3">
+            <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+              <Bell className="w-4 h-4 text-primary" />
+            </div>
+            <div className="flex-1">
+              <h2 className="text-base font-semibold text-foreground">{t("feed.sharingSettings")}</h2>
+              <p className="text-xs text-muted-foreground mt-0.5">{t("feed.enableSharingDesc")}</p>
+            </div>
+          </div>
+
+          {/* Master-toggle */}
+          <div className="flex items-center justify-between">
+            <Label htmlFor="feed-sharing" className="text-sm">{t("feed.enableSharing")}</Label>
+            <Switch
+              id="feed-sharing"
+              checked={settings.feedSharingEnabled}
+              onCheckedChange={(checked) =>
+                setSettings({ ...settings, feedSharingEnabled: checked })
+              }
+            />
+          </div>
+
+          {/* Per-typ val (visas bara när master-toggle är på) */}
+          {settings.feedSharingEnabled && (
+            <div className="space-y-2 pl-1 border-l-2 border-primary/20 ml-1">
+              {(["CHALLENGE_COMPLETED", "STREAK_MILESTONE", "LEVEL_UP", "DUEL_WON"] as FeedItemType[]).map((type) => {
+                const checked = settings.feedSharedTypes.includes(type);
+                return (
+                  <div key={type} className="flex items-center gap-3">
+                    <input
+                      type="checkbox"
+                      id={`feed-type-${type}`}
+                      checked={checked}
+                      onChange={(e) => {
+                        const next = e.target.checked
+                          ? [...settings.feedSharedTypes, type]
+                          : settings.feedSharedTypes.filter((t) => t !== type);
+                        setSettings({ ...settings, feedSharedTypes: next });
+                      }}
+                      className="w-4 h-4 accent-primary rounded"
+                    />
+                    <Label htmlFor={`feed-type-${type}`} className="text-sm font-normal cursor-pointer">
+                      {t(`feed.shareTypes.${type}`)}
+                    </Label>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
+        {/* GDPR — Exportera min data */}
+        <div className="bg-card border border-border/50 rounded-2xl p-5 space-y-3 text-left">
+          <div className="flex items-start gap-3">
+            <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+              <Download className="w-4 h-4 text-primary" />
+            </div>
+            <div>
+              <h2 className="text-base font-semibold text-foreground">{t('settings.exportData', { defaultValue: 'Exportera mina uppgifter' })}</h2>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                {t('settings.exportDataDesc', { defaultValue: 'Ladda ner all din data som en JSON-fil (GDPR Artikel 20).' })}
+              </p>
+            </div>
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={exportLoading}
+            onClick={async () => {
+              if (!user?.email && !user?.id) return;
+              const userId = user.email || user.id;
+              setExportLoading(true);
+              try {
+                const res = await fetch(`/api/settings/${encodeURIComponent(userId)}/export`, { credentials: "include" });
+                const blob = await res.blob();
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = "nextstep-data.json";
+                a.click();
+                URL.revokeObjectURL(url);
+              } catch {
+                toast({ title: t('settings.exportError', { defaultValue: 'Kunde inte exportera data' }), variant: "destructive" });
+              } finally {
+                setExportLoading(false);
+              }
+            }}
+            className="gap-2"
+          >
+            <Download className="w-3.5 h-3.5" />
+            {exportLoading
+              ? t('common.loading')
+              : t('settings.exportDataButton', { defaultValue: 'Ladda ner min data' })}
+          </Button>
         </div>
 
         {/* Radera konto */}
@@ -456,39 +544,43 @@ const Settings = () => {
           </div>
 
           {!showDeleteConfirm ? (
-            <button
+            <Button
+              variant="outline"
               onClick={() => setShowDeleteConfirm(true)}
-              className="w-full py-3 rounded-xl border border-red-300/60 dark:border-red-700/40 text-red-600 dark:text-red-400 text-sm font-medium hover:bg-red-100/60 dark:hover:bg-red-900/30 transition-all duration-200"
+              className="h-auto w-full py-3 rounded-xl border-red-300/60 dark:border-red-700/40 text-red-600 dark:text-red-400 text-sm font-medium hover:bg-red-100/60 dark:hover:bg-red-900/30 transition-all duration-200"
             >
               {t('settings.deleteAccountButton')}
-            </button>
+            </Button>
           ) : (
             <div className="space-y-3 animate-in fade-in duration-200">
               <div className="flex items-center gap-2 text-xs text-red-700 dark:text-red-400 bg-red-100/60 dark:bg-red-900/30 rounded-xl p-3">
                 <AlertTriangle className="w-4 h-4 flex-shrink-0" />
-                <span dangerouslySetInnerHTML={{ __html: t('settings.deleteConfirmPrompt') }} />
+                <Trans i18nKey="settings.deleteConfirmPrompt" components={{ strong: <strong /> }} />
               </div>
-              <input
+              <Input
                 type="text"
+                autoFocus
+                aria-label={t('settings.deleteConfirmPlaceholder')}
                 value={deleteConfirmText}
                 onChange={(e) => setDeleteConfirmText(e.target.value)}
                 placeholder={t('settings.deleteConfirmPlaceholder')}
-                className="w-full px-4 py-2.5 rounded-xl border border-red-300/60 dark:border-red-700/40 bg-background/50 text-sm focus:outline-none focus:ring-2 focus:ring-red-400/40 text-foreground placeholder:text-muted-foreground"
+                className="rounded-xl border-red-300/60 dark:border-red-700/40 bg-background/50 focus:ring-red-400/40"
               />
               <div className="flex gap-2">
-                <button
+                <Button
+                  variant="outline"
                   onClick={() => { setShowDeleteConfirm(false); setDeleteConfirmText(""); }}
-                  className="flex-1 py-2.5 rounded-xl border border-border/50 text-sm font-medium hover:bg-muted transition-colors"
+                  className="h-auto flex-1 py-2.5 rounded-xl text-sm font-medium"
                 >
                   {t('settings.deleteCancelButton')}
-                </button>
-                <button
+                </Button>
+                <Button
                   onClick={handleDeleteAccount}
                   disabled={deleteConfirmText.toLowerCase() !== t('settings.deleteConfirmPlaceholder').toLowerCase() || deleting}
-                  className="flex-1 py-2.5 rounded-xl bg-red-600 text-white text-sm font-semibold disabled:opacity-40 disabled:cursor-not-allowed hover:bg-red-700 active:scale-[0.99] transition-all duration-200"
+                  className="h-auto flex-1 py-2.5 rounded-xl bg-red-600 text-white text-sm font-semibold hover:bg-red-700 active:scale-[0.99] transition-all duration-200"
                 >
                   {deleting ? t('settings.deleting') : t('settings.deleteConfirmButton')}
-                </button>
+                </Button>
               </div>
             </div>
           )}
