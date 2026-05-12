@@ -15,6 +15,7 @@ NextStep är en AI-driven plattform som stöder människor i återhämtning och 
 - [Säkerhet & GDPR](#säkerhet--gdpr)
 - [Testning](#testning)
 - [Deployment](#deployment)
+- [Agent Team (AI-assisterad utveckling)](#agent-team-ai-assisterad-utveckling)
 
 ---
 
@@ -321,6 +322,52 @@ npm run build
 
 ---
 
+## Agent Team (AI-assisterad utveckling)
+
+NextStep använder ett strukturerat **agent-team-arbetsflöde** med Claude Code. Alla större beslut och features går genom en sekvens av specialiserade roller innan implementation. Konfigurationen finns i [`CLAUDE.md`](./CLAUDE.md).
+
+### Rollerna
+
+| Agent | Ansvar | Frågar alltid |
+|---|---|---|
+| 🏗️ `architect` | Tekniska beslut, hållbarhet, skalbarhet | "Är detta hållbart på sikt?" |
+| 🔒 `security` | GDPR, dataintegritet, krishantering (**vetorätt**) | "Vad händer om denna data läcker?" |
+| 👨‍💻 `developer` | Implementation enligt befintliga mönster | "Följer detta projektets befintliga mönster?" |
+| 🧪 `tester` | Testkvalitet, krisdetekteringsprecision | "Vad händer om detta fallerar i produktion?" |
+| 🎨 `ui` | Användarupplevelse, tillgänglighet, SOS-flöde | "Hur känns detta för en användare i ett svårt ögonblick?" |
+| 📋 `team-lead` | Orkestrerar teamet, sammanfattar konsensus | — |
+
+### Standardflöde vid nya features
+
+```
+architect → security → developer → tester → ui → team-lead
+```
+
+Inga features implementeras utan godkännande från `security` och `tester`. Vid oenighet lyfts beslutet till Oliver.
+
+### Snabbkommandon
+
+```
+@architect + @security: Granskar ni [feature/beslut]?
+@tester: Skriv tester för [komponent/service]
+@ui: Granska detta flöde ur ett krisanvändarperspektiv
+Hela teamet: Diskutera och rekommendera approach för [fråga]
+```
+
+### Kritiska regler som ALLA agenter följer
+
+1. `CrisisDetectionService` körs **alltid** före varje Claude API-anrop
+2. Inga råa API-nycklar i kod, commits eller loggar
+3. Känslig hälsodata krypteras — aldrig i klartext
+4. All användartext och systempromptar på svenska
+5. Coachen diagnosticerar aldrig, föreskriver aldrig — hänvisar alltid till proffs
+6. Vid CRITICAL-nivå: fördefinierat säkerhetssvar med Mind 90101 — inget LLM-anrop
+7. GDPR: alla endpoints med persondata stödjer radering och export
+
+> Se [`CLAUDE.md`](./CLAUDE.md) för fullständig konfiguration, projektstruktur och öppna beslutspunkter.
+
+---
+
 ## Licens
 
-Privat projekt — © Oliver Melin. Ej för distribution utan tillstånd.
+Privat projekt — © Oliver Melin. All rights reserved. Ej för distribution, kopiering eller modifiering utan skriftligt tillstånd.
