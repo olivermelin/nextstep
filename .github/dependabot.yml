@@ -15,6 +15,15 @@ updates:
       - "backend"
     commit-message:
       prefix: "chore(deps)"
+    # Samla alla patch- och minor-bumpar i EN PR istället för en per beroende.
+    # Major-uppdateringar hamnar kvar som separata PR:er och granskas manuellt.
+    groups:
+      backend-minor-patch:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
 
   # Frontend – npm
   - package-ecosystem: "npm"
@@ -30,6 +39,20 @@ updates:
       - "frontend"
     commit-message:
       prefix: "chore(deps)"
+    groups:
+      # Radix UI släpper ofta många paket samtidigt – egen grupp
+      radix-ui:
+        patterns:
+          - "@radix-ui/*"
+        update-types:
+          - "minor"
+          - "patch"
+      frontend-minor-patch:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
     ignore:
       # Håll React 18 tills React 19 är stabilt i ekosystemet
       - dependency-name: "react"
@@ -47,3 +70,10 @@ updates:
       - "ci"
     commit-message:
       prefix: "chore(ci)"
+    groups:
+      github-actions:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"

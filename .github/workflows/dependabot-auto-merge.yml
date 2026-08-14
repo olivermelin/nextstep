@@ -1,0 +1,52 @@
+name: Dependabot auto-merge
+
+# Aktiverar GitHubs inbyggda auto-merge för Dependabot-PR:er med patch- och
+# minor-uppdateringar. Auto-merge betyder att GitHub mergar FÖRST när alla
+# required checks i branch protection är gröna – aldrig direkt.
+#
+# Major-uppdateringar mergas aldrig automatiskt utan får en kommentar och
+# väntar på manuell granskning.
+
+on: pull_request_target
+
+# pull_request_target ger skrivrättigheter i base-repots kontext.
+# SÄKERHET: checka ALDRIG ut PR-branchens kod i detta workflow och kör aldrig
+# npm/mvn-scripts härifrån – då kan en PR köra godtycklig kod med dessa
+# rättigheter. Jobbet nedan rör bara metadata och gh CLI.
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  auto-merge:
+    name: Utvärdera och aktivera auto-merge
+    runs-on: ubuntu-latest
+    # Kör bara för PR:er skapade av Dependabot
+    if: github.event.pull_request.user.login == 'dependabot[bot]'
+
+    steps:
+      - name: Hämta Dependabot-metadata
+        id: meta
+        uses: dependabot/fetch-metadata@v2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Aktivera auto-merge (patch och minor)
+        if: |
+          steps.meta.outputs.update-type == 'version-update:semver-patch' ||
+          steps.meta.outputs.update-type == 'version-update:semver-minor'
+        run: gh pr merge --auto --squash "$PR_URL"
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Flagga major-uppdatering för manuell granskning
+        if: steps.meta.outputs.update-type == 'version-update:semver-major'
+        run: |
+          # Label sätts bara om den finns i repot – misslyckas inte jobbet annars
+          gh pr edit "$PR_URL" --add-label "needs-manual-review" || true
+          gh pr comment "$PR_URL" --body \
+            "Major-uppdatering av \`${{ steps.meta.outputs.dependency-names }}\` – mergas inte automatiskt. Kontrollera release notes för brytande ändringar innan merge."
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
