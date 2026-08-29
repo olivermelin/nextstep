@@ -26,7 +26,7 @@ jobs:
         continue-on-error: true # Spara rapport även om sårbarhet hittas
 
       - name: Upload rapport
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: owasp-report
           path: backend/target/dependency-check-report/
@@ -59,7 +59,7 @@ jobs:
         run: npm audit --json > npm-audit-report.json || true
 
       - name: Upload rapport
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: npm-audit-report
           path: frontend/npm-audit-report.json
